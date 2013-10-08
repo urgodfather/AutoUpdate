@@ -594,11 +594,8 @@ def LIST(mname,murl):
         text = main.OPENURL(murl)
     else:
         f = open(murl)
-        text = f.readlines()
-    text=str(text)
-    text=text.replace(",","").replace("'","").replace("\\","").replace(">n <","><")
-    print text
-    match=re.compile('<title>(.+?)</title><link>(.+?)</link><thumbnail>(.+?)</thumbnail>').findall(text)
+        text = f.read()
+    match=re.compile('<title>([^<]+)</title.+?link>(.+?)</link.+?thumbnail>([^<]+)</thumbnail>',re.DOTALL).findall(text)
     for name,url,thumb in match:
         if '</sublink>' in url:
             main.addDirMs(name,url,266,thumb,'','','','','')
