@@ -30,14 +30,110 @@ def _html(url):
     """Downloads the resource at the given url and parses via BeautifulSoup"""
     return BeautifulSoup(main.OPENURL(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
 
+def _parse_channels_from_html_dom(html):
+    items = []
 
+    link = main.OPENURL(html)
+    match=re.compile('''onclick="go_c2.?'(.+?)','.+?" ><font style=.+?<img onerror=".+?" src="(.+?)" height=.+?><font style=".+?"> <span id=channel_.+?">(.+?)</span>''',re.DOTALL).findall(link)
+    for url,thumb, name in match:
+        items.append({
+            'title': name,
+            'thumbnail': thumb,
+            'path': url
+        })
+    items.append({
+            'title': 'MBC 3',
+            'thumbnail': 'https://upload.wikimedia.org/wikipedia/ar/c/c8/Mbc_3_logo_not_2_1_4_action-%D8%B5%D9%88%D8%B1%D8%A9-file.jpg',
+            'path': 'mbc_3'})
+    items.append({
+            'title': 'MBC',
+            'thumbnail': 'https://si0.twimg.com/profile_images/1133033554/mbc-fb.JPG',
+            'path': 'mbc_1'})
+    items.append({
+            'title': 'MBC 2',
+            'thumbnail': 'https://si0.twimg.com/profile_images/2325153399/glxj6ox08i7xhuwfop44.jpeg',
+            'path': 'mbc_2'})
+    items.append({
+            'title': 'MBC 4',
+            'thumbnail': 'https://si0.twimg.com/profile_images/1133002857/mbc4.jpg',
+            'path': 'mbc_4'})
+    items.append({
+            'title': 'JSC +1',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_1'})
+    items.append({
+            'title': 'JSC +2',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_2'})
+    items.append({
+            'title': 'JSC +3',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_3'})
+    items.append({
+            'title': 'JSC +4',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_4'})
+    items.append({
+            'title': 'JSC +5',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_5'})
+    items.append({
+            'title': 'JSC +6',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_6'})
+    items.append({
+            'title': 'JSC +7',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_7'})
+    items.append({
+            'title': 'JSC +8',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_8'})
+    items.append({
+            'title': 'JSC +9',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_9'})
+    items.append({
+            'title': 'JSC +10',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'jsc_10'})
+    items.append({
+            'title': 'Abu Dhabi Al Oula',
+            'thumbnail': 'https://www.zawya.com/pr/images/2009/ADTV_One_RGB_2009_10_08.jpg',
+            'path': 'abu_dhabi'})
+    items.append({
+            'title': 'Abu Dhabi Sports',
+            'thumbnail': 'https://si0.twimg.com/profile_images/2485587448/2121.png',
+            'path': 'abu_dhabi_sports_1'})
+    items.append({
+            'title': 'Al Jazeera',
+            'thumbnail': 'http://www.chicagonow.com/chicago-sports-media-watch/files/2013/04/Al-Jazeera.jpg',
+            'path': 'aljazeera'})
+    items.append({
+            'title': 'JAl Jazeera Sport 1',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'aljazeera_sport_1'})
+    items.append({
+            'title': 'Al Jazeera Sport 2',
+            'thumbnail': 'http://nowwatchtvlive.com/wp-content/uploads/2011/07/AljazeeraSport-264x300.jpg',
+            'path': 'aljazeera_sport_2'})
+    items.append({
+            'title': 'Al Jazeera Mubasher Masr',
+            'thumbnail': 'http://www.chicagonow.com/chicago-sports-media-watch/files/2013/04/Al-Jazeera.jpg',
+            'path': 'aljazeera_mubasher_masr'})
+    items.append({
+            'title': 'Al Jazeera Children',
+            'thumbnail': 'http://www.chicagonow.com/chicago-sports-media-watch/files/2013/04/Al-Jazeera.jpg',
+            'path': 'aljazeera_children'})
+    
+    return items
 
 def MAIN():
     main.GA("Live","ArabicStreams")
-    link = main.OPENURL('http://www.teledunet.com/')
-    match=re.compile('''onclick="go_c2.?'(.+?)','.+?" ><font style=.+?<img onerror=".+?" src="(.+?)" height=.+?><font style=".+?"> <span id=channel_.+?">(.+?)</span>''',re.DOTALL).findall(link)
-    for url,thumb, name in match:
-        main.addPlayL(name,url,232,thumb,'','','','','')
+    html = _html('http://www.teledunet.com/')
+    items = _parse_channels_from_html_dom(html)
+    for channels in sorted(items):
+        main.addPlayL(channels['title'],channels['path'],232,channels['thumbnail'],'','','','','')
         
 
 def _get_channel_time_player(channel_name):
@@ -77,6 +173,5 @@ def LINK(mname,url,thumb):
         if selfAddon.getSetting("whistory") == "true":
             wh.add_item(mname+' '+'[COLOR green]ArabicStreams[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
         return ok
-
 
 

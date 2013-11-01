@@ -1,30 +1,18 @@
-import urllib,urllib2,re,string,sys,os
+import urllib,re,string,sys,os
 import xbmc, xbmcgui, xbmcaddon, xbmcplugin
-import resolvers
-from t0mm0.common.addon import Addon
-from t0mm0.common.net import Net as net
-from metahandler import metahandlers
-import datetime,time,threading
-from xgoogle.search import GoogleSearch, SearchError
-try:
-    import Queue as queue
-except ImportError:
-    import queue
+import time,threading
 #Mash Up - by Mash2k3 2012.
 
 Mainurl ='http://www.movie25.com/movies/'
 addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 mashpath = selfAddon.getAddonInfo('path')
-addon = Addon(addon_id)
-grab = metahandlers.MetaData(preparezip = False)
+grab = None
+fav = False
 Dir = xbmc.translatePath(os.path.join('special://home/addons/plugin.video.movie25', ''))
 repopath = xbmc.translatePath(os.path.join('special://home/addons/repository.mash2k3', ''))
 
-from universal import favorites
-fav = favorites.Favorites(addon_id, sys.argv)
-
-datapath = addon.get_profile()
+datapath = xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 if selfAddon.getSetting('visitor_ga')=='':
     from random import randint
     selfAddon.setSetting('visitor_ga',str(randint(0, 0x7fffffff)))
@@ -56,6 +44,7 @@ elogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources
 slogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/smallicon.png')
 
 def OPENURL(url, mobile = False, q = False, verbose = True):
+    import urllib2 
     UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
     try:
         print "MU-Openurl = " + url
@@ -68,7 +57,7 @@ def OPENURL(url, mobile = False, q = False, verbose = True):
         link=response.read()
         response.close()
         #link = net(UserAgent).http_GET(url).content
-        link=link.replace('&#39;',"'").replace('&quot;','"').replace('&amp;',"&").replace("&#39;","'").replace('&lt;i&gt;','').replace("#8211;","-").replace('&lt;/i&gt;','').replace("&#8217;","'").replace('&amp;quot;','"').replace('&#215;','').replace('&#038;','&').replace('&#8216;','').replace('&#8211;','').replace('&#8220;','').replace('&#8221;','').replace('&#8212;','')
+        link=link.replace('&#39;',"'").replace('&quot;','"').replace('&amp;',"&").replace("&#39;","'").replace('&lt;i&gt;','').replace("#8211;","-").replace('&lt;/i&gt;','').replace("&#8217;","'").replace('&amp;quot;','"').replace('&#215;','x').replace('&#038;','&').replace('&#8216;','').replace('&#8211;','').replace('&#8220;','').replace('&#8221;','').replace('&#8212;','')
         link=link.replace('%3A',':').replace('%2F','/')
         if q: q.put(link)
         return link
@@ -80,6 +69,10 @@ def OPENURL(url, mobile = False, q = False, verbose = True):
         return link
     
 def batchOPENURL(urls, mobile = False):
+    try:
+        import Queue as queue
+    except ImportError:
+        import queue
     max = len(urls)
     results = []
     for url in urls: 
@@ -92,6 +85,7 @@ def batchOPENURL(urls, mobile = False):
     return content
 
 def OPENURL2(url):
+    from t0mm0.common.net import Net as net
     UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
     try:
         print "MU-Openurl = " + url
@@ -103,6 +97,7 @@ def OPENURL2(url):
         return link
         
 def REDIRECT(url):
+        import urllib2
         req = urllib2.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
         response = urllib2.urlopen(req)
@@ -111,6 +106,19 @@ def REDIRECT(url):
 
 def Clearhistory(url):
         os.remove(url)
+    
+def setGrab():
+    global grab
+    if grab is None:
+        from metahandler import metahandlers
+        grab = metahandlers.MetaData()
+        
+def getFav():
+    global fav
+    if not fav:
+        from universal import favorites
+        fav = favorites.Favorites(addon_id, sys.argv)
+    return fav
 
 def unescapes(text):
         try:
@@ -127,11 +135,10 @@ def unescapes(text):
         return text
 
 def removeColorTags(text):
-        return re.sub('\[COLOR[^\]]{,15}\]','',text.replace("[/COLOR]", ""),re.I)
+        return re.sub('\[COLOR[^\]]{,15}\]','',text.replace("[/COLOR]", ""),re.I|re.DOTALL).strip()
     
 def removeColoredText(text):
-        return re.sub('\[COLOR.*?\[/COLOR\]','',text,re.I)
-    
+        return re.sub('\[COLOR.*?\[/COLOR\]','',text,re.I|re.DOTALL).strip()
 
 def SwitchUp():
         if selfAddon.getSetting("switchup") == "false":
@@ -143,10 +150,36 @@ def SwitchUp():
 def ErrorReport(e):
         elogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/bigx.png')
         xbmc.executebuiltin("XBMC.Notification([COLOR=FF67cc33]Mash Up Error[/COLOR],"+str(e)+",10000,"+elogo+")")
-        xbmc.log('***********Mash Up Error: '+str(e)+'**************')
+        xbmc.log('***********Mash Up Error: '+str(e)+'**************', xbmc.LOGERROR)
         
 def CloseAllDialogs():
         xbmc.executebuiltin("XBMC.Dialog.Close(all,true)")
+        
+def ClearDir(dir):
+    for the_file in os.listdir(dir):
+        file_path = os.path.join(dir, the_file)
+        try:os.unlink(file_path)
+        except Exception, e: print str(e)
+        
+def getFileName(file):
+    return re.sub('.*?([\w-]+)\.[^\.]+$','\\1',file)   
+     
+def getFile(path):
+    content = None
+    if os.path.exists(path):
+        try: content = open(path).read()
+        except: pass
+    return content
+   
+def setFile(path,content):
+    if os.path.exists(path):
+        return False
+    else:
+        try:
+            open(path,'w+').write(content)
+            return True
+        except: pass
+    return False 
 ################################################################################ Notifications #########################################################################################################
 
 def CheckVersion():
@@ -239,9 +272,10 @@ def formatCast(cast):
             roles =  roles + "[COLOR blue]" + role[0] + "[/COLOR] as " + role[1] + " | "
         return roles
 
-def GETMETAT(mname,genre,fan,thumb):
+def GETMETAT(mname,genre,fan,thumb,plot=''):
         originalName=mname
         if selfAddon.getSetting("meta-view") == "true":
+                setGrab()
                 mname = re.sub(r'\[COLOR red\]\(?(\d{4})\)?\[/COLOR\]',r'\1',mname)
                 mname = removeColoredText(mname)
                 mname = mname.replace(' EXTENDED and UNRATED','').replace('Webrip','').replace('MaxPowers','').replace('720p','').replace('1080p','').replace('TS','').replace('HD','').replace('R6','').replace('H.M.','').replace('HackerMil','').replace('(','').replace(')','').replace('[','').replace(']','')
@@ -289,8 +323,10 @@ def GETMETAT(mname,genre,fan,thumb):
                 #    infoLabels['year']=year 
                 infoLabels['metaName']=infoLabels['title']
                 infoLabels['title']=originalName
-
-                infoLabels['plot'] = infoLabels['plot'] + formatCast(infoLabels['cast'])
+                if infoLabels['plot']=='':
+                    infoLabels['plot']=plot
+                else:
+                    infoLabels['plot'] = infoLabels['plot'] + formatCast(infoLabels['cast'])
         else:
                 if thumb=='':
                     thumb=art+'/vidicon.png'
@@ -304,9 +340,10 @@ def GETMETAT(mname,genre,fan,thumb):
 ################################################################################ TV Shows Metahandler ##########################################################################################################
 
 def GETMETAEpiT(mname,thumb,desc):
-        originalName=mname
         mname = removeColoredText(mname)
+        originalName=mname
         if selfAddon.getSetting("meta-view-tv") == "true":
+                setGrab()
                 mname = mname.replace('New Episode','').replace('Main Event','').replace('New Episodes','')
                 mname = mname.strip()
                 r = re.findall('(.+?)\ss(\d+)e(\d+)\s',mname + " ",re.I)
@@ -387,17 +424,20 @@ def GETMETAEpiT(mname,thumb,desc):
 ############################################################################### Playback resume/ mark as watched #################################################################################
 
 def WatchedCallback():
-        addon.log('Video completely watched.')
+        xbmc.log('%s: %s' % (selfAddon.addon.getAddonInfo('name'), 'Video completely watched.'), xbmc.LOGNOTICE)
         videotype='movies'
+        setGrab()
         grab.change_watched(videotype, name, iconimage, season='', episode='', year='', watched=7)
         xbmc.executebuiltin("XBMC.Container.Refresh")
 
 def WatchedCallbackwithParams(video_type, title, imdb_id, season, episode, year):
     print "worked"
+    setGrab()
     grab.change_watched(video_type, title, imdb_id, season=season, episode=episode, year=year, watched=7)
     xbmc.executebuiltin("XBMC.Container.Refresh")
 
 def ChangeWatched(imdb_id, videoType, name, season, episode, year='', watched='', refresh=False):
+        setGrab()
         grab.change_watched(videoType, name, imdb_id, season=season, episode=episode, year=year, watched=watched)
         xbmc.executebuiltin("XBMC.Container.Refresh")
 
@@ -412,6 +452,7 @@ def refresh_movie(vidtitle,imdb, year=''):
         vidtitle = m.group(1) + m.group(2) 
     else: vidtitle = re.sub("\d+", "", vidtitle)
     vidtitle=vidtitle.replace('  ','')
+    setGrab()
     search_meta = grab.search_movies(vidtitle)
     
     if search_meta:
@@ -432,10 +473,10 @@ def refresh_movie(vidtitle,imdb, year=''):
 
             xbmc.executebuiltin("Container.Refresh")
     else:
-        msg = ['No matches found']
-        addon.show_ok_dialog(msg, 'Refresh Results')
+        xbmcgui.Dialog().ok('Refresh Results','No matches found')
 
 def episode_refresh(vidname, imdb, season_num, episode_num):
+    setGrab()
     grab.update_episode_meta(vidname, imdb, season_num, episode_num)
     xbmc.executebuiltin("XBMC.Container.Refresh")
 ################################################################################Trailers#######################################################################
@@ -443,6 +484,7 @@ def trailer(tmdbid):
     if tmdbid == '':
         xbmc.executebuiltin("XBMC.Notification(Sorry!,No Trailer Available For This Movie,3000)")
     else:
+        import urllib2
         xbmc.executebuiltin("XBMC.Notification(Please Wait!,Loading Trailer,1500)")
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:10.0a1) Gecko/20111029 Firefox/10.0a1'
         request= 'http://api.themoviedb.org/3/movie/' + tmdbid + '/trailers?api_key=d5da2b7895972fffa2774ff23f40a92f'
@@ -471,6 +513,7 @@ def TRAILERSEARCH(url, name, imdb):
     xbmc.executebuiltin("XBMC.Notification(Please Wait!,Getting Trailers Result,2000)")
     name = re.split(':\s\[',name)
     search      = name[0]
+    setGrab()
     infoLabels = grab._cache_lookup_by_name('movie', search.strip(), year='')
     print infoLabels
     res_name    = []
@@ -509,6 +552,7 @@ def TRAILERSEARCH(url, name, imdb):
             return    
 
 def SearchGoogle(search, site):
+    from xgoogle.search import GoogleSearch
     gs = GoogleSearch(''+search+' '+site)
     gs.results_per_page = 25
     gs.page = 0
@@ -520,6 +564,7 @@ def SearchGoogle(search, site):
     return results
 ############################################################################### Resolvers ############################################################################################
 def resolve_url(url):
+    import resolvers
     return resolvers.resolve_url(url)
 ############################################################################### Download Code ###########################################################################################
 downloadPath = selfAddon.getSetting('download-folder')
@@ -620,96 +665,9 @@ def Download_Source(name,url):
             xbmc.executebuiltin("XBMC.Notification(Sorry!,Link Not Found,6000)")
             stream_url = False
 
-
-def GetNoobroom():
-        link=OPENURL('http://www.noobroom.com')
-        match=re.compile('value="(.+?)">').findall(link)
-        return match[0]            
-def Noobroom(page_url):
-    user = selfAddon.getSetting('username')
-    passw = selfAddon.getSetting('password')
-    import re
-    import urllib2
-    
-    headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36'}
-   
-
-    url=GetNoobroom()+'/login2.php'
-    net1 = net()
-    log_in = net1.http_POST(url,{'email':user,'password':passw}).content
-    #print net1.get_cookies()
-    html = net1.http_GET(page_url).content
-    media_id = re.compile('"file": "(.+?)"').findall(html)[0]
-    fork_url = re.compile('"streamer": "(.+?)"').findall(html)[0] + '&start=0&file=' + media_id
-
-    class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):    
-        def http_error_302(self, req, fp, code, msg, headers):
-            #print headers
-            self.video_url = headers['Location']
-            #print self.video_url
-            return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
-
-        http_error_301 = http_error_303 = http_error_307 = http_error_302
-
-    myhr = MyHTTPRedirectHandler()
-
-    opener = urllib2.build_opener(
-        urllib2.HTTPCookieProcessor(net1._cj),
-        urllib2.HTTPBasicAuthHandler(),
-        myhr)
-    urllib2.install_opener(opener)
-
-    req = urllib2.Request(fork_url)
-    for k, v in headers.items():
-                req.add_header(k, v)
-    try:            
-        response = urllib2.urlopen(req)
-    except:
-        pass
-
-    #print myhr.video_url
-    return myhr.video_url   
-
 def Download_SourceB(name,url):#starplay/noobroom
-    originalName=name
-    xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,5000)")
-
-    stream_url= Noobroom(url)
-    name=name.split(' [')[0]
-    name=name.replace('/','').replace('.','').replace(':','')
-
-    if stream_url:
-            xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,2000)")
-            if os.path.exists(downloadPath):
-                match1=re.compile("flv").findall(stream_url)
-                if len(match1)>0:
-                    name=name+'.flv'
-                match2=re.compile("mkv").findall(stream_url)
-                if len(match2)>0:
-                    name=name+'.mkv'
-                match3=re.compile("mp4").findall(stream_url)
-                if len(match3)>0:
-                    name=name+'.mp4'
-                match4=re.compile("avi").findall(stream_url)
-                if len(match4)>0:
-                    name=name+'.avi'
-                mypath=os.path.join(downloadPath,name)
-                if os.path.isfile(mypath) is True:
-                    xbmc.executebuiltin("XBMC.Notification(Download Alert!,The video you are trying to download already exists!,8000)")
-                else:
-                    DownloadInBack=selfAddon.getSetting('download-in-background')
-                    if DownloadInBack == 'true':
-                        QuietDownload(stream_url,mypath,originalName,name)
-                    else:
-                        Download(stream_url,mypath,originalName,name)
-            
-            else:
-                xbmc.executebuiltin("XBMC.Notification(Download Alert!,You have not set the download folder,8000)")
-                return False
-                
-    else:
-            xbmc.executebuiltin("XBMC.Notification(Sorry!,Link Not Found,6000)")
-            stream_url = False
+    from resources.libs.movies_tv import starplay
+    starplay.download_noobroom_video(name,url)
 
 def Download(url, dest,originalName, displayname=False):
          
@@ -860,7 +818,7 @@ def TextBoxes(heading,anounce):
 ################################################################################ Google Analytics ##########################################################################################################
 
 
-def parseDate(dateString):
+def parseDate(dateString,datetime):
     try:
         return datetime.datetime.fromtimestamp(time.mktime(time.strptime(dateString.encode('utf-8', 'replace'), "%Y-%m-%d %H:%M:%S")))
     except:
@@ -869,11 +827,12 @@ def parseDate(dateString):
 
 def checkGA():
     if selfAddon.getSetting("gastatus") == "true":
+        import datetime
         secsInHour = 60 * 60
         threshold  = 2 * secsInHour
 
         now   = datetime.datetime.today()
-        prev  = parseDate(selfAddon.getSetting('ga_time'))
+        prev  = parseDate(selfAddon.getSetting('ga_time'),datetime)
         delta = now - prev
         nDays = delta.days
         nSecs = delta.seconds
@@ -1064,6 +1023,7 @@ def addDirT(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='DIR'
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='TV', section_addon_title="TV Show Fav's", sub_section_title='Shows', img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='TV', section_addon_title="TV Show Fav's", sub_section_title='Shows'))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1088,6 +1048,7 @@ def addPlayT(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='PLAY'
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='TV', section_addon_title="TV Show Fav's", sub_section_title='Shows', img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='TV', section_addon_title="TV Show Fav's", sub_section_title='Shows'))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1120,6 +1081,7 @@ def addDirTE(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         plot=plot.encode('ascii', 'ignore')
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='TV', section_addon_title="TV Episode Fav's", sub_section_title='Episodes', img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='TV', section_addon_title="TV Episode Fav's", sub_section_title='Episodes'))]
         if selfAddon.getSetting("meta-view-tv") == "true":
@@ -1171,6 +1133,7 @@ def addPlayTE(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='TV', section_addon_title="TV Episode Fav's", sub_section_title='Episodes', img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='TV', section_addon_title="TV Episode Fav's", sub_section_title='Episodes'))]
         if selfAddon.getSetting("meta-view-tv") == "true":
@@ -1197,7 +1160,7 @@ def addPlayTE(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addDirM(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
         ok=True
-        infoLabels =GETMETAT(name,genre,fanart,iconimage)
+        infoLabels =GETMETAT(name,genre,fanart,iconimage,plot)
         if selfAddon.getSetting("meta-view") == "true":
                 xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
                 tmdbid=infoLabels['tmdb_id']
@@ -1223,9 +1186,11 @@ def addDirM(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='DIR'
         plot=infoLabels['plot']
         img=infoLabels['cover_url']
-        plot=plot.encode('ascii', 'ignore')
+        try:plot=plot.encode('ascii', 'ignore')
+        except:pass
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Movies', section_addon_title="Movie Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="Movie Fav's"))]
         if selfAddon.getSetting("meta-view") == "true":
@@ -1278,6 +1243,7 @@ def addPlayM(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         plot=plot.encode('ascii', 'ignore')
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='Movies', section_addon_title="Movie Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="Movie Fav's"))]
         if selfAddon.getSetting("meta-view") == "true":
@@ -1312,6 +1278,7 @@ def addDirMs(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='DIR'
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Misc.', section_addon_title="Misc. Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Misc.', section_addon_title="Misc. Fav's"))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1336,6 +1303,7 @@ def addPlayMs(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='PLAY'
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='Misc.', section_addon_title="Misc. Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Misc.', section_addon_title="Misc. Fav's"))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1361,6 +1329,7 @@ def addDirL(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Live', section_addon_title="Live Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Live', section_addon_title="Live Fav's"))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1385,6 +1354,7 @@ def addPlayL(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         type='PLAY'
         plot=plot.replace(",",'.')
         name=name.replace(",",'')
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='Live', section_addon_title="Live Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Live', section_addon_title="Live Fav's"))]
         Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
@@ -1564,7 +1534,7 @@ def addDown(name,url,mode,iconimage,fan):
         contextMenuItems.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         contextMenuItems.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+        liz.setInfo( type="Video", infoLabels={ "Title": name, "OriginalTitle" : removeColoredText(name) } )
         liz.setProperty('fanart_image', fan)
         liz.addContextMenuItems(contextMenuItems, replaceItems=True)
         ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
@@ -1580,7 +1550,7 @@ def addDown2(name,url,mode,iconimage,fan):
         contextMenuItems.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         contextMenuItems.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+        liz.setInfo( type="Video", infoLabels={ "Title": name, "OriginalTitle" : removeColoredText(name) } )
         liz.setProperty('fanart_image', fan)
         liz.addContextMenuItems(contextMenuItems, replaceItems=True)
         ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
@@ -1621,6 +1591,7 @@ def addDown3(name,url,mode,iconimage,fanart,id=False):#Noobroom only
         sysname= urllib.quote_plus(name)
         
         type='PLAY'
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='Movies', section_addon_title="Movie Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="Movie Fav's")),
             ('Direct Download', 'XBMC.RunPlugin(%s?mode=212&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl))]
@@ -1701,6 +1672,7 @@ def addDown4(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         name=name.replace(",",'')
         args=[(url,name,mode,iconimage,str(plot),type)]
         if '</sublink>' not in url:
+            fav = getFav()
             Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title=st, section_addon_title=sat, sub_section_title=sst, img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
                 ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title=st, section_addon_title=sat, sub_section_title=sst)),
                   ('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)),
@@ -1746,6 +1718,7 @@ def addInfo(name,url,mode,iconimage,gen,year):
         else:
                 xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
                 xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
+        fav = getFav()
         Commands=[
                 ('Search Movie25','XBMC.Container.Update(%s?mode=4&url=%s)'% (sys.argv[0],'m25')),
                 ("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Movies', section_addon_title="Movie25 Fav's", img=iconimage, infolabels={'item_mode':mode, 'item_url':url, 'genre':gen,'year':year})),
@@ -1797,6 +1770,7 @@ def addDirIWO(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         plot=plot.replace(",",".").replace('"','')
         name=name.replace(",",'')
         iconimage=iconimage.replace(",",".")
+        fav = getFav()
         Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Movies', section_addon_title="iWatchOnline Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
             ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="iWatchOnline Fav's"))]
         if selfAddon.getSetting("meta-view") == "true":
