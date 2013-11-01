@@ -130,8 +130,7 @@ def _parse_channels_from_html_dom(html):
 
 def MAIN():
     main.GA("Live","ArabicStreams")
-    html = _html('http://www.teledunet.com/')
-    items = _parse_channels_from_html_dom(html)
+    items = _parse_channels_from_html_dom('http://www.teledunet.com/')
     for channels in sorted(items):
         main.addPlayL(channels['title'],channels['path'],232,channels['thumbnail'],'','','','','')
         
