@@ -11,10 +11,7 @@ smalllogo=art+'/smallicon.png'
     
 user = selfAddon.getSetting('username')
 passw = selfAddon.getSetting('password')
-CookiesPath=os.path.join(main.datapath,'Cookies')
-try: os.makedirs(CookiesPath)
-except: pass
-cookie_file = os.path.join(CookiesPath, 'noobroom.cookies')
+cookie_file = os.path.join(os.path.join(main.datapath,'Cookies'), 'noobroom.cookies')
 if user == '' or passw == '':
     if os.path.exists(cookie_file):
         try: os.remove(cookie_file)
@@ -128,6 +125,46 @@ def find_noobroom_video_url(page_url):
     #print myhr.video_url
     return myhr.video_url
 
+def download_noobroom_video(name,url):#starplay/noobroom
+    originalName=name
+    xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,5000)")
+
+    stream_url= find_noobroom_video_url(url)
+    name=name.split(' [')[0]
+    name=name.replace('/','').replace('.','').replace(':','')
+
+    if stream_url:
+        xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,2000)")
+        if os.path.exists(main.downloadPath):
+            match1=re.compile("flv").findall(stream_url)
+            if len(match1)>0:
+                name=name+'.flv'
+            match2=re.compile("mkv").findall(stream_url)
+            if len(match2)>0:
+                name=name+'.mkv'
+            match3=re.compile("mp4").findall(stream_url)
+            if len(match3)>0:
+                name=name+'.mp4'
+            match4=re.compile("avi").findall(stream_url)
+            if len(match4)>0:
+                name=name+'.avi'
+            mypath=os.path.join(main.downloadPath,name)
+            if os.path.isfile(mypath) is True:
+                xbmc.executebuiltin("XBMC.Notification(Download Alert!,The video you are trying to download already exists!,8000)")
+            else:
+                DownloadInBack=selfAddon.getSetting('download-in-background')
+                if DownloadInBack == 'true':
+                    main.QuietDownload(stream_url,mypath,originalName,name)
+                else:
+                    main.Download(stream_url,mypath,originalName,name)
+        
+        else:
+            xbmc.executebuiltin("XBMC.Notification(Download Alert!,You have not set the download folder,8000)")
+            return False
+    else:
+        xbmc.executebuiltin("XBMC.Notification(Sorry!,Link Not Found,6000)")
+        return False
+            
 def LINKSP5(mname,url):
     main.GA("Starplay","Watched")
     ok=True
