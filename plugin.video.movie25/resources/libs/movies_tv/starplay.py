@@ -11,7 +11,10 @@ smalllogo=art+'/smallicon.png'
     
 user = selfAddon.getSetting('username')
 passw = selfAddon.getSetting('password')
-cookie_file = os.path.join(os.path.join(main.datapath,'Cookies'), 'noobroom.cookies')
+CookiesPath=os.path.join(main.datapath,'Cookies')
+try: os.makedirs(CookiesPath)
+except: pass
+cookie_file = os.path.join(CookiesPath, 'noobroom.cookies')
 if user == '' or passw == '':
     if os.path.exists(cookie_file):
         try: os.remove(cookie_file)
