@@ -478,7 +478,7 @@ def resolve_180upload(url):
         if dialog.iscanceled(): return False
         dialog.update(100)
         
-        link = re.search('<a href="(.+?)" onclick="thanks\(\)">Download now!</a>', html)
+        link = re.search('id="lnk_download" href="([^"]+)"', html)
         if link:
             print 'Mash Up 180Upload Link Found: %s' % link.group(1)
             return link.group(1)
