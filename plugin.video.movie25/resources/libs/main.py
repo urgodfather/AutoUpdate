@@ -1523,13 +1523,13 @@ def addDown(name,url,mode,iconimage,fan):
         contextMenuItems = []
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
-        link=OPENURL(url)
-        match=re.compile("Javascript:location.?href=.+?'(.+?)\'").findall(link)
-        if len(match)>0:
-            for url in match:
-                sysurl = urllib.quote_plus(url)
-        else:
-            sysurl = urllib.quote_plus(url)
+#         link=OPENURL(url)
+#         match=re.compile("location\.href='(.+?)\'").findall(link)
+#         if match:
+#             for url in match:
+#                 sysurl = urllib.quote_plus(url)
+#         else:
+        sysurl = urllib.quote_plus(url)
         sysname= urllib.quote_plus(name)
         contextMenuItems.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         contextMenuItems.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
