@@ -80,56 +80,24 @@ def UFCMOVIE25():
                 main.GA("UFC","UFC_Movie25-List")
 
 def Searchhistory():
-        seapath=os.path.join(main.datapath,'Search')
-        SeaFile=os.path.join(seapath,'SearchHistory25')
-        if not os.path.exists(SeaFile):
-            url='m25'
-            SEARCH(url)
-        else:
-            main.addDir('Search','m25',4,art+'/search.png')
-            main.addDir('Clear History',SeaFile,128,art+'/cleahis.png')
-            thumb=art+'/link.png'
-            searchis=re.compile('search="(.+?)",').findall(open(SeaFile,'r').read())
-            for seahis in reversed(searchis):
-                    url=seahis
-                    seahis=seahis.replace('%20',' ')
-                    main.addDir(seahis,url,4,thumb)
+    seapath=os.path.join(main.datapath,'Search')
+    SeaFile=os.path.join(seapath,'SearchHistory25')
+    if not os.path.exists(SeaFile):
+        SEARCH()
+    else:
+        main.addDir('Search','###',4,art+'/search.png')
+        main.addDir('Clear History',SeaFile,128,art+'/cleahis.png')
+        thumb=art+'/link.png'
+        searchis=re.compile('search="(.+?)",').findall(open(SeaFile,'r').read())
+        for seahis in reversed(searchis):
+            url=seahis
+            seahis=seahis.replace('%20',' ')
+            main.addDir(seahis,url,4,thumb)
 
-def SEARCH(murl):
-        seapath=os.path.join(main.datapath,'Search')
-        SeaFile=os.path.join(seapath,'SearchHistory25')
-        try:
-            os.makedirs(seapath)
-        except:
-            pass
-        if murl == 'm25':
-                keyb = xbmc.Keyboard('', 'Search Movies')
-                keyb.doModal()
-                if (keyb.isConfirmed()):
-                    search = keyb.getText()
-                    encode=urllib.quote(search)
-                    surl='http://www.movie25.so/search.php?key='+encode+'&submit='
-                    if not os.path.exists(SeaFile) and encode != '':
-                        open(SeaFile,'w').write('search="%s",'%encode)
-                    else:
-                        if encode != '':
-                            open(SeaFile,'a').write('search="%s",'%encode)
-                    searchis=re.compile('search="(.+?)",').findall(open(SeaFile,'r').read())
-                    for seahis in reversed(searchis):
-                        continue
-                    if len(searchis)>=10:
-                        searchis.remove(searchis[0])
-                        os.remove(SeaFile)
-                        for seahis in searchis:
-                            try:
-                                open(SeaFile,'a').write('search="%s",'%seahis)
-                            except:
-                                pass
-                else:
-                        return
-        else:
-                encode = murl
-                surl='http://www.movie25.so/search.php?key='+encode+'&submit='
+def SEARCH(murl = ''):
+        encode = main.updateSearchFile(murl,'Movies')
+        if not encode: return False   
+        surl='http://www.movie25.so/search.php?key='+encode+'&submit='
         link=main.OPENURL(surl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.+?>score:(.+?)</div>').findall(link)
@@ -542,6 +510,12 @@ def BUPLOADSLINKS(name,url):
     billionuploads = eval(url)
     for url in billionuploads:
         main.addDown(name,MainUrl+url,5,art+'/hosts/billionuploads.png',art+'/hosts/billionuploads.png')
+        
+def resolveM25URL(url):
+    html=main.OPENURL(url)
+    match = re.search("location\.href='(.+?)'",html)
+    if match: return match.group(1)
+    return
 
 def PLAY(name,murl):
         main.GA("Movie25-Movie","Watched")
@@ -550,10 +524,8 @@ def PLAY(name,murl):
         name  = name.split('[COLOR blue]')[0]
         name  = name.split('[COLOR red]')[0]
         infoLabels = main.GETMETAT(name,'','','')
-        link=main.OPENURL(murl)
-        match = re.search("location\.href='(.+?)'",link)
-        if match:
-            murl = match.group(1)
+        murl = resolveM25URL(murl)
+        if not murl: return False
         video_type='movie'
         season=''
         episode=''

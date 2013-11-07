@@ -37,9 +37,9 @@ except:
 sys.path.append( os.path.join( selfAddon.getAddonInfo('path'), 'resources', 'libs' ))
 ################################################################################ Common Calls ##########################################################################################################
 if selfAddon.getSetting("artwork") == "false":
-    art = 'https://github.com/mash2k3/MashupArtwork/raw/master/art'
+    art = 'https://raw.github.com/mash2k3/MashupArtwork/master/art'
 else:
-    art = 'https://github.com/mash2k3/MashupArtwork/raw/master/art256'
+    art = 'https://raw.github.com/mash2k3/MashupArtwork/master/art256'
 elogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/bigx.png')
 slogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/smallicon.png')
 
@@ -180,6 +180,52 @@ def setFile(path,content):
             return True
         except: pass
     return False 
+
+def updateSearchFile(searchQuery,searchType,defaultValue = '###',searchMsg = ''):
+    addToSearchHistory = True
+    searchpath=os.path.join(datapath,'Search')
+    if searchType == "TV":
+        searchHistoryFile = "SearchHistoryTv"
+        if not searchMsg: searchMsg = 'Search For TV Shows' 
+    else:
+        searchHistoryFile = "SearchHistory25"
+        if not searchMsg: searchMsg = 'Search For Movies' 
+    SearchFile=os.path.join(searchpath,searchHistoryFile)
+    searchQuery=urllib.unquote(searchQuery)
+    if not searchQuery or searchQuery == defaultValue:
+        searchQuery = ''
+        try: os.makedirs(searchpath)
+        except: pass
+        keyb = xbmc.Keyboard('', searchMsg )
+        keyb.doModal()
+        if (keyb.isConfirmed()):
+            searchQuery = keyb.getText()
+        else:
+            xbmcplugin.endOfDirectory(int(sys.argv[1]),False,False)
+            return False
+    else:
+        addToSearchHistory = False
+    searchQuery=urllib.quote(searchQuery)
+    if addToSearchHistory:
+        if not os.path.exists(SearchFile) and searchQuery != '':
+            open(SearchFile,'w').write('search="%s",'%searchQuery)
+        elif searchQuery != '':
+            open(SearchFile,'a').write('search="%s",'%searchQuery)
+        else: return False
+        searchitems=re.compile('search="([^"]+?)",').findall(open(SearchFile,'r').read())
+        rewriteSearchFile = False
+        if searchitems.count(searchQuery) > 1:
+            searchitems.remove(searchQuery)
+            rewriteSearchFile = True
+        if len(searchitems)>=10:
+            searchitems.remove(searchitems[0])
+            rewriteSearchFile = True
+        if rewriteSearchFile:   
+            os.remove(SearchFile)
+            for searchitem in searchitems:
+                try: open(SearchFile,'a').write('search="%s",'%searchitem)
+                except: pass
+    return searchQuery
 ################################################################################ Notifications #########################################################################################################
 
 def CheckVersion():
@@ -611,11 +657,13 @@ def Download_Source(name,url):
         match=re.compile('(.+?)xocx(.+?)xocx').findall(url)
         for hurl, durl in match:
             url=geturl('http://watchseries.lt'+hurl)
-    match2=re.compile('iwatchonline').findall(url)
-    if match2:
+    if re.compile('iwatchonline').findall(url):
         name=name.split('[COLOR red]')[0]
         name=name.replace('/','').replace('.','')
         url=GetUrliW(url)
+    if re.compile('movie25').findall(url):
+        from resources.libs import movie25
+        url = movie25.resolveM25URL(url) 
     
     name=removeColoredText(name)
     name=re.sub(r'[^\w]', ' ', name)
@@ -764,6 +812,9 @@ def jDownloader(murl):
             media= urlresolver.HostedMediaFile(host=hoster, media_id=hurl)
             r=re.findall("'url': '(.+?)',",str(media))[0]
             murl=r
+    if re.compile('movie25').findall(murl):
+        from resources.libs import movie25
+        murl = movie25.resolveM25URL(murl) 
     print "Downloading "+murl+" via jDownlaoder"
     cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
     xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
