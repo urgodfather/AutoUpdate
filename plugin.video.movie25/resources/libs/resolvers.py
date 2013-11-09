@@ -299,7 +299,8 @@ def resolve_billionuploads(url):
         data = {}
         r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', html)
         for name, value in r:
-            data[name] = value
+            if name != 'sys' and name != 'rand':
+                data[name] = value
             
         captchaimg = re.search('<img src="((?:http://|www\.)?BillionUploads.com/captchas/.+?)"', html)
         if dialog.iscanceled(): return False
@@ -339,6 +340,10 @@ def resolve_billionuploads(url):
             r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', dec_input)
             for name, value in r:
                 data[name] = value
+        extradata = re.compile("append\(\$\(document.createElement\('input'\)\).attr\('type','hidden'\).attr\('name','(.*?)'\).val\('(.*?)'\)").findall(html)
+        if extradata:
+            for attr, val in extradata:
+                data[attr] = val
         
         print 'Mash Up BillionUploads - Requesting POST URL: %s' % url
         html = normal.open(url, urllib.urlencode(data)).read()
@@ -628,14 +633,12 @@ def resolve_epicshare(url):
         dialog.close()
 
 def resolve_lemupload(url):
-
     try:
-
         #Show dialog box so user knows something is happening
         dialog = xbmcgui.DialogProgress()
         dialog.create('Resolving', 'Resolving MashUp LemUpload Link...')       
         dialog.update(0)
-        
+#         
         print 'LemUpload - MashUp Requesting GET URL: %s' % url
         html = net().http_GET(url).content
         if dialog.iscanceled(): return False
@@ -646,67 +649,29 @@ def resolve_lemupload(url):
             print '***** LemUpload - File Not Found'
             xbmc.executebuiltin("XBMC.Notification(File Not Found,LemUpload,2000)")
             return False
-
-        #Set POST data values
-        data = {}
-        r = re.findall('type="hidden" name="(.+?)" value="(.+?)">', html)
         
-        for name, value in r:
-            data[name] = value
+        if re.search('This server is in maintenance mode', html):
+            print '***** LemUpload - Server is in maintenance mode'
+            xbmc.executebuiltin("XBMC.Notification(Site In Maintenance,LemUpload,2000)")
+            return False
 
-        captchaimg = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
-        
-        if captchaimg:
-            dialog.close()
-            html = net().http_GET(captchaimg.group(1)).content
-            part = re.search("challenge \: \\'(.+?)\\'", html)
-            captchaimg = 'http://www.google.com/recaptcha/api/image?c='+part.group(1)
-            img = xbmcgui.ControlImage(450,15,400,130,captchaimg)
-            wdlg = xbmcgui.WindowDialog()
-            wdlg.addControl(img)
-            wdlg.show()
-    
-            kb = xbmc.Keyboard('', 'Type the letters in the image', False)
-            kb.doModal()
-            capcode = kb.getText()
-    
-            if (kb.isConfirmed()):
-                userInput = kb.getText()
-                if userInput != '':
-                    solution = kb.getText()
-                elif userInput == '':
-                    Notify('big', 'No text entered', 'You must enter text in the image to access video', '')
-                    return False
-            else:
-                return False
-            wdlg.close()
-            dialog.close() 
-            dialog.create('Resolving', 'Resolving MashUp LemUpload Link...')
-            if dialog.iscanceled(): return False 
-            dialog.update(50)
-            data.update({'recaptcha_challenge_field':part.group(1),'recaptcha_response_field':solution})
-        
-        else:
-            #Check for captcha
-            captcha = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
-            if captcha:
-                result = sorted(captcha, key=lambda ltr: int(ltr[0]))
-                solution = ''.join(str(int(num[1])-48) for num in result)
-            data.update({'code':solution})
-                               
-        print 'LemUpload - MashUp Requesting POST URL: %s DATA: %s' % (url, data)
-        html = net().http_POST(url, data).content
-
-        #Get download link
+        filename = re.search('<h2>(.+?)</h2>', html).group(1)
+        extension = re.search('(\.[^\.]*$)', filename).group(1)
+        guid = re.search('http://lemuploads.com/(.+)$', url).group(1)
+        vid_embed_url = 'http://lemuploads.com/vidembed-%s%s' % (guid, extension)
+        request = urllib2.Request(vid_embed_url)
+        request.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36')
+        request.add_header('Referer', url)
+        response = urllib2.urlopen(request)
         if dialog.iscanceled(): return False
         dialog.update(100)
-
-        link = re.search('<a href="(.+?)">Download', html)
-        
+        link = response.geturl()
         if link:
-            print 'MashUp LemUpload Link Found: %s' % link.group(1)
-            link = link.group(1) + "|referer=" + url
-            return link
+            redirect_url = re.search('(http://.+?)video', link)
+            if redirect_url:
+                link = redirect_url.group(1) + filename
+            print 'MashUp LemUpload Link Found: %s' % link
+            return  link
         else:
             logerror('***** LemUpload - Cannot find final link')
             raise Exception('Unable to resolve LemUpload Link')
