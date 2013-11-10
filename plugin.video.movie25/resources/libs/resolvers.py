@@ -41,6 +41,8 @@ def resolve_url(url):
                 stream_url=resolve_mightyupload(url)               
             elif re.search('hugefiles',url,re.I):
                 stream_url=resolve_hugefiles(url)
+            elif re.search('megarelease',url,re.I):
+                stream_url=resolve_megarelease(url)
             elif re.search('youtube',url,re.I):
                 url=url.split('watch?v=')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
@@ -128,6 +130,54 @@ def grab_cloudflare(url):
         response = normal.open(url).read()
 
     return response
+
+def resolve_megarelease(url):
+
+    try:
+        
+        #Show dialog box so user knows something is happening
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MashUp MegaRelease Link...')
+        dialog.update(0)
+        
+        print 'MegaRelease MashUp - Requesting GET URL: %s' % url
+        html = net().http_GET(url).content
+
+        dialog.update(50)
+        
+        #Check page for any error msgs
+        if re.search('This server is in maintenance mode', html):
+            print '***** MegaRelease - Site reported maintenance mode'
+            raise Exception('File is currently unavailable on the host')
+        if re.search('<b>File Not Found</b>', html):
+            print '***** MegaRelease - File not found'
+            raise Exception('File has been deleted')
+
+        filename = re.search('You have requested <font color="red">(.+?)</font>', html).group(1)
+        filename = filename.split('/')[-1]
+        extension = re.search('(\.[^\.]*$)', filename).group(1)
+        guid = re.search('http://megarelease.org/(.+)$', url).group(1)
+        
+        vid_embed_url = 'http://megarelease.org/vidembed-%s%s' % (guid, extension)
+        UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
+        ACCEPT = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        request = urllib2.Request(vid_embed_url)
+        request.add_header('User-Agent', UserAgent)
+        request.add_header('Accept', ACCEPT)
+        request.add_header('Referer', url)
+        response = urllib2.urlopen(request)
+        redirect_url = re.search('(http://.+?)video', response.geturl()).group(1)
+        download_link = redirect_url + filename
+        
+        dialog.update(100)
+
+        return download_link
+        
+    except Exception, e:
+        print '**** MegaRelease MashUp Error occured: %s' % e
+        raise
+    finally:
+        dialog.close()
 
 def resolve_veehd(url):
     name = "veeHD"
