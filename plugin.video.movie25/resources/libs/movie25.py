@@ -276,84 +276,84 @@ def VIDEOLINKS(name,url):
     quality=str(qual)
     quality=quality.replace("'","")
     name  = name.split('[COLOR blue]')[0]
-    putlocker=re.compile('<li class="link_name">putlocker</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)                      
+    putlocker=re.compile('<li class="link_name">putlocker</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)                      
     if putlocker:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Putlocker[/COLOR]",str(putlocker),11,art+'/hosts/putlocker.png',art+'/hosts/putlocker.png')
     else:
         putlocker=re.compile("javascript:window.open.+?'http://movie25.com/redirect.php.?url=(http://www.putlocker.com/file/.+?)','.+?',.+?>(.+?)</a></span>").findall(link)
         if putlocker:
             main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Putlocker[/COLOR]",str(putlocker),11,art+'/hosts/putlocker.png',art+'/hosts/putlocker.png')
-    sockshare=re.compile('<li class=link_name.+?sockshare</li>.+?<li class=".+?"><span><a href=(.+?) target=".+?">').findall(link)
+    sockshare=re.compile('<li class="link_name">sockshare</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if sockshare:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Sockshare[/COLOR]",str(sockshare),22,art+'/hosts/sockshare.png',art+'/hosts/sockshare.png')
     else:
         sockshare=re.compile("javascript:window.open.+?'http://movie25.com/redirect.php.?url=(http://www.sockshare.com/file/.+?)','.+?',.+?>(.+?)</a></span>").findall(link)
         if sockshare:
             main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Sockshare[/COLOR]",str(sockshare),22,art+'/hosts/sockshare.png',art+'/hosts/sockshare.png')
-    movreel=re.compile('<li class="link_name">movreel</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    movreel=re.compile('<li class="link_name">movreel</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if movreel:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Movreel[/COLOR]",str(movreel),154,art+'/hosts/movreel.png',art+'/hosts/movreel.png')
-    billionuploads=re.compile('<li class="link_name">billionuploads</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    billionuploads=re.compile('<li class="link_name">billionuploads</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if billionuploads:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : BillionUploads[/COLOR]",str(billionuploads),155,art+'/hosts/billionuploads.png',art+'/hosts/billionuploads.png')
-    nowvideo=re.compile('<li class="link_name">nowvideo</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    nowvideo=re.compile('<li class="link_name">nowvideo</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if nowvideo:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Nowvideo[/COLOR]",str(nowvideo),24,art+'/hosts/nowvideo.png',art+'/hosts/nowvideo.png')
-    oeupload=re.compile('<li class="link_name">oeupload</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    oeupload=re.compile('<li class="link_name">oeupload</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if oeupload:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : 180upload[/COLOR]",str(oeupload),12,art+'/hosts/180upload.png',art+'/hosts/180upload.png')
-    filenuke=re.compile('<li class="link_name">filenuke</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    filenuke=re.compile('<li class="link_name">filenuke</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if filenuke:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Filenuke[/COLOR]",str(filenuke),13,art+'/hosts/filenuke.png',art+'/hosts/filenuke.png')
-    flashx=re.compile('<li class="link_name">flashx</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    flashx=re.compile('<li class="link_name">flashx</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if flashx:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Flashx[/COLOR]",str(flashx),15,art+'/hosts/flashx.png',art+'/hosts/flashx.png')
-    novamov=re.compile('<li class="link_name">novamov</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    novamov=re.compile('<li class="link_name">novamov</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if novamov:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Novamov[/COLOR]",str(novamov),16,art+'/hosts/novamov.png',art+'/hosts/novamov.png')
-    gorillavid=re.compile('<li class="link_name">gorillavid</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    gorillavid=re.compile('<li class="link_name">gorillavid</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if gorillavid:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Gorillavid[/COLOR]",str(gorillavid),148,art+'/hosts/gorillavid.png',art+'/hosts/gorillavid.png')
-    divxstage=re.compile('<li class="link_name">divxstage</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    divxstage=re.compile('<li class="link_name">divxstage</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if divxstage:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Divxstage[/COLOR]",str(divxstage),146,art+'/hosts/divxstage.png',art+'/hosts/divxstage.png')
-    movshare=re.compile('<li class="link_name">movshare</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    movshare=re.compile('<li class="link_name">movshare</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if movshare:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Movshare[/COLOR]",str(movshare),145,art+'/hosts/movshare.png',art+'/hosts/movshare.png')
-    sharesix=re.compile('<li class="link_name">sharesix</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    sharesix=re.compile('<li class="link_name">sharesix</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if sharesix:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Sharesix[/COLOR]",str(sharesix),147,art+'/hosts/sharesix.png',art+'/hosts/sharesix.png')
-    movpod=re.compile('<li class="link_name">movpod</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    movpod=re.compile('<li class="link_name">movpod</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if movpod:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Movpod[/COLOR]",str(movpod),150,art+'/hosts/movpod.png',art+'/hosts/movpod.png')
-    daclips=re.compile('<li class="link_name">daclips</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    daclips=re.compile('<li class="link_name">daclips</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if daclips:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Daclips[/COLOR]",str(daclips),151,art+'/hosts/daclips.png',art+'/hosts/daclips.png')
-    videoweed=re.compile('<li class="link_name">videoweed</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    videoweed=re.compile('<li class="link_name">videoweed</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if videoweed:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Videoweed[/COLOR]",str(videoweed),152,art+'/hosts/videoweed.png',art+'/hosts/videoweed.png')
-    played=re.compile('<li class="link_name">played</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    played=re.compile('<li class="link_name">played</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if played:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Played[/COLOR]",str(played),157,art+'/hosts/played.png',art+'/hosts/played.png')
-    movdivx=re.compile('<li class="link_name">movdivx</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    movdivx=re.compile('<li class="link_name">movdivx</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if movdivx:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : MovDivx[/COLOR]",str(movdivx),153,art+'/hosts/movdivx.png',art+'/hosts/movdivx.png')
-    uploadc=re.compile('<li class="link_name">uploadc</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    uploadc=re.compile('<li class="link_name">uploadc</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if uploadc:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Uploadc[/COLOR]",str(uploadc),17,art+'/hosts/uploadc.png',art+'/hosts/uploadc.png')
-    xvidstage=re.compile('<li class="link_name">xvidstage</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    xvidstage=re.compile('<li class="link_name">xvidstage</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if xvidstage:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Xvidstage[/COLOR]",str(xvidstage),18,art+'/hosts/xvidstage.png',art+'/hosts/xvidstage.png')        
-    zooupload=re.compile('<li class="link_name">zooupload</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    zooupload=re.compile('<li class="link_name">zooupload</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if zooupload:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Zooupload[/COLOR]",str(zooupload),19,art+'/hosts/zooupload.png',art+'/hosts/zooupload.png')
-    zalaa=re.compile('<li class="link_name">zalaa</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    zalaa=re.compile('<li class="link_name">zalaa</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if zalaa:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Zalaa[/COLOR]",str(zalaa),20,art+'/hosts/zalaa.png',art+'/hosts/zalaa.png')
-    vidxden=re.compile('<li class="link_name">vidxden</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    vidxden=re.compile('<li class="link_name">vidxden</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if vidxden:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Vidxden[/COLOR]",str(vidxden),21,art+'/hosts/vidxden.png',art+'/hosts/vidxden.png')
-    vidbux=re.compile('<li class="link_name">vidbux</li>.+?<li class=".+?"><span><a href="(.+?)" target=".+?">').findall(link)
+    vidbux=re.compile('<li class="link_name">vidbux</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
     if vidbux:
         main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : Vidbux[/COLOR]",str(vidbux),14,art+'/hosts/vidbux.png',art+'/hosts/vidbux.png')
 
