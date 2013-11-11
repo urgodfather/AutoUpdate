@@ -43,6 +43,8 @@ def resolve_url(url):
                 stream_url=resolve_hugefiles(url)
             elif re.search('megarelease',url,re.I):
                 stream_url=resolve_megarelease(url)
+            elif re.search('movreel',url,re.I):
+                stream_url=resolve_movreel(url)
             elif re.search('youtube',url,re.I):
                 url=url.split('watch?v=')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
@@ -130,6 +132,77 @@ def grab_cloudflare(url):
         response = normal.open(url).read()
 
     return response
+
+def resolve_movreel(url):
+
+    try:
+
+
+        #Show dialog box so user knows something is happening
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MashUp Movreel Link...')       
+        dialog.update(0)
+        
+        print 'MashUp Movreel - Requesting GET URL: %s' % url
+        html = net().http_GET(url).content
+        
+        dialog.update(33)
+        
+        #Check page for any error msgs
+        if re.search('This server is in maintenance mode', html):
+            logerror('***** MashUp Movreel - Site reported maintenance mode')
+            xbmc.executebuiltin("XBMC.Notification(File is currently unavailable on the host,Movreel in maintenance,2000)")
+
+        #Set POST data values
+        op = re.search('<input type="hidden" name="op" value="(.+?)">', html).group(1)
+        postid = re.search('<input type="hidden" name="id" value="(.+?)">', html).group(1)
+        method_free = re.search('<input type="(submit|hidden)" name="method_free" (style=".*?" )*value="(.*?)">', html).group(3)
+        method_premium = re.search('<input type="(hidden|submit)" name="method_premium" (style=".*?" )*value="(.*?)">', html).group(3)
+        
+
+        rand = re.search('<input type="hidden" name="rand" value="(.+?)">', html).group(1)
+        data = {'op': op, 'id': postid, 'referer': url, 'rand': rand, 'method_premium': method_premium}
+        
+        print 'MashUp Movreel - Requesting POST URL: %s DATA: %s' % (url, data)
+        html = net().http_POST(url, data).content
+
+        #Only do next post if Free account, skip to last page for download link if Premium
+        if method_free:
+            #Check for download limit error msg
+            if re.search('<p class="err">.+?</p>', html):
+                logerror('***** Download limit reached')
+                errortxt = re.search('<p class="err">(.+?)</p>', html).group(1)
+                xbmc.executebuiltin("XBMC.Notification("+errortxt+",Movreel,2000)")
+    
+            dialog.update(66)
+            
+            #Set POST data values
+            data = {}
+            r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', html)
+    
+            if r:
+                for name, value in r:
+                    data[name] = value
+            else:
+                logerror('***** MashUp Movreel - Cannot find data values')
+                xbmc.executebuiltin("XBMC.Notification(Unable to resolve Movreel Link,Movreel,2000)") 
+
+            print 'MashUp Movreel - Requesting POST URL: %s DATA: %s' % (url, data)
+            html = net().http_POST(url, data).content
+
+        #Get download link
+        dialog.update(100)
+        link = re.search('<a href="(.+)">Download Link</a>', html)
+        if link:
+            return link.group(1)
+        else:
+            xbmc.executebuiltin("XBMC.Notification(Unable to find final link,Movreel,2000)")
+
+    except Exception, e:
+        logerror('**** Mash Up Movreel Error occured: %s' % e)
+        raise ResolverError(str(e),"Movreel")
+    finally:
+        dialog.close()
 
 def resolve_megarelease(url):
     try:
