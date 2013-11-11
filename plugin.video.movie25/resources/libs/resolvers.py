@@ -132,9 +132,7 @@ def grab_cloudflare(url):
     return response
 
 def resolve_megarelease(url):
-
     try:
-        
         #Show dialog box so user knows something is happening
         dialog = xbmcgui.DialogProgress()
         dialog.create('Resolving', 'Resolving MashUp MegaRelease Link...')
@@ -147,11 +145,13 @@ def resolve_megarelease(url):
         
         #Check page for any error msgs
         if re.search('This server is in maintenance mode', html):
-            print '***** MegaRelease - Site reported maintenance mode'
-            raise Exception('File is currently unavailable on the host')
+            logerror('***** MegaRelease - Site reported maintenance mode')
+            xbmc.executebuiltin("XBMC.Notification(File is currently unavailable,MegaRelease in maintenance,2000)")                                
+            return False
         if re.search('<b>File Not Found</b>', html):
-            print '***** MegaRelease - File not found'
-            raise Exception('File has been deleted')
+            logerror('Mash Up: Resolve MegaRelease - File Not Found')
+            xbmc.executebuiltin("XBMC.Notification(File Not Found,MegaRelease,2000)")
+            return False
 
         filename = re.search('You have requested <font color="red">(.+?)</font>', html).group(1)
         filename = filename.split('/')[-1]
@@ -174,8 +174,8 @@ def resolve_megarelease(url):
         return download_link
         
     except Exception, e:
-        print '**** MegaRelease MashUp Error occured: %s' % e
-        raise
+        logerror('**** Mash Up MegaRelease Error occured: %s' % e)
+        raise ResolverError(str(e),"MegaRelease")
     finally:
         dialog.close()
 
@@ -349,8 +349,7 @@ def resolve_billionuploads(url):
         data = {}
         r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', html)
         for name, value in r:
-            if name != 'sys' and name != 'rand':
-                data[name] = value
+            data[name] = value
             
         captchaimg = re.search('<img src="((?:http://|www\.)?BillionUploads.com/captchas/.+?)"', html)
         if dialog.iscanceled(): return False
@@ -390,10 +389,15 @@ def resolve_billionuploads(url):
             r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', dec_input)
             for name, value in r:
                 data[name] = value
-        extradata = re.compile("append\(\$\(document.createElement\('input'\)\).attr\('type','hidden'\).attr\('name','(.*?)'\).val\('(.*?)'\)").findall(html)
+        extradata = re.compile("append\(\$\(document.createElement\('input'\)\).attr\('type','hidden'\).attr\('name','(.*?)'\).val\((.*?)\)").findall(html)
         if extradata:
             for attr, val in extradata:
-                data[attr] = val
+                if 'source="self"' in val:
+                    val = re.compile('<textarea[^>]*?source="self"[^>]*?>([^<]*?)<').findall(html)[0]
+                data[attr] = val.strip("'")
+        r = re.findall("""'input\[name="([^"]+?)"\]'\)\.remove\(\)""", html)
+        for name in r:
+            del data[name]
         
         print 'Mash Up BillionUploads - Requesting POST URL: %s' % url
         html = normal.open(url, urllib.urlencode(data)).read()
