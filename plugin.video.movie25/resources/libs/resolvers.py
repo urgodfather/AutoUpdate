@@ -14,7 +14,7 @@ class ResolverError(Exception):
     def __str__(self):
         return repr(self.value,self.value2)
 
-def resolve_url(url):
+def resolve_url(url, filename = False):
     stream_url = False
     if(url):
         try:
@@ -26,7 +26,7 @@ def resolve_url(url):
                 if source:
                     stream_url = source.resolve()
             elif re.search('billionuploads',url,re.I):
-                stream_url=resolve_billionuploads(url)
+                stream_url=resolve_billionuploads(url, filename)
             elif re.search('180upload',url,re.I):
                 stream_url=resolve_180upload(url)
             elif re.search('veehd',url,re.I):
@@ -307,11 +307,9 @@ def resolve_veehd(url):
         logerror('**** Mash Up VeeHD Error occured: %s' % e)
         raise ResolverError(str(e),"VeeHD")
 
-def resolve_billionuploads(url):
-# UPDATED BY THE-ONE @ XBMCHUB - 09-09-2013
+def resolve_billionuploads(url, filename):
 
     try:
-        #########
         dialog = xbmcgui.DialogProgress()
         dialog.create('Resolving', 'Resolving Mash Up BillionUploads Link...')
         dialog.update(0)
@@ -320,11 +318,17 @@ def resolve_billionuploads(url):
         
         cj = cookielib.CookieJar()
         normal = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        normal.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36')]
-        
-        ########################################################
-        ######## CLOUD FLARE STUFF
-        #######################################################
+        normal.addheaders = [
+            ('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0'),
+            ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+            ('Accept-Language', 'en-US,en;q=0.5'),
+            ('Accept-Encoding', ''),
+            ('DNT', '1'),
+            ('Connection', 'keep-alive'),
+            ('Pragma', 'no-cache'),
+            ('Cache-Control', 'no-cache')
+        ]
+
         class NoRedirection(urllib2.HTTPErrorProcessor):
             # Stop Urllib2 from bypassing the 503 page.
             def http_response(self, request, response):
@@ -332,11 +336,25 @@ def resolve_billionuploads(url):
 
                 return response
             https_response = http_response
-        
         opener = urllib2.build_opener(NoRedirection, urllib2.HTTPCookieProcessor(cj))
-        opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36')]
+        opener.addheaders = normal.addheaders
         response = opener.open(url).read()
+        ga = re.search('(?i)"text/javascript" src="(/ga[^"]+?)"', response)
+        if ga:
+            jsurl = 'http://billionuploads.com'+ga.group(1)
+            p  = "p=%7B%22appName%22%3A%22Netscape%22%2C%22platform%22%3A%22Win32%22%2C%22cookies%22%3A1%2C%22syslang%22%3A%22en-US%22"
+            p += "%2C%22userlang%22%3A%22en-US%22%2C%22cpu%22%3A%22WindowsNT6.1%3BWOW64%22%2C%22productSub%22%3A%2220100101%22%7D"
+            opener.open(jsurl, p)
+            response = opener.open(url).read()
             
+#         pid = re.search('(?i)PID=([^"]+?)"', response)
+#         if pid:
+#             normal.addheaders += [('Cookie','D_UID='+pid.group(1)+';')]
+#             opener.addheaders = normal.addheaders
+
+        if re.search('(?i)url=/distil_r_drop.html', response) and filename:
+            url += '/' + filename
+            response = normal.open(url).read()
         html = None
         jschl=re.compile('name="jschl_vc" value="(.+?)"/>').findall(response)
         if jschl:
@@ -352,7 +370,7 @@ def resolve_billionuploads(url):
             html = normal.open(url).read()
         else:
             html = response
-        ################################################################################
+
         #Check page for any error msgs
         if re.search('This server is in maintenance mode', html, re.I):
             logerror('***** BillionUploads - Site reported maintenance mode')
@@ -365,64 +383,14 @@ def resolve_billionuploads(url):
             xbmc.executebuiltin("XBMC.Notification(File Not Found,BillionUploads,2000)")
             return False                                
         
-        #NEW BILLIONUPLOADS
-        #postid = re.search('<input type="hidden" name="id" value="(.+?)">', html).group(1)
-        #video_src_url = 'http://new.billionuploads.com/embed-' + postid + '.html'
-        #print video_src_url
-        #html = normal.open(video_src_url).read()
-        
-        #dialog.close()
-        
-        # SOLVEMEDIA CAPTCHA
-        #try:
-        #    captcha_dir = os.path.join( datapath, 'resources')
-        #    captcha_img = os.path.join(captcha_dir, 'billion_uploads_resolver.png')
-        #    if not os.path.exists(captcha_dir):
-        #        os.makedirs(captcha_dir)
-        #    os.remove(captcha_img)
-        #except: 
-        #    pass
-            
-        #net1 = net()
-        #noscript=re.compile('<iframe src="(.+?)"').findall(html)[0]
-        #check = net1.http_GET(noscript).content
-        #hugekey=re.compile('id="adcopy_challenge" value="(.+?)">').findall(check)[0]           
-        #captcha_headers= {'User-Agent':'Mozilla/6.0 (Macintosh; I; Intel Mac OS X 11_7_9; de-LI; rv:1.9b4) Gecko/2012010317 Firefox/10.0a4',
-        #     'Host':'api.solvemedia.com','Referer':video_src_url,'Accept':'image/png,image/*;q=0.8,*/*;q=0.5'}
-        #open(captcha_img, 'wb').write( net1.http_GET("http://api.solvemedia.com%s"%re.compile('<img src="(.+?)"').findall(check)[0]).content)
-        
-        #img = xbmcgui.ControlImage(550,15,240,100,captcha_img)
-        #wdlg = xbmcgui.WindowDialog()
-        #wdlg.addControl(img)
-        #wdlg.show()
-    
-        #Prompt keyboard for user input
-        #kb = xbmc.Keyboard('', 'Type the letters in the image', False)
-        #kb.doModal()
-        #capcode = kb.getText()
-    
-        #Check input                             
-        #if (kb.isConfirmed()):
-        #    userInput = kb.getText()
-        #    if userInput != '':
-        #        capcode = kb.getText()
-        #    elif userInput == '':
-        #        Notify('big', 'No text entered', 'You must enter text in the image to access video', '')
-        #        return False
-        #else:
-        #    return False 
-        #wdlg.close()
-            
-        #print 'Mash Up BillionUploads - Requesting POST URL: %s' % video_src_url
-        #data={'op':'video_embed','file_code':postid, 'adcopy_response':capcode,'adcopy_challenge':hugekey}
-        #html = normal.open(video_src_url, urllib.urlencode(data)).read()
-        
-        ####
-        #OLD BILLION UPLOADS
         data = {}
-        r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', html)
+        r = re.findall(r'type="hidden" name="(.+?)" value="(.*?)">', html)
         for name, value in r:
             data[name] = value
+        if not data:
+            logerror('Mash Up: Resolve BillionUploads - No Data Found')
+            xbmc.executebuiltin("XBMC.Notification(No Data Found,BillionUploads,2000)")
+            return False
             
         captchaimg = re.search('<img src="((?:http://|www\.)?BillionUploads.com/captchas/.+?)"', html)
         if dialog.iscanceled(): return False
@@ -459,7 +427,7 @@ def resolve_billionuploads(url):
         enc_input = re.compile('decodeURIComponent\("(.+?)"\)').findall(html)
         if enc_input:
             dec_input = urllib2.unquote(enc_input[0])
-            r = re.findall(r'type="hidden" name="(.+?)" value="(.+?)">', dec_input)
+            r = re.findall(r'type="hidden" name="(.+?)" value="(.*?)">', dec_input)
             for name, value in r:
                 data[name] = value
         extradata = re.compile("append\(\$\(document.createElement\('input'\)\).attr\('type','hidden'\).attr\('name','(.*?)'\).val\((.*?)\)").findall(html)
@@ -473,6 +441,7 @@ def resolve_billionuploads(url):
             del data[name]
         
         print 'Mash Up BillionUploads - Requesting POST URL: %s' % url
+        normal.addheaders.append(('Referer', url))
         html = normal.open(url, urllib.urlencode(data)).read()
         if dialog.iscanceled(): return False
         dialog.update(100)
@@ -484,41 +453,25 @@ def resolve_billionuploads(url):
 
         def checkwmv(e):
             s = ""
-            
-            # Create an array containing A-Z,a-z,0-9,+,/
             i=[]
             u=[[65,91],[97,123],[48,58],[43,44],[47,48]]
             for z in range(0, len(u)):
                 for n in range(u[z][0],u[z][1]):
                     i.append(chr(n))
-            #print i
-
-            # Create a dict with A=0, B=1, ...
             t = {}
-            for n in range(0, 64):
-                t[i[n]]=n
-            #print t
-
+            for n in range(0, 64): t[i[n]]=n
             for n in custom_range(0, len(e), 72):
-
                 a=0
                 h=e[n:n+72]
                 c=0
-
-                #print h
                 for l in range(0, len(h)):            
-                    
                     f = t.get(h[l], 'undefined')
-                    if f == 'undefined':
-                        continue
-                        
-                    a= (a<<6) + f
+                    if f == 'undefined': continue
+                    a = (a<<6) + f
                     c = c + 6
-
                     while c >= 8:
                         c = c - 8
                         s = s + chr( (a >> c) % 256 )
-
             return s
 
         dll = re.compile('<input type="hidden" id="dl" value="(.+?)">').findall(html)
@@ -527,9 +480,13 @@ def resolve_billionuploads(url):
             dl = checkwmv(dl);
             dl = checkwmv(dl);
         else:
-            logerror('Mash Up: Resolve BillionUploads - No Video File Found')
-            xbmc.executebuiltin("XBMC.Notification(No Video File Found,BillionUploads,2000)")
-            return False
+            alt = re.compile('<source src="([^"]+?)"').findall(html)
+            if alt:
+                dl = alt[0]
+            else:
+                logerror('Mash Up: Resolve BillionUploads - No Video File Found')
+                xbmc.executebuiltin("XBMC.Notification(No Video File Found,BillionUploads,2000)")
+                return False
 
         print 'Mash Up BillionUploads Link Found: %s' % dl
         return dl
