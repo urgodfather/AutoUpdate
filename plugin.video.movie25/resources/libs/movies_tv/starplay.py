@@ -45,7 +45,7 @@ def GetNewUrl():
     match=re.compile('value="(.+?)">').findall(link)
     return match[0]
 
-def LISTSP5(murl):
+def LISTSP5(murl, retries = 1):
     try:
         nrDomain = GetNewUrl()
         murl=nrDomain+'/latest.php'
@@ -56,11 +56,16 @@ def LISTSP5(murl):
         return
     link = response.content
     link = link.decode('iso-8859-1').encode('utf8')
-    if response.get_url() != murl:
+    if response.get_url() != murl or murl+'?ckattempt' in link:
         if os.path.exists(cookie_file):
             try: os.remove(cookie_file)
             except: pass
-        xbmc.executebuiltin("XBMC.Notification(Sorry!,Email or Password Incorrect,10000,"+smalllogo+")")
+        if murl+'?ckattempt' in link:
+            if retries:
+                retries -= 1
+                return LISTSP5('retry',retries)
+        else:
+            xbmc.executebuiltin("XBMC.Notification(Sorry!,Email or Password Incorrect,10000,"+smalllogo+")")
     if selfAddon.getSetting("hide-download-instructions") != "true":
         main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'',art+'/link.png')
     match=re.compile("<br>(.+?) - <a[^>]+?href='(.+?)'>(.+?)</a>").findall(link)
