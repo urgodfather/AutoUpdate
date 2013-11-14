@@ -270,23 +270,32 @@ def NEXTPAGE(murl):
 
 
 def VIDEOLINKS(name,url):
-    if selfAddon.getSetting("hide-download-instructions") != "true":
-        main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
     link=main.OPENURL(url)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('\\','')
-    qual = re.compile('<h1 >Links - Quality              (.+?)            </h1>').findall(link)
-    quality=str(qual)
-    quality=quality.replace("'","")
+    qual = re.compile('<h1 >Links - Quality\s*?([^\s]+?)\s*?</h1>').findall(link)
+    quality = str(qual)
+    quality = quality.replace("'","")
     name  = name.split('[COLOR blue]')[0]
-    
-    match=re.compile('<li class="link_name">([^"]+?)</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)                      
-    for host,url in match:
-        host=host.replace(' ','')
-        main.addDown(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : "+host.upper()+"[/COLOR]",MainUrl+url,5,art+'/hosts/'+host.lower()+'.png',art+'/hosts/'+host.lower()+'.png')
-    
+    import collections
+    all=re.compile('<li class="link_name">\s*?([^<^\s]+?)\s*?</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)
+    all_coll = collections.defaultdict(list)
+    for d in all: all_coll[d[0]].append(d[1])
+    all_coll = all_coll.items()
+    sortorder = "putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,180upload,hugefiles,mightyupload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,epicshare,lemuploads,2gbhosting,alldebrid,allmyvideos,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup_org,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare,"
+    sortorder = ','.join((sortorder.split(',')[::-1]))
+    all_coll = sorted(all_coll, key=lambda word: sortorder.find(word[0].lower())*-1)
+    for host,urls in all_coll:
+        if host.lower() in sortorder:
+            host = host.strip()
+            thumb=art+'/hosts/'+host+'.png'
+            main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+" [COLOR blue]"+host.upper()+"[/COLOR]",str(urls),11,thumb,thumb)
 
-
-
+def GroupedHosts(name,url,thumb):
+        if selfAddon.getSetting("hide-download-instructions") != "true":
+                main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
+        urls = eval(url)
+        for url in urls:
+                main.addDown(name,MainUrl+url,5,thumb,thumb)
         
 def resolveM25URL(url):
     html=main.OPENURL(url)
