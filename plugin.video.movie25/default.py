@@ -1172,7 +1172,7 @@ elif mode==10:
 elif mode==11:
         from resources.libs import movie25
         print ""+url
-        movie25.PUTLINKS(name,url,iconimage)
+        movie25.GroupedHosts(name,url,iconimage)
 
 
 
