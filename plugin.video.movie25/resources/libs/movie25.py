@@ -279,9 +279,10 @@ def VIDEOLINKS(name,url):
     quality=quality.replace("'","")
     name  = name.split('[COLOR blue]')[0]
     
-    match=re.compile('<li class="link_name">(.+?)</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)                      
+    match=re.compile('<li class="link_name">([^"]+?)</li>.+?<li class=".+?"><span><a href="([^"]+?)"').findall(link)                      
     for host,url in match:
-        main.addDown(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : "+host.upper()+"[/COLOR]",MainUrl+url,5,art+'/hosts/'+host+'.png',art+'/hosts/'+host+'.png')
+        host=host.replace(' ','')
+        main.addDown(name+" [COLOR red]"+quality+"[/COLOR]"+"[COLOR blue] : "+host.upper()+"[/COLOR]",MainUrl+url,5,art+'/hosts/'+host.lower()+'.png',art+'/hosts/'+host.lower()+'.png')
     
 
 
