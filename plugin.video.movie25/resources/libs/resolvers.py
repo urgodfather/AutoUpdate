@@ -314,7 +314,7 @@ def resolve_billionuploads(url, filename):
         dialog.update(0)
                                                                   
         print 'Mash Up BillionUploads - Requesting GET URL: %s' % url
-        CookiesPath=os.path.join(main.datapath,'Cookies')
+        CookiesPath=os.path.join(datapath,'Cookies')
         try: os.makedirs(CookiesPath)
         except: pass
         cookie_file = os.path.join(CookiesPath, 'billionuploads.cookies')
