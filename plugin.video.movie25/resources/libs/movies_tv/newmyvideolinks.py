@@ -36,7 +36,7 @@ def LISTSP2(murl):
     for n in range(subpages):
         if page + n + 1 > max: break
         urls.append('http://www.myvideolinks.eu/category/movies/'+category+'/page/'+str(page+n+1))
-    urllist = main.batchOPENURL(urls)            
+    urllist = main.batchOPENURL(urls)
     hasNextPage = re.compile('>&raquo;</a>').findall(urllist)
     if len(hasNextPage) < subpages:
         page = None
@@ -46,9 +46,9 @@ def LISTSP2(murl):
     if urllist:
         urllist=main.unescapes(urllist)
         #link=main.OPENURL(xurl)
-        match=re.compile('(?sim)<img src="([^"]+?)" width="[^"]+?" height="[^"]+?" title="([^"]+?)" ></a>\s*?<h3><a href="()([^"]+?)"[^>]+?title="([^"]+?)"').findall(urllist)
-        if not match:
-            match=re.compile('<h3><a href="()([^"]+?)"[^>]+?title="([^"]+?)"').findall(urllist)
+        match=re.compile('(?sim)<div class="entry-content">\s*?<a href="([^"]+?)"[^>]*?>\s*?<img src="([^"]+?)"[^>]*?title="([^"]+?)"').findall(urllist)
+#         if not match:
+#             match=re.compile('<h3><a href="()([^"]+?)"[^>]+?title="([^"]+?)"').findall(urllist)
         if match:
             dialogWait = xbmcgui.DialogProgress()
             ret = dialogWait.create('Please wait until Movie list is cached.')
@@ -56,21 +56,20 @@ def LISTSP2(murl):
             loadedLinks = 0
             remaining_display = 'Movies/Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
             dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
-            if len(match)>0:
-                for thumb,url,name in match:
-                    if murl=='TV':
-                        match=re.compile('720p').findall(name)
-                        if (len(match)>0):
-                            main.addDirTE(name,url,35,thumb,'','','','','')
-                    else:
-                        main.addDirM(name,url,35,thumb,'','','','','')
-                        xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-                    loadedLinks = loadedLinks + 1
-                    percent = (loadedLinks * 100)/totalLinks
-                    remaining_display = 'Movies/Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
-                    dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-                    if (dialogWait.iscanceled()):
-                        return False
+            for url,thumb,name in match:
+                if murl=='TV':
+                    match=re.compile('720p').findall(name)
+                    if (len(match)>0):
+                        main.addDirTE(name,url,35,thumb,'','','','','')
+                else:
+                    main.addDirM(name,url,35,thumb,'','','','','')
+                    xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
+                loadedLinks = loadedLinks + 1
+                percent = (loadedLinks * 100)/totalLinks
+                remaining_display = 'Movies/Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+                dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
+                if (dialogWait.iscanceled()):
+                    return False
             if not page is None:
                 main.addDir('Page ' + str(page/subpages+1) + ', Next Page >>>',murl + "-" + str(page/subpages+1) + "," + max,34,art+'/next2.png')
             dialogWait.close()
@@ -168,12 +167,19 @@ def LINKSP2(mname,url):
     import urlresolver
     for mname, links in reversed(match0):
         match=re.compile('<li><a href="([^"]+?)".*?>(.+?)</a></li>').findall(links)
+        filename = False
+        for murl, name in match:
+            fn = re.search('/([^/]+?\.(mkv|avi|mp4))(\.html)?$',murl)
+            if fn:
+                filename = fn.group(1)
+                break
         for murl, name in match:
             thumb=name.lower()
             hosted_media = urlresolver.HostedMediaFile(url=murl, title=name)
             match2=re.compile("{'url': '(.+?)', 'host': '(.+?)', 'media_id': '.+?'}").findall(str(hosted_media))
             for murl,host in match2:
-                    main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
+                if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
+                main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
 
 def LINKSP2B(mname,murl):
     main.GA("Newmyvideolinks","Watched") 
@@ -197,8 +203,10 @@ def LINKSP2B(mname,murl):
     playlist.clear()
     try :
         xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,3000)")
-        stream_url = main.resolve_url(murl)
-        
+        parts = murl.partition('#@#')
+        murl = parts[0]
+        filename = parts[-1]
+        stream_url = main.resolve_url(murl,filename)
         infoL={'Title': infoLabels['title'], 'Plot': infoLabels['plot'], 'Genre': infoLabels['genre']}
         if not video_type is 'episode': infoL['originalTitle']=main.removeColoredText(infoLabels['metaName']) 
         # play with bookmark
