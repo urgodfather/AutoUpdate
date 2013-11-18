@@ -166,7 +166,8 @@ def LINKSP2(mname,url):
     match0=re.compile('<h4>(.+?)</h4>(.+?)</ul>').findall(link)
     import urlresolver
     for mname, links in reversed(match0):
-        match=re.compile('<li><a href="([^"]+?)".*?>(.+?)</a></li>').findall(links)
+        match1=re.compile('<li><a href="([^"]+?)"[^>]*?><img [^>]*?alt="([^"]+?)"[^>]*?></a></li>').findall(links)
+        match= match1 + re.compile('<li><a href="([^"]+?)"[^>]*?>([^>]+?)</a></li>').findall(links)
         filename = False
         for murl, name in match:
             fn = re.search('/([^/]+?\.(mkv|avi|mp4))(\.html)?$',murl)
@@ -174,6 +175,7 @@ def LINKSP2(mname,url):
                 filename = fn.group(1)
                 break
         for murl, name in match:
+            name = name[0].upper() + name[1:]
             thumb=name.lower()
             hosted_media = urlresolver.HostedMediaFile(url=murl, title=name)
             match2=re.compile("{'url': '(.+?)', 'host': '(.+?)', 'media_id': '.+?'}").findall(str(hosted_media))
