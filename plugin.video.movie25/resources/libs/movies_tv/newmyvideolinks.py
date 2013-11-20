@@ -7,6 +7,7 @@ from resources.libs import main
 addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 art = main.art
+pattern = '(?sim)<a href="([^"]+?)" rel="bookmark"[^>]*?>\s*?<img src="([^"]+?)"[^>]*?title="([^"]+?)"'
     
 def LISTSP2(murl):
     if murl.startswith('3D'):
@@ -46,7 +47,7 @@ def LISTSP2(murl):
     if urllist:
         urllist=main.unescapes(urllist)
         #link=main.OPENURL(xurl)
-        match=re.compile('(?sim)<div class="entry-content">\s*?<a href="([^"]+?)"[^>]*?>\s*?<img src="([^"]+?)"[^>]*?title="([^"]+?)"').findall(urllist)
+        match=re.compile(pattern).findall(urllist)
 #         if not match:
 #             match=re.compile('<h3><a href="()([^"]+?)"[^>]+?title="([^"]+?)"').findall(urllist)
         if match:
@@ -117,9 +118,9 @@ def SEARCHNEW(mname,murl):
         surl='http://www.myvideolinks.eu/index.php?s='+encode
         link=main.OPENURL(surl)
         link=main.unescapes(link)
-        match=re.compile("""<a href=".+?" rel=".+?" title=".+?"> <img src="(.+?)" width=".+?" height=".+?" title="(.+?)" class=".+?"></a><h4><a href="(.+?)" rel""").findall(link)
-        if len(match)>0:
-            for thumb,name,url in match:
+        match=re.compile(pattern).findall(link)
+        if match:
+            for url,thumb,name in match:
                 if not re.findall('HDTV',name):
                     main.addDirM(name,url,35,thumb,'','','','','')
     elif murl == 'tvNEW':
@@ -128,32 +129,30 @@ def SEARCHNEW(mname,murl):
         surl='http://www.myvideolinks.eu/index.php?s='+encode
         link=main.OPENURL(surl)
         link=main.unescapes(link)
-        match=re.compile("""<a href=".+?" rel=".+?" title=".+?"> <img src="(.+?)" width=".+?" height=".+?" title="(.+?)" class=".+?"></a><h4><a href="(.+?)" rel""").findall(link)
-        if len(match)>0:
-            for thumb,name,url in match:
+        match=re.compile(pattern).findall(link)
+        if match:
+            for url,thumb,name in match:
                 main.addDirTE(name,url,35,thumb,'','','','','')
     else:
         if murl == 'tNEW':
-            mname=mname.replace(' ','%20')
-            encode = mname
+            encode = mname.replace(' ','%20')
             surl='http://www.myvideolinks.eu/index.php?s='+encode
             link=main.OPENURL(surl)
             link=main.unescapes(link)
-            match=re.compile("""<a href=".+?" rel=".+?" title=".+?"> <img src="(.+?)" width=".+?" height=".+?" title="(.+?)" class=".+?"></a><h4><a href="(.+?)" rel""").findall(link)
-            if len(match)>0:
-                for thumb,name,url in match:
+            match=re.compile(pattern).findall(link)
+            if match:
+                for url,thumb,name in match:
                     if re.findall('HDTV',name):
                        main.addDirTE(name,url,35,thumb,'','','','','')
 
         elif murl == 'mNEW':
-            mname=mname.replace(' ','%20')
-            encode = mname
+            encode = mname.replace(' ','%20')
             surl='http://www.myvideolinks.eu/index.php?s='+encode
             link=main.OPENURL(surl)
             link=main.unescapes(link)
-            match=re.compile("""<a href=".+?" rel=".+?" title=".+?"> <img src="(.+?)" width=".+?" height=".+?" title="(.+?)" class=".+?"></a><h4><a href="(.+?)" rel""").findall(link)
-            if len(match)>0:
-                for thumb,name,url in match:
+            match=re.compile(pattern).findall(link)
+            if match:
+                for url,thumb,name in match:
                     if not re.findall('HDTV',name):
                         main.addDirM(name,url,35,thumb,'','','','','')
     main.GA("Newmyvideolinks","Search")
