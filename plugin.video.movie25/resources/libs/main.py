@@ -3,17 +3,19 @@ import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 import time,threading
 #Mash Up - by Mash2k3 2012.
 
-Mainurl ='http://www.movie25.com/movies/'
 addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 mashpath = selfAddon.getAddonInfo('path')
 grab = None
 fav = False
+hostlist = None
 Dir = xbmc.translatePath(os.path.join('special://home/addons/plugin.video.movie25', ''))
 repopath = xbmc.translatePath(os.path.join('special://home/addons/repository.mash2k3', ''))
 datapath = xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 supportsite = 'xunitytalk.com'
-
+hosts = 'putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,lemuploads,180upload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,epicshare,2gbhosting,alldebrid,allmyvideos,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare'
+##from http://real-debrid.com/api/hosters.php
+rdhosts = '1fichier.com,desfichiers.com,1st-files.com,2shared.com,4shared.com,aetv.com,albafile.com,asfile.com,bayfiles.com,bitshare.com,canalplus.fr,cbs.com,cloudzer.net,crocko.com,cwtv.com,dailymotion.com,dengee.net,depfile.com,i-filez.com,dizzcloud.com,dl.free.fr,extmatrix.com,filebox.com,filecloud.io,filefactory.com,fileflyer.com,fileover.net,fileparadox.in,filepost.com,filerio.com,filesabc.com,filesend.net,filesflash.com,filesflash.net,filesmonster.com,filestay.com,freakshare.net,gigasize.com,hipfile.com,hotfile.com,hugefiles.net,hulkshare.com,hulu.com,jumbofiles.com,justin.tv,letitbit.net,load.to,mediafire.com,mega.co.nz,megashares.com,mixturevideo.com,mixturecloud.com,netload.in,nowdownload.eu,nowdownload.ch,nowdownload.sx,nowvideo.eu,nowvideo.sx,nowvideo.ch,purevid.com,putlocker.com,rapidgator.net,rapidshare.com,redtube.com,rutube.ru,scribd.com,sendspace.com,share-online.biz,sharefiles.co,shareflare.net,sky.fm,slingfile.com,sockshare.com,soundcloud.com,speedyshare.com,turbobit.net,unibytes.com,uploaded.to,uploaded.net,ul.to,uploadhero.co,uploadhero.com,uploading.com,uptobox.com,userporn.com,veevr.com,vidhog.com,vimeo.com,vip-file.com,wat.tv,youporn.com,youtube.com,yunfile.com,zippyshare.com'
 if selfAddon.getSetting('visitor_ga')=='':
     from random import randint
     selfAddon.setSetting('visitor_ga',str(randint(0, 0x7fffffff)))
@@ -26,10 +28,11 @@ try:
     log_path = xbmc.translatePath('special://logpath')
     log = os.path.join(log_path, 'xbmc.log')
     logfile = open(log, 'r').read()
-    match=re.compile('Starting XBMC \((.+?) Git:.+?Platform: (.+?)\. Built.+?').findall(logfile)
+    match=re.compile('Starting XBMC \((.+?) Git:.+?Platform: (.+?)\. Built').search(logfile)
     if match:
-        for build, PLATFORM in match:
-            print 'XBMC '+build+' Platform '+PLATFORM
+        PLATFORM = match.group(1)
+        build = match.group(2)
+        print 'XBMC '+build+' Platform '+PLATFORM
     else:
         PLATFORM=''
 except:
@@ -123,6 +126,15 @@ def getFav():
         fav = favorites.Favorites(addon_id, sys.argv)
     return fav
 
+def getHostList():
+    global hostlist
+    if not hostlist:
+        hostlist = hosts
+        try: 
+            if xbmcaddon.Addon(id='script.module.urlresolver').getSetting("RealDebridResolver_enabled") == 'true': hostlist += rdhosts
+        except: pass
+    return hostlist
+
 def unescapes(text):
         try:
             rep = {"%26":"&","&#38;":"&","&amp;":"&","&#044;": ",","&nbsp;": " ","\n": "","\t": "","\r": "","%5B": "[","%5D": "]","%3a": ":","%3A":":","%2f":"/","%2F":"/","%3f":"?","%3F":"?","%3d":"=","%3D":"=","%2C":",","%2c":",","%3C":"<","%20":" ","%22":'"',"%3D":"=","%3A":":","%2F":"/","%3E":">","%3B":",","%27":"'","%0D":"","%0A":"","%92":"'"}
@@ -188,11 +200,11 @@ def downloadFile(url,dest,silent = False):
     try:
         import urllib2
         file_name = url.split('/')[-1]
+        print "Downloading: %s" % (file_name)
         u = urllib2.urlopen(url)
         f = open(dest, 'wb')
         meta = u.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-        print "Downloading: %s %s Bytes" % (file_name, file_size)
         file_size_dl = 0
         block_sz = 8192
         while True:
@@ -258,6 +270,10 @@ def updateSearchFile(searchQuery,searchType,defaultValue = '###',searchMsg = '')
                 try: open(SearchFile,'a').write('search="%s",'%searchitem)
                 except: pass
     return searchQuery
+
+def supportedHost(host):
+    if 'ul' == host: host = 'uploaded'
+    return host.lower() in getHostList()
 ################################################################################ Notifications #########################################################################################################
 
 def CheckVersion():
@@ -284,136 +300,123 @@ def CheckVersion():
 
 ################################################################################ AutoView ##########################################################################################################
 
-
 def VIEWS():
-        if selfAddon.getSetting("auto-view") == "true":
-                if selfAddon.getSetting("choose-skin") == "true":
-                        if selfAddon.getSetting("con-view") == "0":
-                                xbmc.executebuiltin("Container.SetViewMode(50)")
-                        elif selfAddon.getSetting("con-view") == "1":
-                                xbmc.executebuiltin("Container.SetViewMode(51)")
-                        elif selfAddon.getSetting("con-view") == "2":
-                                xbmc.executebuiltin("Container.SetViewMode(500)")
-                        elif selfAddon.getSetting("con-view") == "3":
-                                xbmc.executebuiltin("Container.SetViewMode(501)")
-                        elif selfAddon.getSetting("con-view") == "4":
-                                xbmc.executebuiltin("Container.SetViewMode(508)")
-                        elif selfAddon.getSetting("con-view") == "5":
-                                xbmc.executebuiltin("Container.SetViewMode(504)")
-                        elif selfAddon.getSetting("con-view") == "6":
-                                xbmc.executebuiltin("Container.SetViewMode(503)")
-                        elif selfAddon.getSetting("con-view") == "7":
-                                xbmc.executebuiltin("Container.SetViewMode(515)")
-                        return
-                elif selfAddon.getSetting("choose-skin") == "false":
-                        if selfAddon.getSetting("xpr-view") == "0":
-                                xbmc.executebuiltin("Container.SetViewMode(50)")
-                        elif selfAddon.getSetting("xpr-view") == "1":
-                                xbmc.executebuiltin("Container.SetViewMode(52)")
-                        elif selfAddon.getSetting("xpr-view") == "2":
-                                xbmc.executebuiltin("Container.SetViewMode(501)")
-                        elif selfAddon.getSetting("xpr-view") == "3":
-                                xbmc.executebuiltin("Container.SetViewMode(55)")
-                        elif selfAddon.getSetting("xpr-view") == "4":
-                                xbmc.executebuiltin("Container.SetViewMode(54)")
-                        elif selfAddon.getSetting("xpr-view") == "5":
-                                xbmc.executebuiltin("Container.SetViewMode(60)")
-                        elif selfAddon.getSetting("xpr-view") == "6":
-                                xbmc.executebuiltin("Container.SetViewMode(53)")
-                        return
-        else:
-                return
-        
+    if selfAddon.getSetting("auto-view") == "true":
+        if selfAddon.getSetting("choose-skin") == "true":
+            if selfAddon.getSetting("con-view") == "0":
+                    xbmc.executebuiltin("Container.SetViewMode(50)")
+            elif selfAddon.getSetting("con-view") == "1":
+                    xbmc.executebuiltin("Container.SetViewMode(51)")
+            elif selfAddon.getSetting("con-view") == "2":
+                    xbmc.executebuiltin("Container.SetViewMode(500)")
+            elif selfAddon.getSetting("con-view") == "3":
+                    xbmc.executebuiltin("Container.SetViewMode(501)")
+            elif selfAddon.getSetting("con-view") == "4":
+                    xbmc.executebuiltin("Container.SetViewMode(508)")
+            elif selfAddon.getSetting("con-view") == "5":
+                    xbmc.executebuiltin("Container.SetViewMode(504)")
+            elif selfAddon.getSetting("con-view") == "6":
+                    xbmc.executebuiltin("Container.SetViewMode(503)")
+            elif selfAddon.getSetting("con-view") == "7":
+                    xbmc.executebuiltin("Container.SetViewMode(515)")
+            return
+        elif selfAddon.getSetting("choose-skin") == "false":
+            if selfAddon.getSetting("xpr-view") == "0":
+                    xbmc.executebuiltin("Container.SetViewMode(50)")
+            elif selfAddon.getSetting("xpr-view") == "1":
+                    xbmc.executebuiltin("Container.SetViewMode(52)")
+            elif selfAddon.getSetting("xpr-view") == "2":
+                    xbmc.executebuiltin("Container.SetViewMode(501)")
+            elif selfAddon.getSetting("xpr-view") == "3":
+                    xbmc.executebuiltin("Container.SetViewMode(55)")
+            elif selfAddon.getSetting("xpr-view") == "4":
+                    xbmc.executebuiltin("Container.SetViewMode(54)")
+            elif selfAddon.getSetting("xpr-view") == "5":
+                    xbmc.executebuiltin("Container.SetViewMode(60)")
+            elif selfAddon.getSetting("xpr-view") == "6":
+                    xbmc.executebuiltin("Container.SetViewMode(53)")
+            return
+    else:
+        return
 
 def VIEWSB():
-        if selfAddon.getSetting("auto-view") == "true":
-                        if selfAddon.getSetting("home-view") == "0":
-                                xbmc.executebuiltin("Container.SetViewMode(50)")
-                        elif selfAddon.getSetting("home-view") == "1":
-                                xbmc.executebuiltin("Container.SetViewMode(500)")
-
-                        return
+    if selfAddon.getSetting("auto-view") == "true":
+        if selfAddon.getSetting("home-view") == "0":
+                xbmc.executebuiltin("Container.SetViewMode(50)")
+        elif selfAddon.getSetting("home-view") == "1":
+                xbmc.executebuiltin("Container.SetViewMode(500)")
+        return
 
 def VIEWSB2():
-        if selfAddon.getSetting("auto-view") == "true":
-                        if selfAddon.getSetting("sub-view") == "0":
-                                xbmc.executebuiltin("Container.SetViewMode(50)")
-                        elif selfAddon.getSetting("sub-view") == "1":
-                                xbmc.executebuiltin("Container.SetViewMode(500)")
-
-                        return
+    if selfAddon.getSetting("auto-view") == "true":
+        if selfAddon.getSetting("sub-view") == "0":
+            xbmc.executebuiltin("Container.SetViewMode(50)")
+        elif selfAddon.getSetting("sub-view") == "1":
+            xbmc.executebuiltin("Container.SetViewMode(500)")
+        return
 ################################################################################ Movies Metahandler ##########################################################################################################
 
 def formatCast(cast):
-        roles = "\n\n"
-        for role in cast:
-            roles =  roles + "[COLOR blue]" + role[0] + "[/COLOR] as " + role[1] + " | "
-        return roles
+    roles = "\n\n"
+    for role in cast:
+        roles =  roles + "[COLOR blue]" + role[0] + "[/COLOR] as " + role[1] + " | "
+    return roles
 
-def GETMETAT(mname,genre,fan,thumb,plot=''):
-        originalName=mname
-        if selfAddon.getSetting("meta-view") == "true":
-                setGrab()
-                mname = re.sub(r'\[COLOR red\]\(?(\d{4})\)?\[/COLOR\]',r'\1',mname)
-                mname = removeColoredText(mname)
-                mname = mname.replace(' EXTENDED and UNRATED','').replace('Webrip','').replace('MaxPowers','').replace('720p','').replace('1080p','').replace('TS','').replace('HD','').replace('R6','').replace('H.M.','').replace('HackerMil','').replace('(','').replace(')','').replace('[','').replace(']','')
-                mname = re.sub('Cam(?![A-Za-z])','',mname)
-                mname = mname.strip()
-                if re.findall('\s\d{4}',mname):
-                    r = re.split('\s\d{4}',mname,re.DOTALL)
-                    name = r[0]
-                    year = re.findall('\s(\d{4})\s',mname + " ")
-                    if year:
-                        year = year[0]
-                    else:
-                        year=''
-                else:
-                    name=mname
-                    year=''
-                name = name.decode("ascii", "ignore")
-                meta = grab.get_meta('movie',name,None,None,year=year)# first is Type/movie or tvshow, name of show,tvdb id,imdb id,string of year,unwatched = 6/watched  = 7
-                if not meta['year']:
-                      name  = re.sub(':.*','',name)
-                      meta = grab.get_meta('movie',name,None,None,year=year)
-                print "Movie mode: %s"%name
-                infoLabels = {'rating': meta['rating'],'duration': meta['duration'],'genre': meta['genre'],'mpaa':"rated %s"%meta['mpaa'],
-                  'plot': meta['plot'],'title': meta['title'],'writer': meta['writer'],'cover_url': meta['cover_url'],'overlay':meta['overlay'],
-                  'director': meta['director'],'cast': meta['cast'],'backdrop_url': meta['backdrop_url'],'tmdb_id': meta['tmdb_id'],'year': meta['year'], 'imdb_id' : meta['imdb_id']}
-                if infoLabels['genre']=='':
-                        infoLabels['genre']=genre
-                if infoLabels['cover_url']=='':
-                        infoLabels['cover_url']=thumb
-                if infoLabels['backdrop_url']=='':
-                        if fan=='':
-                            fan=Dir+'fanart.jpg'
-                        else:
-                            fan=fan
-                        infoLabels['backdrop_url']=fan
-                if meta['overlay'] == 7:
-                   infoLabels['playcount'] = 1
-                else:
-                   infoLabels['playcount'] = 0
-                   
-                if infoLabels['cover_url']=='':
-                    thumb=art+'/vidicon.png'
-                    infoLabels['cover_url']=thumb
-                #if int(year+'0'):
-                #    infoLabels['year']=year 
-                infoLabels['metaName']=infoLabels['title']
-                infoLabels['title']=originalName
-                if infoLabels['plot']=='':
-                    infoLabels['plot']=plot
-                else:
-                    infoLabels['plot'] = infoLabels['plot'] + formatCast(infoLabels['cast'])
+def GETMETAT(mname,genre,fan,thumb,plot='',imdb='',tmdb=''):
+    originalName=mname
+    if selfAddon.getSetting("meta-view") == "true":
+        setGrab()
+        mname = re.sub(r'\[COLOR red\]\(?(\d{4})\)?\[/COLOR\]',r'\1',mname)
+        mname = removeColoredText(mname)
+        mname = mname.replace(' EXTENDED and UNRATED','').replace('Webrip','').replace('MaxPowers','').replace('720p','').replace('1080p','').replace('TS','').replace('HD','').replace('R6','').replace('H.M.','').replace('HackerMil','').replace('(','').replace(')','').replace('[','').replace(']','')
+        mname = mname.replace(' Extended Cut','')
+        mname = re.sub('Cam(?![A-Za-z])','',mname)
+        mname = re.sub('(?i)3-?d h-?sbs','',mname)
+        mname = mname.strip()
+        if re.findall('\s\d{4}',mname):
+            r = re.split('\s\d{4}',mname,re.DOTALL)
+            name = r[0]
+            year = re.findall('\s(\d{4})\s',mname + " ")
+            if year: year = year[0]
+            else: year=''
         else:
-                if thumb=='':
-                    thumb=art+'/vidicon.png'
-                if fan=='':
-                    fan=Dir+'fanart.jpg'
-                else:
-                    fan=fan
-                infoLabels = {'title': mname,'metaName': mname,'cover_url': thumb,'backdrop_url': fan,'season': '','episode': '','year': '','plot': '','genre': genre,'imdb_id': '','tmdb_id':''}
-        return infoLabels
+            name=mname
+            year=''
+        name = name.decode("ascii", "ignore")
+        meta = grab.get_meta('movie',name,imdb,tmdb,year)# first is Type/movie or tvshow, name of show,tvdb id,imdb id,string of year,unwatched = 6/watched  = 7
+        if not meta['year']:
+            name  = re.sub(':.*','',name)
+            meta = grab.get_meta('movie',name,imdb,tmdb,year)
+        print "Movie mode: %s"%name
+        infoLabels = {'rating': meta['rating'],'duration': meta['duration'],'genre': meta['genre'],'mpaa':"rated %s"%meta['mpaa'],
+          'plot': meta['plot'],'title': meta['title'],'writer': meta['writer'],'cover_url': meta['cover_url'],'overlay':meta['overlay'],
+          'director': meta['director'],'cast': meta['cast'],'backdrop_url': meta['backdrop_url'],'tmdb_id': meta['tmdb_id'],'year': meta['year'],
+          'imdb_id' : meta['imdb_id']}
+        if infoLabels['genre']=='':
+            infoLabels['genre']=genre
+        if infoLabels['cover_url']=='':
+            infoLabels['cover_url']=thumb
+        if infoLabels['backdrop_url']=='':
+            if fan=='': fan=Dir+'fanart.jpg'
+            else: fan=fan
+            infoLabels['backdrop_url']=fan
+        if meta['overlay'] == 7: infoLabels['playcount'] = 1
+        else: infoLabels['playcount'] = 0
+        if infoLabels['cover_url']=='':
+            thumb=art+'/vidicon.png'
+            infoLabels['cover_url']=thumb
+        #if int(year+'0'):
+        #    infoLabels['year']=year 
+        infoLabels['metaName']=infoLabels['title']
+        infoLabels['title']=originalName
+        if infoLabels['plot']=='': infoLabels['plot']=plot
+        else: infoLabels['plot'] = infoLabels['plot'] + formatCast(infoLabels['cast'])
+    else:
+        if thumb=='': thumb=art+'/vidicon.png'
+        if fan=='': fan=Dir+'fanart.jpg'
+        else: fan=fan
+        infoLabels = {'title': mname,'metaName': mname,'cover_url': thumb,'backdrop_url': fan,'season': '','episode': '','year': '','plot': '','genre': genre,'imdb_id': '','tmdb_id':''}
+    return infoLabels
 
 ################################################################################ TV Shows Metahandler ##########################################################################################################
 
@@ -425,23 +428,10 @@ def GETMETAEpiT(mname,thumb,desc):
                 mname = mname.replace('New Episode','').replace('Main Event','').replace('New Episodes','')
                 mname = mname.strip()
                 r = re.findall('(.+?)\ss(\d+)e(\d+)\s',mname + " ",re.I)
+                if not r: r = re.findall('(.+?)\sseason\s(\d+)\sepisode\s(\d+)\s',mname + " ",re.I)
+                if not r: r = re.findall('(.+?)\s(\d+)x(\d+)\s',mname + " ",re.I)
                 if r:
                     for name,sea,epi in r:
-                        year=''
-                        name=name.replace(' US','').replace(' (US)','').replace(' UK',' (UK)').replace(' AU','').replace(' and',' &').replace(' 2013','').replace(' 2011','').replace(' 2012','').replace(' 2010','')
-                        if re.findall('twisted',name,re.I):
-                            year='2013'
-                        if re.findall('the newsroom',name,re.I):
-                            year='2012'
-                        metaq = grab.get_meta('tvshow',name,None,None,year)
-                        imdb=metaq['imdb_id']
-                        tit=metaq['title']
-                        year=metaq['year']
-                        epiname=''
-
-                f = re.findall('(.+?)\sseason\s(\d+)\sepisode\s(\d+)\s',mname + " ",re.I)
-                if f:
-                    for name,sea,epi in f:
                         year=''
                         name=name.replace(' US','').replace(' (US)','').replace(' (us)','').replace(' (uk Series)','').replace(' (UK)','').replace(' UK',' (UK)').replace(' AU','').replace(' AND',' &').replace(' And',' &').replace(' and',' &').replace(' 2013','').replace(' 2011','').replace(' 2012','').replace(' 2010','')
                         if re.findall('twisted',name,re.I):
@@ -453,8 +443,7 @@ def GETMETAEpiT(mname,thumb,desc):
                         tit=metaq['title']
                         year=metaq['year']
                         epiname=''
-                        
-                if len(r)==0 and len(f)==0:
+                else:       
                     metaq=''
                     name=mname
                     epiname=''
@@ -675,29 +664,36 @@ def geturl(murl):
         else:
                 return match[0]
 
-def Download_Source(name,url):
-    
-    originalName=name
-    match=re.compile('watchseries.lt').findall(url)
-    if match:
-        name=name.replace('/','').replace('.','').replace(':','')
-        name=name.replace('[DVD]','').replace('[TS]','').replace('[TC]','').replace('[CAM]','').replace('[SCREENER]','').replace('[COLOR blue]','').replace('[COLOR red]','').replace('[/COLOR]','').replace('[COLOR]','')
-        name=name.replace(' : Gorillavid','').replace(' : Divxstage','').replace(' : Movshare','').replace(' : Sharesix','').replace(' : Movpod','').replace(' : Daclips','').replace(' : Videoweed','')
-        name=name.replace(' : Played','').replace(' : MovDivx','').replace(' : Movreel','').replace(' : BillionUploads','').replace(' : Putlocker','').replace(' : Sockshare','').replace(' : Nowvideo','').replace(' : 180upload','').replace(' : Filenuke','').replace(' : Flashx','').replace(' : Novamov','').replace(' : Uploadc','').replace(' : Xvidstage','').replace(' : Zooupload','').replace(' : Zalaa','').replace(' : Vidxden','').replace(' : Vidbux','')
-        name=name.replace(' 720p BRRip','').replace(' 720p HDRip','').replace(' 720p WEBRip','').replace(' 720p BluRay','')
-        name=name.replace('  Part:1','').replace('  Part:2','').replace('  Part:3','').replace('  Part:4','')
+def resolveDownloadLinks(url):
+    if re.search('watchseries.lt',url):
         match=re.compile('(.+?)xocx(.+?)xocx').findall(url)
         for hurl, durl in match:
             url=geturl('http://watchseries.lt'+hurl)
-    if re.compile('iwatchonline').findall(url):
+    elif re.search('iwatchonline',url):
         name=name.split('[COLOR red]')[0]
         name=name.replace('/','').replace('.','')
         url=GetUrliW(url)
-    if re.compile('movie25').findall(url):
+    elif re.search('movie25',url):
         from resources.libs import movie25
-        url = movie25.resolveM25URL(url) 
-    
+        url = movie25.resolveM25URL(url)
+    elif url.startswith('ice'):
+        from resources.libs.movies_tv import icefilms
+        url = url.lstrip('ice')
+        url = eval(urllib.unquote(url))
+        url = icefilms.resolveIceLink(url)
+    elif 'mobapps.cc' in url or 'vk.com' in url:
+        from resources.libs.plugins import mbox
+        url = mbox.resolveMBLink(url)
+    elif 'noobroom' in url:
+        from resources.libs.movies_tv import starplay
+        url = starplay.find_noobroom_video_url(url)
+    return url
+
+def Download_Source(name,url):
+    originalName=name
+    url = resolveDownloadLinks(url)
     name=removeColoredText(name)
+    name=name.replace('/','').replace('\\','').replace(':','').replace('|','')      
     name=re.sub(r'[^\w]', ' ', name)
     name=name.split(' [')[0]
     name=name.split('[')[0]
@@ -706,77 +702,56 @@ def Download_Source(name,url):
 
     stream_url = resolve_url(url)    
     if stream_url:
-            print stream_url
-            xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,2000)")
-            if os.path.exists(downloadPath):
-                match1=re.compile("flv").findall(stream_url)
-                if len(match1)>0:
-                    name=name+'.flv'
-                match2=re.compile("mkv").findall(stream_url)
-                if len(match2)>0:
-                    name=name+'.mkv'
-                match3=re.compile("mp4").findall(stream_url)
-                if len(match3)>0:
-                    name=name+'.mp4'
-                match4=re.compile("avi").findall(stream_url)
-                if len(match4)>0:
-                    name=name+'.avi'
-                match5=re.compile("divx").findall(stream_url)
-                if len(match5)>0:
-                    name=name+'.divx'
-                if len(match1)==0 and len(match2)==0 and len(match2)==0 and len(match3)==0 and len(match4)==0 and len(match5)==0:
-                    name=name+'.mp4'
-                mypath=os.path.join(downloadPath,name)
-                if os.path.isfile(mypath) is True:
-                    xbmc.executebuiltin("XBMC.Notification(Download Alert!,The video you are trying to download already exists!,8000)")
-                else:
-                    name=name.replace(' ','')
-                    DownloadInBack=selfAddon.getSetting('download-in-background')
-                    if DownloadInBack == 'true':
-                        QuietDownload(stream_url,mypath,originalName,name)
-                    else:
-                        Download(stream_url,mypath,originalName,name)
-            
+        print stream_url
+        xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving Link,2000)")
+        if os.path.exists(downloadPath):
+            if re.search("flv",stream_url):name += '.flv'
+            elif re.search("mkv",stream_url): name += '.mkv'
+            elif re.search("mp4",stream_url): name += '.mp4'
+            elif re.search("avi",stream_url): name += '.avi'
+            elif re.search("divx",stream_url): name += '.divx'
+            else: name += '.mp4'
+            mypath=os.path.join(downloadPath,name)
+            if os.path.isfile(mypath):
+                xbmc.executebuiltin("XBMC.Notification(Download Alert!,The video you are trying to download already exists!,8000)")
             else:
-                xbmc.executebuiltin("XBMC.Notification(Download Alert!,You have not set the download folder,8000)")
-                return False
-                
+                name=name.replace(' ','')
+                DownloadInBack=selfAddon.getSetting('download-in-background')
+                if DownloadInBack == 'true':
+                    QuietDownload(stream_url,mypath,originalName,name)
+                else:
+                    Download(stream_url,mypath,originalName,name)
+        else:
+            xbmc.executebuiltin("XBMC.Notification(Download Alert!,You have not set the download folder,8000)")
+            return False
     else:
-            xbmc.executebuiltin("XBMC.Notification(Sorry!,Link Not Found,6000)")
-            stream_url = False
-
-def Download_SourceB(name,url):#starplay/noobroom
-    from resources.libs.movies_tv import starplay
-    starplay.download_noobroom_video(name,url)
+        xbmc.executebuiltin("XBMC.Notification(Sorry!,Link Not Found,6000)")
+        stream_url = False
 
 def Download(url, dest,originalName, displayname=False):
-         
-        if displayname == False:
-            displayname=url
-        delete_incomplete = selfAddon.getSetting('delete-incomplete-downloads')
-        dp = xbmcgui.DialogProgress()
-        dp.create('Downloading:    '+displayname)
-        start_time = time.time() 
-        try: 
-            urllib.urlretrieve(url, dest, lambda nb, bs, fs: _pbhook(nb, bs, fs, dp, start_time))
-            open(DownloadFile,'a').write('{name="%s",destination="%s"}'%(originalName,dest))
-            
-        except:
-            if delete_incomplete == 'true':
-                #delete partially downloaded file if setting says to.
-                while os.path.exists(dest): 
-                    try: 
-                        os.remove(dest) 
-                        break 
-                    except: 
-                        pass 
-            #only handle StopDownloading (from cancel), ContentTooShort (from urlretrieve), and OS (from the race condition); let other exceptions bubble 
-            if sys.exc_info()[0] in (urllib.ContentTooShortError, StopDownloading, OSError): 
-                return False 
-            else: 
-                raise 
-            return False
-        return True
+    if displayname == False:
+        displayname=url
+    delete_incomplete = selfAddon.getSetting('delete-incomplete-downloads')
+    dp = xbmcgui.DialogProgress()
+    dp.create('Downloading:    '+displayname)
+    start_time = time.time() 
+    try: 
+        urllib.urlretrieve(url, dest, lambda nb, bs, fs: _pbhook(nb, bs, fs, dp, start_time))
+        open(DownloadFile,'a').write('{name="%s",destination="%s"}'%(originalName,dest))
+    except:
+        if delete_incomplete == 'true':
+            #delete partially downloaded file if setting says to.
+            while os.path.exists(dest): 
+                try: 
+                    os.remove(dest) 
+                    break 
+                except:  pass 
+        #only handle StopDownloading (from cancel), ContentTooShort (from urlretrieve), and OS (from the race condition); let other exceptions bubble 
+        if sys.exc_info()[0] in (urllib.ContentTooShortError, StopDownloading, OSError): 
+            return False 
+        else: raise 
+        return False
+    return True
 
 def QuietDownload(url, dest,originalName, videoname):
     #quote parameters passed to download script     
@@ -794,7 +769,6 @@ def QuietDownload(url, dest,originalName, videoname):
     script = os.path.join( mashpath, 'resources', 'libs', "DownloadInBackground.py" )
     xbmc.executebuiltin( "RunScript(%s, %s, %s, %s, %s, %s)" % ( script, q_url, q_dest, q_vidname,q_vidOname, str(notifyValues[NotifyPercent]) ) )
     return True
-
  
 def _pbhook(numblocks, blocksize, filesize, dp, start_time):
         try: 
@@ -817,23 +791,7 @@ def _pbhook(numblocks, blocksize, filesize, dp, start_time):
             raise StopDownloading('Stopped Downloading')
 
 def jDownloader(murl):
-    match2=re.compile('iwatchonline').findall(murl)
-    if match2:
-        murl=GetUrliW(murl)
-    match=re.compile('watchseries.lt').findall(murl)
-    if match:
-        match=re.compile('(.+?)xocx(.+?)xocx').findall(murl)
-        for hurl, durl in match:
-            murl=geturl('http://watchseries.lt'+hurl)
-    match3=re.findall('xoxv(.+?)xoxe(.+?)xoxc',murl)
-    if match3:
-        for hoster, hurl in match3:
-            media= urlresolver.HostedMediaFile(host=hoster, media_id=hurl)
-            r=re.findall("'url': '(.+?)',",str(media))[0]
-            murl=r
-    if re.compile('movie25').findall(murl):
-        from resources.libs import movie25
-        murl = movie25.resolveM25URL(murl) 
+    url = resolveDownloadLinks(url)
     print "Downloading "+murl+" via jDownlaoder"
     cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
     xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
@@ -886,7 +844,6 @@ def TextBoxes(heading,anounce):
         TextBox()
     
 ################################################################################ Google Analytics ##########################################################################################################
-
 
 def parseDate(dateString,datetime):
     try:
@@ -1078,14 +1035,14 @@ checkGA()
 
 ################################################################################ Types of Directories ##########################################################################################################
 
-def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=60,genre='',year='',isFolder=True,searchMeta=False,addToFavs=True,
-            id=False,fav_t='',fav_addon_t='',fav_sub_t='',metaType='Movies'):
+def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=0,genre='',year='',imdb='',tmdb='',isFolder=True,searchMeta=False,addToFavs=True,
+            id=None,fav_t='',fav_addon_t='',fav_sub_t='',metaType='Movies',menuItemPos=None,menuItems=None,down=False,replaceItems=True):
     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
     if searchMeta:
         if metaType == 'TV':
             infoLabels = GETMETAEpiT(name,iconimage,plot)
         else:
-            infoLabels = GETMETAT(name,genre,fanart,iconimage,plot)
+            infoLabels = GETMETAT(name,genre,fanart,iconimage,plot,imdb,tmdb)
         iconimage = infoLabels['cover_url']
         fanart = infoLabels['backdrop_url']
         plot = infoLabels['plot']
@@ -1102,6 +1059,11 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=60,genre='',year='',is
         else:
             Commands.append(("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(fname, u, section_title=fav_t, section_addon_title=fav_addon_t+" Fav's", sub_section_title=fav_sub_t, img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})))
         Commands.append(("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(fname, section_title=fav_t, section_addon_title=fav_addon_t+" Fav's", sub_section_title=fav_sub_t)))
+    if down:
+        sysurl = urllib.quote_plus(url)
+        sysname= urllib.quote_plus(name)
+        Commands.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
+        Commands.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
     if searchMeta:
         if metaType == 'TV' and selfAddon.getSetting("meta-view-tv") == "true":
             xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
@@ -1116,11 +1078,12 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=60,genre='',year='',is
                 else: watched_mark = 'Mark as Unwatched'
                 Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=779&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, 'episode', imdb_id,sea,epi)))
             Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=780&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, 'episode',imdb_id,sea,epi)))
-        if metaType == 'Movies' and selfAddon.getSetting("meta-view") == "true":
+        elif metaType == 'Movies' and selfAddon.getSetting("meta-view") == "true":
             xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_DATE )
+            if id != None: xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_PLAYLIST_ORDER )
+            else: xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
+            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_TITLE )
+            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_YEAR )
             xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RATING )
             xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_GENRE )
             xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_MPAA_RATING )
@@ -1132,13 +1095,16 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=60,genre='',year='',is
             Commands.append(('Play Trailer','XBMC.RunPlugin(%s?mode=782&name=%s&url=%s&iconimage=%s)'% (sys.argv[0],cname,'_',imdb_id)))
             Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=778&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, 'movie',imdb_id)))
     else:
-        infoLabels={ "Title": name, "Plot": plot, "Duration": dur, "Year": year ,"Genre": genre }
-    if id != False: infoLabels["count"] = id
+        infoLabels={ "Title": name, "Plot": plot, "Duration": dur, "Year": year ,"Genre": genre,"OriginalTitle" : removeColoredText(name) }
+    if id != None: infoLabels["count"] = id
     Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
     Commands.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
     Commands.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
+    if menuItemPos != None:
+        for mi in reversed(menuItems):
+            Commands.insert(menuItemPos,mi)
     liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-    liz.addContextMenuItems( Commands, replaceItems=True )
+    liz.addContextMenuItems( Commands, replaceItems=replaceItems )
     liz.setInfo( type="Video", infoLabels=infoLabels )
     liz.setProperty('fanart_image', fanart)
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=isFolder)
@@ -1155,8 +1121,8 @@ def addDirTE(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addPlayTE(name,url,mode,iconimage,plot,fanart,dur,genre,year):
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,searchMeta=1,metaType='TV',fav_t='TV',fav_addon_t='TV Episode',fav_sub_t='Episodes')
 
-def addDirM(name,url,mode,iconimage,plot,fanart,dur,genre,year):
-    return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,searchMeta=1,fav_t='Movies',fav_addon_t='Movie')
+def addDirM(name,url,mode,iconimage,plot,fanart,dur,genre,year,imdb=''):
+    return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,imdb,searchMeta=1,fav_t='Movies',fav_addon_t='Movie')
 
 def addPlayM(name,url,mode,iconimage,plot,fanart,dur,genre,year):
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,searchMeta=1,fav_t='Movies',fav_addon_t='Movie')
@@ -1185,7 +1151,6 @@ def addDirc(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addDirXml(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         contextMenuItems = []
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)
-        ok=True
         liz=xbmcgui.ListItem(name, iconImage=art+'/xmlplaylist.png', thumbnailImage=iconimage)
         liz.setInfo( type="Video", infoLabels={ "Title": name, "Plot": plot } )
         if fanart == '':
@@ -1209,7 +1174,6 @@ def addDirXml(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addXmlFolder(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         contextMenuItems = []
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)
-        ok=True
         liz=xbmcgui.ListItem(name, iconImage=art+'/folder.png', thumbnailImage=iconimage)
         liz.setInfo( type="Video", infoLabels={ "Title": name, "Plot": plot } )
         if fanart == '':
@@ -1228,341 +1192,56 @@ def addXmlFolder(name,url,mode,iconimage,plot,fanart,dur,genre,year):
         return ok
     
 def addLink(name,url,iconimage):
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage=art+'/link.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', Dir+'fanart.jpg')
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
-        return ok
+    liz=xbmcgui.ListItem(name, iconImage=art+'/link.png', thumbnailImage=iconimage)
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    liz.setProperty('fanart_image', Dir+'fanart.jpg')
+    return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
 
-def addDir(name,url,mode,iconimage):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', Dir+'fanart.jpg')
-        contextMenuItems.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz.addContextMenuItems(contextMenuItems, replaceItems=False)
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+def addDir(name,url,mode,iconimage,plot=''):
+    return addDirX(name,url,mode,iconimage,plot,addToFavs=0,replaceItems=False)
 
 def addDirHome(name,url,mode,iconimage):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', Dir+'fanart.jpg')
-        contextMenuItems.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz.addContextMenuItems( contextMenuItems, replaceItems=True )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
-
-def addDir2(name,url,mode,iconimage,plot):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+str(iconimage)+"&plot="+str(plot)
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name, "Plot": plot } )
-        liz.setProperty('fanart_image', Dir+'fanart.jpg')
-        contextMenuItems.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        liz.addContextMenuItems(contextMenuItems, replaceItems=False)
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+    return addDirX(name,url,mode,iconimage,addToFavs=0)
 
 def addDirFIX(name,url,mode,iconimage,location,path):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&location="+urllib.quote_plus(location)+"&path="+urllib.quote_plus(path)
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', Dir+'fanart.jpg')
-        contextMenuItems.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        contextMenuItems.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        liz.addContextMenuItems(contextMenuItems, replaceItems=False)
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-        return ok
+    contextMenuItems = []
+    u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&location="+urllib.quote_plus(location)+"&path="+urllib.quote_plus(path)
+    liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    liz.setProperty('fanart_image', Dir+'fanart.jpg')
+    contextMenuItems.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
+    contextMenuItems.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
+    liz.addContextMenuItems(contextMenuItems, replaceItems=False)
+    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
+    return ok
 
-def addDown(name,url,mode,iconimage,fan):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-        ok=True
-#         link=OPENURL(url)
-#         match=re.compile("location\.href='(.+?)\'").findall(link)
-#         if match:
-#             for url in match:
-#                 sysurl = urllib.quote_plus(url)
-#         else:
-        sysurl = urllib.quote_plus(url)
-        sysname= urllib.quote_plus(name)
-        contextMenuItems.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
-        contextMenuItems.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name, "OriginalTitle" : removeColoredText(name) } )
-        liz.setProperty('fanart_image', fan)
-        liz.addContextMenuItems(contextMenuItems, replaceItems=True)
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
-        return ok
+def addDown2(name,url,mode,iconimage,fanart):
+    return addDirX(name,url,mode,iconimage,'',fanart,isFolder=0,addToFavs=0,id=id,down=1)
 
-
-def addDown2(name,url,mode,iconimage,fan):
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)
-        ok=True
-        sysurl = urllib.quote_plus(url)
-        sysname= urllib.quote_plus(name)
-        contextMenuItems.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
-        contextMenuItems.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name, "OriginalTitle" : removeColoredText(name) } )
-        liz.setProperty('fanart_image', fan)
-        liz.addContextMenuItems(contextMenuItems, replaceItems=True)
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
-        return ok
-
-def addDown3(name,url,mode,iconimage,fanart,id=False):#Noobroom only
-        contextMenuItems = []
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-        ok=True
-        infoLabels =GETMETAT(name,'','',iconimage)
-        if selfAddon.getSetting("meta-view") == "true":
-                xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-                tmdbid=infoLabels['tmdb_id']
-                plot=infoLabels['plot']
-                name=infoLabels['metaName']
-                if infoLabels['overlay'] == 6:
-                    watched_mark = 'Mark as Watched'
-                else:
-                    watched_mark = 'Mark as Unwatched'
-                if id != False:
-                    infoLabels["count"] = id
-                    xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_PLAYLIST_ORDER )
-                else: 
-                    xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_YEAR )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_TITLE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RATING )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_GENRE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_MPAA_RATING )
-        else:
-            if fanart == '':
-                fanart=Dir+'fanart.jpg'
-            if iconimage=='':
-                iconimage=art+'/vidicon.png'
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-
-            plot='Sorry description not available'
-            plot=plot.replace(",",'.')
-        name=name.replace(",",'')
-        sysurl = urllib.quote_plus(url)
-        sysname= urllib.quote_plus(name)
-        
-        type='PLAY'
-        fav = getFav()
-        Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title='Movies', section_addon_title="Movie Fav's", img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url})),
-            ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="Movie Fav's")),
-            ('Direct Download', 'XBMC.RunPlugin(%s?mode=212&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl))]
-        if selfAddon.getSetting("meta-view") == "true":
-                video_type='movie'
-                imdb=infoLabels['imdb_id']
-                cname=urllib.quote_plus(infoLabels['metaName'])
-                Commands.append(('Play Trailer','XBMC.RunPlugin(%s?mode=782&name=%s&url=%s&iconimage=%s)'% (sys.argv[0],cname,'_',imdb)))
-                Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=777&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb)))
-                Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=778&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb)))
-        Commands.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=infoLabels['cover_url'])
-        liz.addContextMenuItems( Commands, replaceItems=True )
-
-        liz.setInfo( type="Video", infoLabels = infoLabels)
-        liz.setProperty('fanart_image', infoLabels['backdrop_url'])
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
-        return ok
+def addDown3(name,url,mode,iconimage,fanart,id=None):
+    return addDirX(name,url,mode,iconimage,'',fanart,isFolder=0,searchMeta=1,fav_t='Movies',fav_addon_t='Movie',id=id,down=1)
 
 def addDown4(name,url,mode,iconimage,plot,fanart,dur,genre,year):
-        Commands=[]
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
-        ok=True
-        st=""
-        sst=""
-        sat=""
-        if re.findall('(.+?)\ss(\d+)e(\d+)\s',name,re.I) or re.findall('Season(.+?)Episode([^<]+)',name,re.I):
-            infoLabels =GETMETAEpiT(name,iconimage,plot)
-            video_type='episode'
-            sea=infoLabels['season']
-            epi=infoLabels['episode']
-            cname=urllib.quote_plus(infoLabels['title'].decode("ascii", "ignore"))
-            xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
-            st="TV"
-            sst="Episodes"
-            sat="TV Episode Fav's"
-        else:
-            infoLabels =GETMETAT(name,genre,fanart,iconimage)
-            video_type='movie'
-            tmdbid=infoLabels['tmdb_id']
-            cname=urllib.quote_plus(infoLabels['metaName'])
-            xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-            st="Movies"
-            sst=""
-            sat="Movie Fav's"
-        if ((selfAddon.getSetting("meta-view") == "true" and video_type == 'movie') or 
-            (selfAddon.getSetting("meta-view-tv") == "true" and video_type == 'episode')):
-                imdb_id=infoLabels['imdb_id']
-                if infoLabels['overlay'] == 6:
-                    watched_mark = 'Mark as Watched'
-                else:
-                    watched_mark = 'Mark as Unwatched'
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_DATE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RATING )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_GENRE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_MPAA_RATING )
-        else:
-            if fanart == '':
-                fanart=Dir+'fanart.jpg'
-            if iconimage=='':
-                iconimage=art+'/vidicon.png'
-            if plot=='':
-                plot='Sorry description not available'
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-            xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-        if(selfAddon.getSetting("meta-view-tv") != "true"):
-            xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-        sysurl = urllib.quote_plus(url)
-        sysname= urllib.quote_plus(name)
-        type='PLAY'
-        plot=infoLabels['plot']
-        img=infoLabels['cover_url']
-        plot=plot.encode('ascii', 'ignore')
-        plot=plot.replace(",",'.')
-        name=name.replace(",",'')
-        args=[(url,name,mode,iconimage,str(plot),type)]
-        if '</sublink>' not in url:
-            fav = getFav()
-            Commands=[("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_video_item(name, u, section_title=st, section_addon_title=sat, sub_section_title=sst, img=iconimage, fanart=fanart, infolabels={'item_mode':mode, 'item_url':url, 'plot':plot,'duration':dur,'genre':genre,'year':year})),
-                ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title=st, section_addon_title=sat, sub_section_title=sst)),
-                  ('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)),
-                  ('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, url))]
-        if (selfAddon.getSetting("meta-view") == "true" and video_type == 'movie'):
-            Commands.append(('Play Trailer','XBMC.RunPlugin(%s?mode=782&name=%s&url=%s&iconimage=%s)'% (sys.argv[0],cname,url,imdb_id)))
-            Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=777&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb_id)))
-            Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=778&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb_id)))
-        elif (selfAddon.getSetting("meta-view-tv") == "true" and video_type == 'episode'):
-            if imdb_id != '':
-                Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=779&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, video_type,imdb_id,sea,epi)))
-            Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=780&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, video_type,imdb_id,sea,epi)))
-        Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        Commands.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        Commands.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=infoLabels['cover_url'])
-        liz.addContextMenuItems( Commands, replaceItems=True )
-        liz.setInfo( type="Video", infoLabels = infoLabels)
-        liz.setProperty('fanart_image', infoLabels['backdrop_url'])
-        if '</sublink>' in url:
-            ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        else:
-            ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-        return ok
+    f = '</sublink>' in url
+    if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name):
+        return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=f,searchMeta=1,metaType='TV',
+                       fav_t='TV',fav_addon_t='TV Episode',fav_sub_t='Episodes',down=not f)
+    else:
+        return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=f,searchMeta=1,
+                       fav_t='Movies',fav_addon_t='Movie',down=not f)
 
-def addInfo(name,url,mode,iconimage,gen,year):
-        ok=True
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-        name=name.replace('()','')
-        infoLabels = GETMETAT(name,gen,year,iconimage)
-        if selfAddon.getSetting("meta-view") == "true":
-                tmdbid=infoLabels['tmdb_id']
-                if infoLabels['overlay'] == 6:
-                    watched_mark = 'Mark as Watched'
-                else:
-                    watched_mark = 'Mark as Unwatched'
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_DATE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RATING )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_GENRE )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_MPAA_RATING )
-        else:
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_UNSORTED )
-                xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_LABEL )
-        fav = getFav()
-        Commands=[
-                ('Search Movie25','XBMC.Container.Update(%s?mode=4&url=%s)'% (sys.argv[0],'###')),
-                ("[B][COLOR blue]Add[/COLOR][/B] to My Fav's",fav.add_directory(name, u, section_title='Movies', section_addon_title="Movie25 Fav's", img=iconimage, infolabels={'item_mode':mode, 'item_url':url, 'genre':gen,'year':year})),
-                ("[B][COLOR red]Remove[/COLOR][/B] from My Fav's",fav.delete_item(name, section_title='Movies', section_addon_title="Movie25 Fav's"))]
-        if selfAddon.getSetting("meta-view") == "true":
-                video_type='movie'
-                imdb=infoLabels['imdb_id']
-                cname=urllib.quote_plus(infoLabels['metaName'])
-                Commands.append(('Play Trailer','XBMC.RunPlugin(%s?mode=782&name=%s&url=%s&iconimage=%s)'% (sys.argv[0],cname,'_',imdb)))
-                Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=777&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb)))
-                Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=778&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb)))
-        Commands.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=infoLabels['cover_url'])
-        liz.addContextMenuItems( Commands, replaceItems=True )
-        liz.setInfo( type="Video", infoLabels = infoLabels)
-        liz.setProperty('fanart_image', infoLabels['backdrop_url'])
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+def addInfo(name,url,mode,iconimage,genre,year):
+    mi = [('Search Movie25','XBMC.Container.Update(%s?mode=4&url=%s)'% (sys.argv[0],'###'))]
+    return addDirX(name,url,mode,iconimage,'','','',genre,year,searchMeta=1,fav_t='Movies',fav_addon_t='Movie25',menuItemPos=0,menuItems=mi)
+
 def addDirIWO(name,url,mode,iconimage,plot,fanart,dur,genre,year):
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,searchMeta=1,fav_t='Movies',fav_addon_t='iWatchOnline')
     
 def addDLog(name,url,mode,iconimage,plot,fanart,dur,genre,year):
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
-        ok=True
-        if re.findall('(.+?)\ss(\d+)e(\d+)\s',name,re.I) or re.findall('Season(.+?)Episode([^<]+)',name,re.I):
-            infoLabels =GETMETAEpiT(name,iconimage,plot)
-            video_type='episode'
-            sea=infoLabels['season']
-            epi=infoLabels['episode']
-            cname=urllib.quote_plus(infoLabels['title'].decode("ascii", "ignore"))
-        else:
-            infoLabels =GETMETAT(name,genre,fanart,iconimage)
-            video_type='movie'
-            tmdbid=infoLabels['tmdb_id']
-            cname=urllib.quote_plus(infoLabels['metaName'])
-        if ((selfAddon.getSetting("meta-view") == "true" and video_type == 'movie') or 
-            (selfAddon.getSetting("meta-view-tv") == "true" and video_type == 'episode')):
-                imdb_id=infoLabels['imdb_id']
-                xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
-                if infoLabels['overlay'] == 6:
-                    watched_mark = 'Mark as Watched'
-                else:
-                    watched_mark = 'Mark as Unwatched'
-        else:
-            if fanart == '':
-                fanart=Dir+'fanart.jpg'
-            if iconimage=='':
-                iconimage=art+'/vidicon.png'
-            if plot=='':
-                plot='Sorry description not available'
-        type='PLAY'
-        plot=infoLabels['plot']
-        img=infoLabels['cover_url']
-        Commands=[("[B][COLOR red]Remove[/COLOR][/B]",'XBMC.RunPlugin(%s?mode=243&name=%s&url=%s)'% (sys.argv[0],name,url))]
-        if (selfAddon.getSetting("meta-view") == "true" and video_type == 'movie'):
-            Commands.append(('Play Trailer','XBMC.RunPlugin(%s?mode=782&name=%s&url=%s&iconimage=%s)'% (sys.argv[0],cname,url,imdb_id)))
-            Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=777&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb_id)))
-            Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=778&name=%s&url=%s&iconimage=%s)' % (sys.argv[0], cname, video_type,imdb_id)))
-        elif (selfAddon.getSetting("meta-view-tv") == "true" and video_type == 'episode'):
-            if imdb_id != '':
-                Commands.append((watched_mark, 'XBMC.RunPlugin(%s?mode=779&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, video_type,imdb_id,sea,epi)))
-            Commands.append(('Refresh Metadata', 'XBMC.RunPlugin(%s?mode=780&name=%s&url=%s&iconimage=%s&season=%s&episode=%s)' % (sys.argv[0], cname, video_type,imdb_id,sea,epi)))
-        Commands.append(('Watch History','XBMC.Container.Update(%s?name=None&mode=222&url=None&iconimage=None)'% (sys.argv[0])))
-        Commands.append(("My Fav's",'XBMC.Container.Update(%s?name=None&mode=639&url=None&iconimage=None)'% (sys.argv[0])))
-        Commands.append(('[B][COLOR=FF67cc33]MashUp[/COLOR] Settings[/B]','XBMC.RunScript('+xbmc.translatePath(mashpath + '/resources/libs/settings.py')+')'))
-        liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=infoLabels['cover_url'])
-        liz.addContextMenuItems( Commands, replaceItems=True )
-        liz.setInfo( type="Video", infoLabels = infoLabels)
-        liz.setProperty('fanart_image', infoLabels['backdrop_url'])
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-        return ok    
+    mi=[("[B][COLOR red]Remove[/COLOR][/B]",'XBMC.RunPlugin(%s?mode=243&name=%s&url=%s)'% (sys.argv[0],name,url))]
+    if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name):
+        return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,searchMeta=1,metaType='TV',addToFavs=0,menuItemPos=0,menuItems=mi)
+    else: return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,searchMeta=1,addToFavs=0,menuItemPos=0,menuItems=mi)
 
 def addSpecial(name,url,mode,iconimage):
     liz=xbmcgui.ListItem(name,iconImage="",thumbnailImage = iconimage)
