@@ -281,21 +281,20 @@ def VIDEOLINKS(name,url):
     all_coll = collections.defaultdict(list)
     for d in all: all_coll[d[0]].append(d[1])
     all_coll = all_coll.items()
-    sortorder = "putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,180upload,hugefiles,mightyupload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,epicshare,lemuploads,2gbhosting,alldebrid,allmyvideos,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup_org,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare,"
+    sortorder = "putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,lemuploads,180upload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,epicshare,2gbhosting,alldebrid,allmyvideos,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup_org,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare,"
     sortorder = ','.join((sortorder.split(',')[::-1]))
     all_coll = sorted(all_coll, key=lambda word: sortorder.find(word[0].lower())*-1)
     for host,urls in all_coll:
         if host.lower() in sortorder:
             host = host.strip()
-            thumb=art+'/hosts/'+host+'.png'
-            main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+" [COLOR blue]"+host.upper()+"[/COLOR]",str(urls),11,thumb,thumb)
+            main.addDirb(name+" [COLOR red]"+quality+"[/COLOR]"+" [COLOR blue]"+host.upper()+"[/COLOR]",str(urls),11,art+'/hosts/'+host+'.png',art+'/hosts/'+host+'.png')
 
 def GroupedHosts(name,url,thumb):
-        if selfAddon.getSetting("hide-download-instructions") != "true":
-                main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
-        urls = eval(url)
-        for url in urls:
-                main.addDown(name,MainUrl+url,5,thumb,thumb)
+    if selfAddon.getSetting("hide-download-instructions") != "true":
+        main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
+    urls = eval(url)
+    for url in urls:
+        main.addDown2(name,MainUrl+url,5,thumb,thumb)
         
 def resolveM25URL(url):
     html=main.OPENURL(url)
