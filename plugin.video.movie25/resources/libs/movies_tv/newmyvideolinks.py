@@ -7,7 +7,7 @@ from resources.libs import main
 addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 art = main.art
-pattern = '(?sim)<a href="([^"]+?)" rel="bookmark"[^>]*?>\s*?<img src="([^"]+?)"[^>]*?title="([^"]+?)"'
+pattern = '(?sim)<a [^>]*?href="([^"]+?)" rel="bookmark"[^>]*?>\s*?<img src="([^"]+?)"[^>]*?title="([^"]+?)"'
     
 def LISTSP2(murl):
     if murl.startswith('3D'):
@@ -165,7 +165,6 @@ def LINKSP2(mname,url):
     if selfAddon.getSetting("hide-download-instructions") != "true":
         main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
     match0=re.compile('<h4>(.+?)</h4>(.+?)</ul>').findall(link)
-    import urlresolver
     for mname, links in reversed(match0):
         match1=re.compile('<li><a href="([^"]+?)"[^>]*?><img [^>]*?alt="([^"]+?)"[^>]*?></a></li>').findall(links)
         match= match1 + re.compile('<li><a href="([^"]+?)"[^>]*?>([^>]+?)</a></li>').findall(links)
@@ -177,10 +176,8 @@ def LINKSP2(mname,url):
                 break
         for murl, name in match:
             name = name[0].upper() + name[1:]
-            thumb=name.lower()
-            hosted_media = urlresolver.HostedMediaFile(url=murl, title=name)
-            match2=re.compile("{'url': '(.+?)', 'host': '(.+?)', 'media_id': '.+?'}").findall(str(hosted_media))
-            for murl,host in match2:
+            if main.supportedHost(name):
+                thumb=name.lower()
                 if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
                 main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
 
