@@ -57,13 +57,15 @@ def LISTSP2(murl):
             loadedLinks = 0
             remaining_display = 'Movies/Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
             dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
-            for url,thumb,name in match:
+            for url,thumb,title in match:
                 if murl=='TV':
-                    match=re.compile('720p').findall(name)
-                    if (len(match)>0):
-                        main.addDirTE(name,url,35,thumb,'','','','','')
+                    if re.compile('720p').findall(title):
+                        title = re.sub('(?i)(.*?)(hdtv|pdtv|proper|repack|webrip|720p).*','\\1',title).strip()
+                        title = re.sub('(?i)(.*E\d+[^\s]) (.*)','\\1 [COLOR blue]\\2[/COLOR]',title).strip()
+                        title += ' [COLOR red]720p[/COLOR]'
+                        main.addDirTE(title,url,35,thumb,'','','','','')
                 else:
-                    main.addDirM(name,url,35,thumb,'','','','','')
+                    main.addDirM(title,url,35,thumb,'','','','','')
                     xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
                 loadedLinks = loadedLinks + 1
                 percent = (loadedLinks * 100)/totalLinks
@@ -72,7 +74,7 @@ def LISTSP2(murl):
                 if (dialogWait.iscanceled()):
                     return False
             if not page is None:
-                main.addDir('Page ' + str(page/subpages+1) + ', Next Page >>>',murl + "-" + str(page/subpages+1) + "," + max,34,art+'/next2.png')
+                main.addDir('Page ' + str(page/subpages+1) + ' [COLOR blue]Next Page >>>[/COLOR]',murl + "-" + str(page/subpages+1) + "," + max,34,art+'/next2.png')
             dialogWait.close()
             del dialogWait
     main.GA("HD-3D-HDTV","Newmyvideolinks")
