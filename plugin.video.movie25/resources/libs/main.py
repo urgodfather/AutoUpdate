@@ -791,7 +791,7 @@ def _pbhook(numblocks, blocksize, filesize, dp, start_time):
             raise StopDownloading('Stopped Downloading')
 
 def jDownloader(murl):
-    url = resolveDownloadLinks(url)
+    url = resolveDownloadLinks(murl)
     print "Downloading "+murl+" via jDownlaoder"
     cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
     xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
