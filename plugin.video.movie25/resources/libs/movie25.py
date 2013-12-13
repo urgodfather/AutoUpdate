@@ -38,11 +38,10 @@ def LISTMOVIES(murl):
         paginate=re.compile('</a><a href=\'([^<]+)\'>Next</a>').findall(link)
         if paginate:
                 main.addDir('[COLOR red]Home[/COLOR]','',2000,art+'/home.png')
-                
                 main.addDir('[COLOR red]Enter Page #[/COLOR]',murl,207,art+'/gotopage.png')
                 xurl=MainUrl+paginate[0]
-                r = re.findall('>Next</a><a href=\'/movies/.+?/([^<]+)\'>Last</a>',link)
-                pg= re.findall('/movies/.+?/([^<]+)',paginate[0])
+                r = re.findall('>Next</a><a href=\'/.+?/(\d+)\'>Last</a>',link)
+                pg= re.findall('/.+?/(\d+)',paginate[0])
                 pg=int(pg[0])-1
                 if r:
                         main.addDir('[COLOR blue]Page '+ str(pg)+' of '+r[0]+'[/COLOR]',xurl,1,art+'/next2.png')
@@ -145,7 +144,7 @@ def ENTYEAR():
 def GotoPage(url):
         link=main.OPENURL(url)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-        r = re.findall('>Next</a><a href=\'/movies/.+?/([^<]+)\'>Last</a>',link)
+        r = re.findall('>Next</a><a href=\'/.+?/(\d+)\'>Last</a>',link)
         x = re.findall('>Next</a><a href=\'([^<]+)/.+?\'>Last</a>',link)
         dialog = xbmcgui.Dialog()
         d = dialog.numeric(0, 'Section Last Page = '+r[0])
