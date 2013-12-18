@@ -20,6 +20,7 @@ def resolve_url(url, filename = False):
         try:
             url = url.split('"')[0]
             match = re.search('xoxv(.+?)xoxe(.+?)xoxc',url)
+            print "host "+url
             if(match):
                 import urlresolver
                 source = urlresolver.HostedMediaFile(host=match.group(1), media_id=match.group(2))
@@ -45,6 +46,10 @@ def resolve_url(url, filename = False):
                 stream_url=resolve_megarelease(url)
             elif re.search('movreel',url,re.I):
                 stream_url=resolve_movreel(url)
+            elif re.search('nowvideo',url,re.I):
+                stream_url=resolve_nowvideo(url)
+            elif re.search('novamov',url,re.I):
+                stream_url=resolve_novamov(url)
             elif re.search('youtube',url,re.I):
                 url=url.split('watch?v=')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
@@ -132,6 +137,74 @@ def grab_cloudflare(url):
         response = normal.open(url).read()
 
     return response
+
+def resolve_novamov(url):
+        try:
+            import unwise
+            dialog = xbmcgui.DialogProgress()
+            dialog.create('Resolving', 'Resolving MashUp Novamov Link...')       
+            dialog.update(0)
+            print 'MashUp Novamov - Requesting GET URL: %s' % url
+            html = net().http_GET(url).content
+            html = unwise.unwise_process(html)
+            
+            filekey = unwise.resolve_var(html, "flashvars.filekey")
+            media_id=re.findall('.+?/video/([^<]+)',url)
+            #get stream url from api
+            api = 'http://www.novamov.com/api/player.api.php?key=%s&file=%s' % (filekey, media_id)
+            html = net().http_GET(api).content
+            r = re.search('url=(.+?)&title', html)
+            if r:
+                stream_url = urllib.unquote(r.group(1))
+            else:
+                r = re.search('file no longer exists',html)
+                if r:
+                    raise ResolverError('File Not Found or removed',"Novamov")
+                raise ResolverError('Failed to parse url',"Novamov")
+                
+            return stream_url
+        except urllib2.URLError, e:
+            logerror('Novamov: got http error %d fetching %s' %
+                                    (e.code, web_url))
+            return self.unresolvable(code=3, msg=e)
+        except Exception, e:
+            logerror('**** Novamov Error occured: %s' % e)
+            xbmc.executebuiltin('[B][COLOR white]Novamov[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
+            return self.unresolvable(code=0, msg=e)
+
+def resolve_nowvideo(url):
+        try:
+            import unwise
+            dialog = xbmcgui.DialogProgress()
+            dialog.create('Resolving', 'Resolving MashUp Nowvideo Link...')       
+            dialog.update(0)
+            print 'MashUp Nowvideo - Requesting GET URL: %s' % url
+            html = net().http_GET(url).content
+            html = unwise.unwise_process(html)
+            
+            filekey = unwise.resolve_var(html, "flashvars.filekey")
+            media_id=re.findall('.+?/video/([^<]+)',url)
+            #get stream url from api
+            api = 'http://www.nowvideo.sx/api/player.api.php?key=%s&file=%s' % (filekey, media_id)
+            html = net().http_GET(api).content
+            r = re.search('url=(.+?)&title', html)
+            if r:
+                stream_url = urllib.unquote(r.group(1))
+            else:
+                r = re.search('file no longer exists',html)
+                if r:
+                    raise ResolverError('File Not Found or removed',"Nowvideo")
+                raise ResolverError('Failed to parse url',"Nowvideo")
+                
+            return stream_url
+        except urllib2.URLError, e:
+            logerror('Nowvideo: got http error %d fetching %s' %
+                                    (e.code, web_url))
+            return self.unresolvable(code=3, msg=e)
+        except Exception, e:
+            logerror('**** Nowvideo Error occured: %s' % e)
+            xbmc.executebuiltin('[B][COLOR white]Nowvideo[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
+            return self.unresolvable(code=0, msg=e)
 
 def resolve_movreel(url):
 
