@@ -3,7 +3,6 @@ import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 import urllib,re,string,os,time,threading
 
 try:
-    except:pass
     from t0mm0.common.addon import Addon
     from universal import favorites, watchhistory, playbackengine
 except Exception, e:
