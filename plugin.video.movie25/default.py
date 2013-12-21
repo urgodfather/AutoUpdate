@@ -3,7 +3,6 @@ import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 import urllib,re,string,os,time,threading
 
 try:
-    try:from xbmcads import ads
     except:pass
     from t0mm0.common.addon import Addon
     from universal import favorites, watchhistory, playbackengine
@@ -27,7 +26,6 @@ addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addon = Addon(addon_id)
 art = main.art
-ads.ADDON_ADVERTISE(addon_id)
 wh = watchhistory.WatchHistory('plugin.video.movie25')
 
 ################################################################################ Directories ##########################################################################################################
