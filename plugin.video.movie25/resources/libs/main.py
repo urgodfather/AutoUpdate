@@ -13,7 +13,7 @@ Dir = xbmc.translatePath(os.path.join('special://home/addons/plugin.video.movie2
 repopath = xbmc.translatePath(os.path.join('special://home/addons/repository.mash2k3', ''))
 datapath = xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 supportsite = 'xunitytalk.com'
-hosts = 'putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,lemuploads,180upload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,epicshare,2gbhosting,alldebrid,allmyvideos,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare'
+hosts = 'putlocker,sockshare,billionuploads,hugefiles,mightyupload,movreel,lemuploads,180upload,megarelease,filenuke,flashx,gorillavid,bayfiles,veehd,vidto,videomega,epicshare,bayfiles,2gbhosting,alldebrid,allmyvideos,vidspot,castamp,cheesestream,clicktoview,crunchyroll,cyberlocker,daclips,dailymotion,divxstage,donevideo,ecostream,entroupload,facebook,filebox,hostingbulk,hostingcup,jumbofiles,limevideo,movdivx,movpod,movshare,movzap,muchshare,nolimitvideo,nosvideo,novamov,nowvideo,ovfile,play44_net,played,playwire,premiumize_me,primeshare,promptfile,purevid,rapidvideo,realdebrid,rpnet,seeon,sharefiles,sharerepo,sharesix,skyload,stagevu,stream2k,streamcloud,thefile,tubeplus,tunepk,ufliq,upbulk,uploadc,uploadcrazynet,veoh,vidbull,vidcrazynet,video44,videobb,videofun,videotanker,videoweed,videozed,videozer,vidhog,vidpe,vidplay,vidstream,vidup,vidx,vidxden,vidzur,vimeo,vureel,watchfreeinhd,xvidstage,yourupload,youtube,youwatch,zalaa,zooupload,zshare'
 ##from http://real-debrid.com/api/hosters.php
 rdhosts = '1fichier.com,desfichiers.com,1st-files.com,2shared.com,4shared.com,aetv.com,albafile.com,asfile.com,bayfiles.com,bitshare.com,canalplus.fr,cbs.com,cloudzer.net,crocko.com,cwtv.com,dailymotion.com,dengee.net,depfile.com,i-filez.com,dizzcloud.com,dl.free.fr,extmatrix.com,filebox.com,filecloud.io,filefactory.com,fileflyer.com,fileover.net,fileparadox.in,filepost.com,filerio.com,filesabc.com,filesend.net,filesflash.com,filesflash.net,filesmonster.com,filestay.com,freakshare.net,gigasize.com,hipfile.com,hotfile.com,hugefiles.net,hulkshare.com,hulu.com,jumbofiles.com,justin.tv,letitbit.net,load.to,mediafire.com,mega.co.nz,megashares.com,mixturevideo.com,mixturecloud.com,netload.in,nowdownload.eu,nowdownload.ch,nowdownload.sx,nowvideo.eu,nowvideo.sx,nowvideo.ch,purevid.com,putlocker.com,rapidgator.net,rapidshare.com,redtube.com,rutube.ru,scribd.com,sendspace.com,share-online.biz,sharefiles.co,shareflare.net,sky.fm,slingfile.com,sockshare.com,soundcloud.com,speedyshare.com,turbobit.net,unibytes.com,uploaded.to,uploaded.net,ul.to,uploadhero.co,uploadhero.com,uploading.com,uptobox.com,userporn.com,veevr.com,vidhog.com,vimeo.com,vip-file.com,wat.tv,youporn.com,youtube.com,yunfile.com,zippyshare.com'
 if selfAddon.getSetting('visitor_ga')=='':
@@ -297,7 +297,30 @@ def CheckVersion():
     else:
         print 'BitBucket Link Down'
         return False
-
+######################################################################## Live Stream do Regex ############################################################
+def doRegex(murl):
+    #rname=rname.replace('><','').replace('>','').replace('<','')
+    import urllib2
+    url=re.compile('([^<]+)<regex>',re.DOTALL).findall(murl)[0]
+    doRegexs = re.compile('\$doregex\[([^\]]*)\]').findall(url)
+    for k in doRegexs:
+        if k in murl:
+            regex=re.compile('<name>'+k+'</name><expres>(.+?)</expres><page>(.+?)</page><referer>(.+?)</referer></regex>',re.DOTALL).search(murl)
+            referer=regex.group(3)
+            if referer=='':
+                referer=regex.group(2)
+            req = urllib2.Request(regex.group(2))
+            req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:10.0a1) Gecko/20111029 Firefox/10.0a1')
+            req.add_header('Referer',referer)
+            response = urllib2.urlopen(req)
+            link=response.read()
+            response.close()
+            link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+            r=re.compile(regex.group(1),re.DOTALL).findall(link)[0]
+            url = url.replace("$doregex[" + k + "]", r)
+   
+    return url
+    
 ################################################################################ AutoView ##########################################################################################################
 
 def VIEWS():
@@ -421,8 +444,8 @@ def GETMETAT(mname,genre,fan,thumb,plot='',imdb='',tmdb=''):
 ################################################################################ TV Shows Metahandler ##########################################################################################################
 
 def GETMETAEpiT(mname,thumb,desc):
-        mname = removeColoredText(mname)
         originalName=mname
+        mname = removeColoredText(mname)
         if selfAddon.getSetting("meta-view-tv") == "true":
                 setGrab()
                 mname = mname.replace('New Episode','').replace('Main Event','').replace('New Episodes','')
@@ -485,7 +508,7 @@ def GETMETAEpiT(mname,thumb,desc):
                    
         else:
                 fan=Dir+'fanart.jpg'
-                infoLabels = {'title': mname,'metaName': mname,'cover_url': thumb,'backdrop_url': fan,'season': '','episode': '','year': '','plot': desc,'genre': '','imdb_id': ''}       
+                infoLabels = {'title': originalName,'metaName': mname,'cover_url': thumb,'backdrop_url': fan,'season': '','episode': '','year': '','plot': desc,'genre': '','imdb_id': ''}       
         
         return infoLabels
 ############################################################################### Playback resume/ mark as watched #################################################################################
@@ -1064,6 +1087,7 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=0,genre='',year='',imd
         sysname= urllib.quote_plus(name)
         Commands.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
         Commands.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
+  
     if searchMeta:
         if metaType == 'TV' and selfAddon.getSetting("meta-view-tv") == "true":
             xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
@@ -1136,8 +1160,11 @@ def addPlayMs(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addDirL(name,url,mode,iconimage,plot,fanart,dur,genre,year):
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,fav_t='Live',fav_addon_t='Live')
 
-def addPlayL(name,url,mode,iconimage,plot,fanart,dur,genre,year):
-    return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,fav_t='Live',fav_addon_t='Live')
+def addPlayL(name,url,mode,iconimage,plot,fanart,dur,genre,year,secName='',secIcon=''):
+    u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
+    surl=urllib.quote_plus(u)
+    mi=[('Add to Dixie', 'XBMC.RunPlugin(%s?mode=1501&plot=%s&name=%s&url=%s&iconimage=%s)' % (sys.argv[0] ,secName,name,surl, secIcon))]
+    return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,fav_t='Live',fav_addon_t='Live',menuItemPos=2,menuItems=mi)
 
 def addPlayc(name,url,mode,iconimage,plot,fanart,dur,genre,year):
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,addToFavs=0)
@@ -1245,6 +1272,7 @@ def addDLog(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 
 def addSpecial(name,url,mode,iconimage):
     liz=xbmcgui.ListItem(name,iconImage="",thumbnailImage = iconimage)
+    liz.setProperty('fanart_image', Dir+'fanart.jpg')
     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
 
