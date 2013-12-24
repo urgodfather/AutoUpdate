@@ -537,7 +537,7 @@ def resolve_billionuploads(url, filename):
             dialog.create('Resolving', 'Resolving Mash Up BillionUploads Link...')  
             dialog.update(0)
             
-            logerror('Mash Up BillionUploads - Link: %s' % url )
+            print 'Mash Up BillionUploads - Requesting GET URL: %s' % url
             
             import os            
             cookie_file = os.path.join(os.path.join(datapath,'Cookies'), 'billionuploads.cookies')
@@ -660,20 +660,20 @@ def resolve_billionuploads(url, filename):
             
             #Check page for any error msgs            
             if re.search('This server is in maintenance mode', html):
-                logerror('BillionUploads - Site in maintenance mode')
-                xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]Site is in maintenance mode.[/COLOR]')
+                logerror('***** BillionUploads - Site reported maintenance mode')
+                xbmc.executebuiltin("XBMC.Notification(File is currently unavailable,BillionUploads in maintenance,2000)")                                
                 return None
-            if re.search('File Not Found', html):
-                logerror('BillionUploads - File not found')
-                xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]File not found.[/COLOR]')                
-                return None
+            if re.search('File Not Found', html, re.I):
+            logerror('***** BillionUploads - File Not Found')
+            xbmc.executebuiltin("XBMC.Notification(File Not Found,BillionUploads,2000)")
+            return False
 
             data = {}
             r = re.findall(r'type="hidden" name="(.+?)" value="(.*?)">', html)
             for name, value in r: data[name] = value
             if not data:
-                logerror('BillionUploads - Data not found')
-                xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]Data not found.[/COLOR]')                
+                logerror('Mash Up: Resolve BillionUploads - No Data Found')
+                xbmc.executebuiltin("XBMC.Notification(No Data Found,BillionUploads,2000)")               
                 return None
             
             if dialog.iscanceled(): return None
@@ -694,8 +694,7 @@ def resolve_billionuploads(url, filename):
                     userInput = kb.getText()
                     if userInput != '': capcode = kb.getText()
                     elif userInput == '':
-                        logerror('BillionUploads - Image-Text not entered')
-                        xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]Image-Text not entered.[/COLOR]')                
+                        showpopup('BillionUploads','[B]You must enter the text from the image to access video[/B]',5000, elogo)
                         return None
                 else: return None
                 wdlg.close()
@@ -767,8 +766,8 @@ def resolve_billionuploads(url, filename):
                 if alt:
                     dl = alt[0]
                 else:
-                    logerror('BillionUploads - File not found')
-                    xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]File not found.[/COLOR]')
+                    logerror('Mash Up: Resolve BillionUploads - No Video File Found')
+                    xbmc.executebuiltin("XBMC.Notification(No Video File Found,BillionUploads,2000)")
                     return None
             
             if dialog.iscanceled(): return None
@@ -778,7 +777,7 @@ def resolve_billionuploads(url, filename):
             
         except Exception, e:
             logerror('BillionUploads - Exception occured: %s' % e)
-            xbmc.executebuiltin('[B][COLOR white]' + 'BillionUploads[/COLOR][/B]', '[COLOR red]Exception occured, check logs.[/COLOR]')                
+            raise ResolverError(str(e),"BillionUploads")
             return None
         finally:
             dialog.close()
