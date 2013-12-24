@@ -664,9 +664,9 @@ def resolve_billionuploads(url, filename):
                 xbmc.executebuiltin("XBMC.Notification(File is currently unavailable,BillionUploads in maintenance,2000)")                                
                 return None
             if re.search('File Not Found', html, re.I):
-            logerror('***** BillionUploads - File Not Found')
-            xbmc.executebuiltin("XBMC.Notification(File Not Found,BillionUploads,2000)")
-            return False
+                logerror('***** BillionUploads - File Not Found')
+                xbmc.executebuiltin("XBMC.Notification(File Not Found,BillionUploads,2000)")
+                return False
 
             data = {}
             r = re.findall(r'type="hidden" name="(.+?)" value="(.*?)">', html)
