@@ -538,18 +538,15 @@ def resolve_billionuploads(url, filename):
             dialog.update(0)
             
             print 'Mash Up BillionUploads - Requesting GET URL: %s' % url
-            
-            import os            
+                       
             cookie_file = os.path.join(os.path.join(datapath,'Cookies'), 'billionuploads.cookies')
             
-            import cookielib
             cj = cookielib.LWPCookieJar()
             if os.path.exists(cookie_file):
                 try: cj.load(cookie_file,True)
                 except: cj.save(cookie_file,True)
             else: cj.save(cookie_file,True)
 
-            import urllib, urllib2, re
             normal = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
             headers = [
                 ('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0'),
@@ -609,7 +606,6 @@ def resolve_billionuploads(url, filename):
                         wdlg.addControl(img)
                         wdlg.show()
                         
-                        import xbmc
                         kb = xbmc.Keyboard('', 'Please enter the text in the image', False)
                         kb.doModal()
                         capcode = kb.getText()
@@ -618,7 +614,7 @@ def resolve_billionuploads(url, filename):
                             if userInput != '': capcode = kb.getText()
                             elif userInput == '':
                                 logerror('BillionUploads - Image-Text not entered')
-                                xbmc.executebuiltin('[B][COLOR white]BillionUploads [/COLOR][/B]', '[COLOR red]Image-Text not entered.[/COLOR]')                
+                                xbmc.executebuiltin("XBMC.Notification(Image-Text not entered.,BillionUploads,2000)")              
                                 return None
                         else: return None
                         wdlg.close()
@@ -686,7 +682,6 @@ def resolve_billionuploads(url, filename):
                 wdlg.addControl(img)
                 wdlg.show()
                 
-                import xbmc
                 kb = xbmc.Keyboard('', 'Please enter the text in the image', False)
                 kb.doModal()
                 capcode = kb.getText()
@@ -836,7 +831,7 @@ def resolve_180upload(url):
                if userInput != '':
                    solution = kb.getText()
                elif userInput == '':
-                   Notify('big', 'No text entered', 'You must enter text in the image to access video', '')
+                   xbmc.executebuiltin("XBMC.Notification(You must enter text in the image to access video,2000)")
                    return False
            else:
                return False
@@ -1111,6 +1106,8 @@ def resolve_hugefiles(url):
             logerror('Mash Up: Resolve HugeFiles - Daily Limit Reached, Cannot Get The File\'s Url')
             xbmc.executebuiltin("XBMC.Notification(Daily Limit Reached,HugeFiles,2000)")
             return False
+        embed = re.search('<h2>Embed code</h2>.+?<IFRAME SRC="(.+?)"', html, re.DOTALL + re.IGNORECASE)
+        html = net().http_GET(embed.group(1)).content
         sPattern = '''<div id="player_code">.*?<script type='text/javascript'>(eval.+?)</script>'''
         r = re.findall(sPattern, html, re.DOTALL|re.I)
         if r:
