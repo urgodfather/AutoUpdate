@@ -258,7 +258,7 @@ def cacheSideReel():
         sidereel.MAINSIDE(True)
         
 def Notify():
-    mashup=139
+    mashup=140
     runonce=os.path.join(main.datapath,'RunOnce')
     try: os.makedirs(runonce)
     except: pass
