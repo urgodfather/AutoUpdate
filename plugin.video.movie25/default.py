@@ -752,8 +752,6 @@ def AddToDixie(secName,name,murl,secIcon):
     for id in match:
         idList.append(id)
     for i in idList:
-        name=name.replace('jsc','al jazeera')
-        name=name.replace('ajs','al jazeera')
         if name[0:4] in i.lower():
             finalList.append(i)
     
