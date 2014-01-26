@@ -100,11 +100,11 @@ def MAIN():
         elif index==26:
             main.addDirHome('HackerMils Stash','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Directory/HackerMil_Directory.xml',235,art+'/hackermil.png')
         elif index==27:
-            main.addDirHome('The New Pirate Bay','https://raw.github.com/mash2k3/MashUpTNPB/master/TNPB_Directory.xml',235,'/tnpb.png')
+            main.addDirHome('The New Pirate Bay','https://raw.github.com/mash2k3/MashUpTNPB/master/TNPB_Directory.xml',235,art+'/tnpb.png')
         elif index==28:
-            main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,'/morepower.png')
+            main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,art+'/morepower.png')
         elif index==29:
-            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,'/staael1982.png')
+            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,art+'/staael1982.png')
         elif index==34:
             main.addDirHome('Demon88 Movies','https://raw.github.com/mash2k3/demon88/master/Demon88_Directory.xml',235,art+'/demon88.png')
         elif index==37:
@@ -752,6 +752,8 @@ def AddToDixie(secName,name,murl,secIcon):
     for id in match:
         idList.append(id)
     for i in idList:
+        name=name.replace('jsc','al jazeera')
+        name=name.replace('ajs','al jazeera')
         if name[0:4] in i.lower():
             finalList.append(i)
     
