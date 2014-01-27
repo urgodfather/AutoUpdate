@@ -719,7 +719,7 @@ def setListFile(url, path, excepturl = None):
 def openMGuide():
    try:
        dialog = xbmcgui.DialogProgress()
-       dialog.create('Pleat Wait!', 'Opening TV Guide Dixie...')
+       dialog.create('Please Wait!', 'Opening TV Guide Dixie...')
        dialog.update(0)
        dixie = xbmcaddon.Addon('script.tvguidedixie')
        path  = dixie.getAddonInfo('path') 
