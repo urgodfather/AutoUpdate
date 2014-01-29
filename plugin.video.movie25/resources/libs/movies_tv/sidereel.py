@@ -237,7 +237,7 @@ def SEARCHED(surl):
     response = net().http_GET(surl)
     link = response.content
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    match=re.compile("""<a href=".+?" title="Watch ([^<]+) online"><img alt=".+?" src="(.+?)" />(.+?)value="Track Show" />""",re.DOTALL).findall(link)
+    match=re.compile("""<a href=".+?" title="Watch ([^<]+) online"><img alt=".+?" src="(.+?)" />(.+?)"submit">Track Show</button>""",re.DOTALL).findall(link)
     for name,thumb,track in match:
         if "<div class='authenticated hidden track-show'>" in track:
             name=name+'     [COLOR blue]Tracking Show[/COLOR]'
