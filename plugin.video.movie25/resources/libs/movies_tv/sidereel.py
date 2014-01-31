@@ -168,11 +168,8 @@ def MAINSIDE(cacheOnly = False):
     main.addDir('Search for Shows','TV',398,art+'/search.png')
     main.addDir('All Tracked Shows','TV',402,art+'/sidereel.png')
     import calendar
-#     if today:
-#         s = re.sub('(?i)^.*?,(.*)$','\\1',today[0][0]).strip()
-#         todaytimestamp = calendar.timegm(time.strptime(s, "%b %d"))
-#     else:
     todaytimestamp = calendar.timegm(time.strptime(time.strftime("%b") + " " + time.strftime("%d"), "%b %d"))
+    showsdisplayed = 0
     for date,shows in match:
         if 'data-track-label="Profile">' in shows:
             s = re.sub('(?i)^.*?,(.*)$','\\1',date).strip()
@@ -201,8 +198,8 @@ def MAINSIDE(cacheOnly = False):
                 else: airtime = ''
                 airtime=airtime.replace('<div>','').replace('</div>','').replace('><','').replace('<','').replace('>','')
                 main.addDir(showname+' '+final+' [COLOR red] "'+epiname+'"[/COLOR] [COLOR blue]'+airtime+'[/COLOR]','TV',20,art+'/sidereel.png')
-    
-    #<div class='calendar-entry'><a href=".+?" class=".+?".+?data-track-label="Profile">(.+?)</a><div><a href=".+?" class=".+?data-track-label="Profile">(.+?)</a></div></div>
+                showsdisplayed += 1
+    if not showsdisplayed: main.removeFile(cached_path)
     
 def SEARCHSR():
     search  = ''
@@ -237,8 +234,9 @@ def SEARCHED(surl):
     response = net().http_GET(surl)
     link = response.content
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    match=re.compile("""<a href=".+?" title="Watch ([^<]+) online"><img alt=".+?" src="(.+?)" />(.+?)"submit">Track Show</button>""",re.DOTALL).findall(link)
-    for name,thumb,track in match:
+    match=re.compile("""<div class='show-image'><a href[^>]+?><img[^>]+?src="([^"]+?)".{,450}?<h2 class='sr-header'><a href[^>]+?>([^<]+?)<(.+?)</form""",re.DOTALL).findall(link)
+    for thumb,name,track in match:
+        name = cleanHex(name)
         if "<div class='authenticated hidden track-show'>" in track:
             name=name+'     [COLOR blue]Tracking Show[/COLOR]'
             main.addPlayc(name,track+' <xo>'+surl+'</xo>',400,thumb,'','','','','')
