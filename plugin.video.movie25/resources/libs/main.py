@@ -1221,7 +1221,7 @@ def addDirL(name,url,mode,iconimage,plot,fanart,dur,genre,year):
 def addPlayL(name,url,mode,iconimage,plot,fanart,dur,genre,year,secName='',secIcon=''):
     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&plot="+urllib.quote_plus(plot)+"&fanart="+urllib.quote_plus(fanart)+"&genre="+urllib.quote_plus(genre)
     surl=urllib.quote_plus(u)
-    dname=removeColoredText(name)
+    dname=removeColorTags(name)
     mi=[('Add to [COLOR=FFb151ef]Dixie[/COLOR]', 'XBMC.RunPlugin(%s?mode=1501&plot=%s&name=%s&url=%s&iconimage=%s)' % (sys.argv[0] ,secName,dname,surl, secIcon))]
     return addDirX(name,url,mode,iconimage,plot,fanart,dur,genre,year,isFolder=0,fav_t='Live',fav_addon_t='Live',menuItemPos=2,menuItems=mi)
 
