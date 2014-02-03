@@ -90,7 +90,7 @@ def iLiveList(murl):
                 link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
                 match=re.compile('src=".+?" alt=".+?<img width=".+?" height=".+?" src="([^<]+)" alt=".+?"/></noscript></a><a href="(.+?)"><strong>(.*?)</strong></a><br/>').findall(link)
                 for thumb,url,name in match:
-                        if 'hongkong' not in name.lower() and   'playboy' not in name.lower() and   'sex' not in name.lower() and   'girls' not in name.lower() and   'fuck' not in name.lower() and   'hardcore' not in name.lower() and   'softcore' not in name.lower() and   'pussy' not in name.lower() and   'dick' not in name.lower() and   'anal' not in name.lower() and   'cum' not in name.lower() and   'blowjob' not in name.lower() and   'adult' not in name.lower() and   '18+' not in name.lower() and  '16+' not in name.lower():
+                        if 'venus' not in name.lower() and '+16' not in name.lower() and '+18' not in name.lower() and 'hongkong' not in name.lower() and   'playboy' not in name.lower() and   'sex' not in name.lower() and   'girls' not in name.lower() and   'fuck' not in name.lower() and   'hardcore' not in name.lower() and   'softcore' not in name.lower() and   'pussy' not in name.lower() and   'dick' not in name.lower() and   'anal' not in name.lower() and   'cum' not in name.lower() and   'blowjob' not in name.lower() and   'adult' not in name.lower() and   '18+' not in name.lower() and  '16+' not in name.lower():
                                 main.addPlayL(name,url,121,thumb,'','','','','',secName='iLive',secIcon=art+'/ilive.png')
                 
                 loadedLinks = loadedLinks + 1
