@@ -1271,7 +1271,21 @@ elif mode==19:
 elif mode==20:
     from resources.libs import supersearch
     supersearch.SEARCH(name,url)
-
+    
+elif mode==21:
+    from resources.libs import supersearch
+    name = main.removeColoredText(name)
+#     name = re.sub('(?i)[^a-zA-Z0-9]',' ',name)
+    if re.search('(?i)s(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
+        supersearch.SEARCH(name,'TV')
+    else:
+        if re.search('(?i).\s\([12][90]\d{2}\)',name):
+            name = re.sub('(?i)^(.+?)\s\([12][90]\d{2}\).*','\\1',name)
+        elif re.search('(?i).\s[12][90]\d{2}',name):
+            name = re.sub('(?i)^(.+?)\s[12][90]\d{2}.*','\\1',name)
+        name = re.sub('(?i)\s\s+',' ',name).strip()
+        supersearch.SEARCH(name,'Movies')
+        
 elif mode==23:
     from resources.libs import movie25
     movie25.ENTYEAR()

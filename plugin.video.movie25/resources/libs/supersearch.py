@@ -78,7 +78,10 @@ def SEARCH(mname,type):
     if not encode: return False
     else:
         sources = []
-        encode = encode.replace('%21','')
+        encodeunquoted = urllib.unquote(encode)
+        encode = re.sub('(?i)[^a-zA-Z0-9]',' ',encodeunquoted)
+        encode = re.sub('(?i)\s\s+',' ',encode).strip()
+        encode = urllib.quote(encode)
         if type=='Movies':
             if selfAddon.getSetting('ssm_iwatch') != 'false':
                 sources.append('iWatchOnline')
@@ -142,7 +145,8 @@ def SEARCH(mname,type):
                 threading.Thread(target=scenesource,args=(encode,type,q)).start()
                 results.append(q)
         else:
-            encodewithoutepi = urllib.quote(re.sub('(?i)(\ss(\d+)e(\d+))|(Season(.+?)Episode)|(\d+)x(\d+)','',urllib.unquote(encode)).strip())
+            encodetv = urllib.quote(re.sub('(?i)^(.*?((\ss(\d+)e(\d+))|(Season(.+?)Episode \d+)|(\d+)x(\d+))).*','\\1',urllib.unquote(encode)))
+            encodewithoutepi = urllib.quote(re.sub('(?i)(\ss(\d+)e(\d+))|(Season(.+?)Episode)|(\d+)x(\d+)','',urllib.unquote(encodetv)).strip())
             if selfAddon.getSetting('sstv_mbox') != 'false':
                 sources.append('MBox')
                 q = queue.Queue()
@@ -171,40 +175,40 @@ def SEARCH(mname,type):
             if selfAddon.getSetting('sstv_tvrelease') != 'false':
                 sources.append('TVRelease')
                 q = queue.Queue()
-                threading.Thread(target=tvrelease,args=(encode,type,q)).start()
+                threading.Thread(target=tvrelease,args=(encodetv,type,q)).start()
                 results.append(q)
             if selfAddon.getSetting('sstv_mynewvideolinks') != 'false':
                 sources.append('MyNewVideoLinks')
                 q = queue.Queue()
-                threading.Thread(target=mynewvideolinks,args=(encode,type,q)).start()
+                threading.Thread(target=mynewvideolinks,args=(encodetv,type,q)).start()
                 results.append(q)
             if selfAddon.getSetting('sstv_rlsmix') != 'false':
                 if selfAddon.getSetting('rlsusername') != '' and selfAddon.getSetting('rlspassword') != '':
                     sources.append('Rlsmix')
                     q = queue.Queue()
-                    threading.Thread(target=rlsmix,args=(encode,type,q)).start()
+                    threading.Thread(target=rlsmix,args=(encodetv,type,q)).start()
                     results.append(q)
             if selfAddon.getSetting('sstv_scenelog') != 'false':
                 sources.append('SceneLog')
                 q = queue.Queue()
-                threading.Thread(target=scenelog,args=(encode,type,q)).start()
+                threading.Thread(target=scenelog,args=(encodetv,type,q)).start()
                 results.append(q)
             if selfAddon.getSetting('sstv_sceper') != 'false':
                 sources.append('Sceper')
                 q = queue.Queue()
-                threading.Thread(target=sceper,args=(encode,type,q)).start()
+                threading.Thread(target=sceper,args=(encodetv,type,q)).start()
                 results.append(q)
             if selfAddon.getSetting('sstv_scenesource') != 'false':
                 sources.append('SceneSource')
                 q = queue.Queue()
-                threading.Thread(target=scenesource,args=(encode,type,q)).start()
+                threading.Thread(target=scenesource,args=(encodetv,type,q)).start()
                 results.append(q)
-        
+            encodewithoutepi = urllib.unquote(encodewithoutepi)
+        encode = urllib.unquote(encode)
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait. Super Search is searching...')
         loadedLinks = 0
         remaining_display = 'Sources searched :: [B]'+str(loadedLinks)+' / '+str(len(results))+'[/B].'
-        encodeunquoted = urllib.unquote(encode)
         dialogWait.update(0,'[B]'+type+' Super Search - ' + encodeunquoted + '[/B]',remaining_display)
         totalLinks = len(results)
         whileloopps = 0
@@ -226,16 +230,18 @@ def SEARCH(mname,type):
         remaining_display = 'Videos loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
         dialogWait.update(0, '[B]Will load instantly from now on[/B]',remaining_display,' ')
         searchList = sortSearchList(searchList,mname)
-        wordsorg = set(encode.lower().split("%20"))
         if type == 'TV':
-            wordsalt = set(encodewithoutepi.lower().split("%20"))
+            wordsalt = set(encodewithoutepi.lower().split())
+            encode = urllib.unquote(encodetv)
+        wordsorg = set(encode.lower().split())
         for name,section,url,thumb,mode,dir in searchList:
-            name = name.strip()+' [COLOR=FF67cc33]'+section+'[/COLOR]'
-            name = name.replace('&rsquo;',"'").replace('&quot;','"')
+            name = name.replace('&rsquo;',"'").replace('&quot;','"').strip()
+            cname = re.sub('(?i)[^a-zA-Z0-9]',' ',name)
+            name = name+' [COLOR=FF67cc33]'+section+'[/COLOR]'
             if type == 'TV' and (section == 'MBox' or section == 'WatchSeries' or section == 'iWatchOnline' or section == 'IceFilms' or section == 'TubePlus'):
                 words = wordsalt
             else: words = wordsorg
-            if words.issubset(name.lower().split()):
+            if words.issubset(cname.lower().split()):
                 if dir:
                     if type=='Movies':
                         main.addDirM(name,url,int(mode),thumb,'','','','','')
