@@ -26,7 +26,8 @@
       	<setting id="con-view"	type="enum" label="Confluence View" values="List|Big List|Thumbnail|Posters Wrap|Fanart|Media Info 1|Media Info 2|Media Info 3" default="3" enable="!eq(-1,false)+!eq(-5,false)"/>
 		<setting id="xpr-view"	type="enum" label="Xperience 1080 View" values="List|Info List|Thumbnail|Posters|Landscape|Banner|Panel" default="3" enable="!eq(-2,true)+!eq(-6,false)"/>
 		<setting id="ga_time" type="text" label="GA Called" default="2000-01-01 00:00:00" visible="false"/>
-		<setting id="visitor_ga" type="text" label="GA visitor" default="" visible="false"/>		
+		<setting id="visitor_ga" type="text" label="GA visitor" default="" visible="false"/>
+		<setting id="tube-proxy" type="bool" label="[B]proxy[/B]" default="false" visible="false"/>		
    </category>
    
    <category label="Home Layout">

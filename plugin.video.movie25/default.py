@@ -632,16 +632,24 @@ def MAINDEL(murl):
             main.ClearDir(xbmc.translatePath('special://temp/'),True)
             xbmc.executebuiltin("XBMC.Notification(Clear XBMC Cache,Successful,5000,"")")
 
-def MAINTENANCE():
-    main.addSpecial('Delete Packages Folder','packages',416,art+'/maintenance.png')
-    main.addSpecial('Fix Database Malformed','Malformed',416,art+'/maintenance.png')
-    main.addSpecial('Install latest UrlResolver','UrlResolver',416,art+'/maintenance.png')
-    main.addSpecial('Install latest MetaHandler','MetaHandler',416,art+'/maintenance.png')
-    main.addSpecial('Clear XBMC Cache','ClearCache',416,art+'/maintenance.png')
+def MAINTENANCE(name):
+    if name == 'MAINTENANCE':
+        main.addSpecial('Delete Packages Folder','packages',416,art+'/maintenance.png')
+        main.addSpecial('Fix Database Malformed','Malformed',416,art+'/maintenance.png')
+        main.addSpecial('Install latest UrlResolver','UrlResolver',416,art+'/maintenance.png')
+        main.addSpecial('Install latest MetaHandler','MetaHandler',416,art+'/maintenance.png')
+        main.addSpecial('Clear XBMC Cache','ClearCache',416,art+'/maintenance.png')
+    else:
+        main.addSpecial('Zero Cache (0)','ZeroCache.xml',417,art+'/maintenance.png')
+        main.addSpecial('Cache Less (20971520)','CacheLess.xml',417,art+'/maintenance.png')
+        main.addSpecial('Cache Medium (34603008)','CacheMedium.xml',417,art+'/maintenance.png')
+        main.addSpecial('Cache More (52428800)','CacheMore.xml',417,art+'/maintenance.png')
+        main.addSpecial('Remove AdvancedSettings.xml','rmv',418,art+'/maintenance.png')
 
 
 def FIXES():
     main.addDir('MAINTENANCE','maintenance',415,art+'/maintenance.png')
+    main.addDir('Advanced Setting Tweaks','adt',415,art+'/maintenance.png')
     main.addLink('[COLOR red]Apply fix only if your current one is broken[/COLOR]','','')
     try:
         link=main.OPENURL('https://raw.github.com/mash2k3/MashUpFixes/master/Fixes.xml')
@@ -662,6 +670,25 @@ def FIXDOWN(name,filename,location,path):
     dialog = xbmcgui.Dialog()
     name  = name.split('[COLOR red]')[0]
     dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now "+name+" should be Fixed[/COLOR]")
+
+def ADSettings(name,filename):
+    main.GA("Fixes",name+"-Fix")
+    url = 'https://raw.github.com/mash2k3/MashUpFixes/master/AdvancedSettings/'+filename
+    print "#############  Downloading from "+ url+"  #####################"
+    path = xbmc.translatePath(os.path.join('special://home/','userdata'))
+    lib=os.path.join(path,'advancedsettings.xml')
+    downloadFileWithDialog(url,lib)
+    dialog = xbmcgui.Dialog()
+    name  = name.split('[COLOR red]')[0]
+    dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now "+name+" should be Installed[/COLOR]")
+
+def delAS():
+    dialog = xbmcgui.Dialog()
+    if dialog.yesno('Mash Up', 'Are you sure you want to remove advancedsettings.xml?','','','No', 'Yes'):
+        path = xbmc.translatePath(os.path.join('special://home/','userdata'))
+        file=os.path.join(path, 'advancedsettings.xml')
+        os.remove(file)
+        dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now AdvancedSettings.xml is removed[/COLOR]")
     
 def HTVList(murl):
     link=main.OPENURL(murl)
@@ -3101,10 +3128,16 @@ elif mode==414:
     WHClear(url)
 
 elif mode==415:
-    MAINTENANCE()
+    MAINTENANCE(name)
 
 elif mode==416:
     MAINDEL(url)
+    
+elif mode==417:
+    ADSettings(name,url)
+    
+elif mode==418:
+    delAS()
 ######################################################################################################
 elif mode==500:
     TVAll()        
@@ -3671,8 +3704,11 @@ elif mode == 1003:
     from resources.libs.plugins import tvrelease
     tvrelease.LISTHOSTERS(name,url)
 elif mode == 1004:
-    import urlresolver
-    urlresolver.display_settings()
+    if selfAddon.getSetting("tube-proxy") == "true":
+        selfAddon.setSetting('tube-proxy', 'false')
+    else:
+        selfAddon.setSetting('tube-proxy', 'true')
+    xbmc.executebuiltin("XBMC.Container.Refresh")
 elif mode == 1005:
     from resources.libs.plugins import tvrelease
     tvrelease.PLAYMEDIA(name,url)
