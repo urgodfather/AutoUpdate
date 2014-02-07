@@ -274,7 +274,7 @@ def SEARCHhistory():
             for seahis in reversed(searchis):
                     url=seahis
                     seahis=seahis.replace('%20',' ')
-                    url = 'http://www.tubeplus.me/search/tv-shows/'+url+'/0/'
+                    url = 'BASE_URL+search/tv-shows/'+url+'/0/'
                     
                     main.addDir(seahis,url,1025,thumb)
     if ret == 1:
@@ -291,7 +291,7 @@ def SEARCHhistory():
             for seahis in reversed(searchis):
                     url=seahis
                     seahis=seahis.replace('%20',' ')
-                    url = 'http://www.tubeplus.me/search/movies/'+url+'/0/'
+                    url = 'BASE_URL+search/movies/'+url+'/0/'
                     main.addDir(seahis,url,1025,thumb)
 
 def GOTOP(url):
