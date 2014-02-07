@@ -12,13 +12,13 @@ addon = Addon('plugin.video.movie25', sys.argv)
 art = main.art
     
 wh = watchhistory.WatchHistory('plugin.video.movie25')
-
+MainUrl = "http://www.einthusan.com/movies/"
 
 def LISTINT(name,url):
-        MainUrl = "http://www.einthusan.com/movies/"
+        main.addDir('Search','TV',419,art+'/search.png')
         urllist=[]
         page = 1
-        while page < 21 :
+        while page < 15 :
                 urllist.append('http://www.einthusan.com/movies/index.php?lang=hindi&organize=Activity&filtered=RecentlyPosted&org_type=Activity&page='+str(page))
                 page += 1
         if urllist:
@@ -46,7 +46,20 @@ def LISTINT(name,url):
         del dialogWait
         main.GA("INT","Einthusan")
 
-
+def SEARCHEIN():
+        keyb = xbmc.Keyboard('', 'Search Movies')
+        keyb.doModal()
+        if (keyb.isConfirmed()):
+            search = keyb.getText()
+            encode=urllib.quote(search)
+            surl='http://www.einthusan.com/movies/index.php?lang=hindi&search='+encode
+            link=main.OPENURL(surl)
+            match = re.compile('<a class="movie-cover-wrapper" href="(.+?)"><img src="(.+?)" alt="(.+?)"').findall(link)
+            for url,thumb,name in match:
+                url=url.replace('../movies/','')
+                thumb=thumb.replace('../movies/','')
+                name = name.replace('hindi movie online','')
+                main.addPlayM(name,MainUrl+url,38,MainUrl+thumb,'','','','','')
 
 def LINKINT(mname,url):
         main.GA("Einthusan","Watched")

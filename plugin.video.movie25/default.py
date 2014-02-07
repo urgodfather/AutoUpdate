@@ -3138,6 +3138,10 @@ elif mode==417:
     
 elif mode==418:
     delAS()
+
+elif mode==419:
+    from resources.libs.international import  einthusan
+    einthusan.SEARCHEIN()
 ######################################################################################################
 elif mode==500:
     TVAll()        
