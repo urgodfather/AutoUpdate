@@ -300,16 +300,16 @@ def GOTOP(url):
 def superSearch(encode,type):
     try:
         if type=='Movies':
-            surl = 'http://www.tubeplus.me/search/movies/'+encode+'/0/'
+            surl = BASE_URL+'search/movies/'+encode+'/0/'
         else:
-            surl = 'http://www.tubeplus.me/search/tv-shows/'+encode+'/0/'
+            surl = BASE_URL+'search/tv-shows/'+encode+'/0/'
         returnList=[]
         link=main.OPENURL(surl,verbose=False)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         r = re.compile(r'<div id="list_body">(.+?)<div id="list_footer"></div>', re.DOTALL|re.I|re.M).findall(link)
         match = re.compile(r'title="Watch online: ([^"]*)" href="/([^"]*)"><img border="0" alt=".+?" src="([^"]*)"></a>', re.I).findall(str(r))
         for name, url, thumb in match:
-            thumb='http://www.tubeplus.me'+thumb
+            thumb=BASE_URL+thumb
             if type=='Movies':
                 returnList.append((name,prettyName,url,thumb,1026,True))
             else:
