@@ -84,9 +84,9 @@ def LIST(type):
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Content Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
         dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-        if dialogWait.iscanceled():
-            return False
+        if dialogWait.iscanceled(): break
     main.GA("Mbox","List")
+    main.VIEWS()
 
 def MUSICLIST(mname,murl):
     link=main.OPENURL(murl)
@@ -105,8 +105,7 @@ def MUSICLIST(mname,murl):
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Songs Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
         dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-        if dialogWait.iscanceled():
-            return False
+        if dialogWait.iscanceled(): break
     main.GA("Mbox","Music")
 
 def SEASONS(mname,murl):
@@ -170,7 +169,7 @@ def resolveMBLink(url):
         if r: r = int(r[0][0]) + int(r[0][1]) + int(r[0][2])
         else: r = 537 + int(re.findall('id=(\d+)',url,re.I)[0])
         link=main.OPENURL(url,verbose=False)
-        q = re.findall('"lang":"en","apple":(\d+?),"google":(\d+?),"microsoft":"([^"]+?)"',link,re.I)
+        q = re.findall('"lang":"en","apple":([-\d]+?),"google":([-\d]+?),"microsoft":"([^"]+?)"',link,re.I)
         vklink = "https://vk.com/video_ext.php?oid="+str(r + int(q[0][0]))+"&id="+str(r + int(q[0][1]))+"&hash="+q[0][2]
     except:
         vklink=url
