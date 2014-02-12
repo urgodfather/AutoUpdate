@@ -61,6 +61,8 @@ def resolve_url(url, filename = False):
                 stream_url=resolve_youwatch(url)
             elif re.search('vk.com',url,re.I):
                 stream_url=resolve_VK(url)
+            elif re.search('(?i)(firedrive|putlocker)',url):
+                stream_url=resolve_firedrive(url)               
             elif re.search('project-free-upload',url,re.I):
                 stream_url=resolve_projectfreeupload(url)
             elif re.search('yify.tv',url,re.I):
@@ -186,7 +188,41 @@ def load_json(data):
                   for line in sys.exc_info():
                         print "%s" % line
       return None
-    
+
+
+def resolve_firedrive(url):
+    try:
+        url=url.replace('putlocker.com','firedrive.com').replace('putlocker.to','firedrive.com')
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MashUp Firedrive Link...')       
+        dialog.update(0)
+        print 'MashUp Firedrive - Requesting GET URL: %s' % url
+        html = net().http_GET(url).content
+        dialog.update(50)
+        if dialog.iscanceled(): return None
+        post_data = {}
+        r = re.findall(r'(?i)<input type="hidden" name="(.+?)" value="(.+?)"', html)
+        for name, value in r:
+            post_data[name] = value
+        post_data['referer'] = url
+        html = net().http_POST(url, post_data).content
+        embed=re.findall('(?sim)href="([^"]+?)">Download file</a>',html)
+        if not embed:
+            embed=re.findall("""(?sim)href="([^"]+?)" id='external_download'""",html)
+        if dialog.iscanceled(): return None
+        if embed:
+            dialog.update(100)
+            return embed[0]
+        else:
+            logerror('Mash Up: Resolve Firedrive - File Not Found')
+            xbmc.executebuiltin("XBMC.Notification(File Not Found,Firedrive,2000)")
+            return False
+    except Exception, e:
+        logerror('**** Firedrive Error occured: %s' % e)
+        xbmc.executebuiltin('[B][COLOR white]Firedrive[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
+
+       
+        
 def resolve_bayfiles(url):
     try:
         dialog = xbmcgui.DialogProgress()
@@ -345,6 +381,7 @@ def resolve_projectfreeupload(url):
         except:unpack=jsunpack.unpack(r[0])
         stream_url=re.findall('<param name="src"value="(.+?)"/>',unpack)[0]
         return stream_url
+        if dialog.iscanceled(): return None
     except Exception, e:
         logerror('**** Project Free Error occured: %s' % e)
         xbmc.executebuiltin('[B][COLOR white]Project Free[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
