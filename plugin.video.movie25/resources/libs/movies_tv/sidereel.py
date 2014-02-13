@@ -133,7 +133,7 @@ def cleanHex(text):
         text = m.group(0)
         if text[:3] == "&#x": return unichr(int(text[3:-1], 16)).encode('utf-8')
         else: return unichr(int(text[2:-1])).encode('utf-8')
-    return re.sub("(?i)&#\w+;", fixup, text.decode('ISO-8859-1').encode('utf-8'))
+    return re.sub("(?i)&#\w+;", fixup, text.encode('utf-8'))
 
 def getRelativeDate(days):
     if days < -1: days = str(abs(days)) + ' days ago'
