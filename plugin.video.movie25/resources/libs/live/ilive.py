@@ -133,14 +133,14 @@ def iLiveLink(mname,murl,thumb):
                 link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
                 match=re.compile('http://www.ilive.to/embed/(.+?)&width=(.+?)&height=(.+?)&autoplay=true').findall(link)
                 for fid,wid,hei in match:
-                    pageUrl='http://www.ilive.to/embedplayer.php?width='+wid+'&height='+hei+'&channel='+fid+'&autoplay=true'
-                link=main.OPENURL(pageUrl)
-                playpath=re.compile('file: "(.+?).flv"').findall(link)
-                token=getToken(pageUrl)
-                if len(playpath)==0:
-                        playpath=re.compile('http://snapshots.ilive.to/snapshots/(.+?)_snapshot.jpg').findall(thumb)      
-                for playPath in playpath:
-                    stream_url = 'rtmp://watch.ilive.to/edge playpath=' + playPath + " live=1 timeout=15 swfUrl=http://player.ilive.to/player_ilive_2.swf pageUrl="+pageUrl+" token="+token
+                    pageUrl='http://www.ilive.to/m/channel.php?n='+fid
+                link=main.OPENURL(pageUrl).replace('\/','/').replace('\\','')
+                print link
+                playpath=re.compile('''file': "([^"]+?)"''').findall(link)
+                #token=getToken(pageUrl)
+                #if len(playpath)==0:
+                #        playpath=re.compile('http://snapshots.ilive.to/snapshots/(.+?)_snapshot.jpg').findall(thumb)      
+                stream_url = playpath[0]
                 listitem = xbmcgui.ListItem(thumbnailImage=thumb)
                 infoL={'Title': mname, 'Genre': 'Live'} 
                 from resources.universal import playbackengine
@@ -152,4 +152,3 @@ def iLiveLink(mname,murl,thumb):
                     wh = watchhistory.WatchHistory('plugin.video.movie25')
                     wh.add_item(mname+' '+'[COLOR green]iLive[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
                 return ok
-
