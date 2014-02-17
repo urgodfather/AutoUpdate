@@ -48,7 +48,7 @@ else:
 elogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/bigx.png')
 slogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/smallicon.png')
 
-def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 5, cookie = None, data = None, cookiejar = False):
+def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie = None, data = None, cookiejar = False):
     import urllib2 
     UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
     try:
@@ -89,6 +89,9 @@ def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 5, cookie 
     except:
         if verbose:
             xbmc.executebuiltin("XBMC.Notification(Sorry!,Source Website is Down,3000,"+elogo+")")
+        xbmc.log('***********Website Error: '+str(e)+'**************', xbmc.LOGERROR)
+        import traceback
+        traceback.print_exc()
         link ='website down'
         if q: q.put(link)
         return link
