@@ -296,7 +296,7 @@ def resolve_yify(url):
         print 'MashUp Yify - Requesting GET URL: %s' % url
         html = net().http_GET(url).content
         url = re.compile('showPkPlayer[(]"(.+?)"[)]').findall(html)[0]
-        url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p.php?url=https%3A//picasaweb.google.com/' + url
+        url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p2.php?url=https%3A//picasaweb.google.com/' + url
         html = net().http_GET(url).content
         html = re.compile('{(.+?)}').findall(html)[-1]
         stream_url = re.compile('"url":"(.+?)"').findall(html)[0]
