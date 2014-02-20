@@ -7,6 +7,7 @@
 		<setting id="whistory" type="bool" label="[B]Watch History[/B]" default="true"/>
 		<setting id="gastatus" type="bool" label="[B]Google Analytics[/B]" default="true"/>
 		<setting id="skin" type="enum" label="[B]Skin[/B]" values="VECTOR TH|GREEN MONSTER" default="0"/>
+		<setting id="stracker" type="enum" label="[B]Choose Show Tracker Source[/B]" values="Sidereel|Trakt.tv" default="0"/>
 		<setting id="groupfavs" type="bool" label="[B]Group Favorites[/B]" default="false"/>
 		<setting label="[B]Re-install last auto update[/B]" type="action" action="RunPlugin(plugin://plugin.video.movie25/?mode=1998&url=0)"/>
 		<setting label="External Settings" type="lsep" />
@@ -66,7 +67,7 @@
 			<setting id="homeitem_15" type="number" label="     Order" default="150" visible="!eq(-1,false)"/>
 		<setting id="homeitem_16_enabled" type="bool" label="[B]TV Latest[/B]" default="true"/>
 			<setting id="homeitem_16" type="number" label="     Order" default="160" visible="!eq(-1,false)"/>
-		<setting id="homeitem_37_enabled" type="bool" label="[B]SideReel[/B]" default="false"/>
+		<setting id="homeitem_37_enabled" type="bool" label="[B]Show Tracker Source[/B]" default="false"/>
 			<setting id="homeitem_37" type="number" label="     Order" default="165" visible="!eq(-1,false)"/>
 		<setting id="homeitem_17_enabled" type="bool" label="[B]Live Section[/B]" default="true"/>
 			<setting id="homeitem_17" type="number" label="     Order" default="170" visible="!eq(-1,false)"/>
@@ -124,18 +125,19 @@
 		<setting id="ssm_sceper" type="bool" label="Sceper" default="true" visible="!eq(-10,TV)"/>
 		<setting id="ssm_fma" type="bool" label="FMA" default="true" visible="!eq(-11,TV)"/>
 		<setting id="ssm_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-12,TV)"/>
+		<setting id="ssm_yify" type="bool" label="Yify" default="true" visible="!eq(-13,TV)"/>
 
-		<setting id="sstv_mbox" type="bool" label="MBox" default="true" visible="!eq(-13,Movies)"/>
-		<setting id="sstv_watchseries" type="bool" label="WatchSeries" default="true" visible="!eq(-14,Movies)"/>
-		<setting id="sstv_iwatch" type="bool" label="iWatchOnline" default="true" visible="!eq(-15,Movies)"/>
-		<setting id="sstv_icefilms" type="bool" label="IceFilms" default="true" visible="!eq(-16,Movies)"/>
-		<setting id="sstv_tubeplus" type="bool" label="TubePlus" default="true" visible="!eq(-17,Movies)"/>
-		<setting id="sstv_tvrelease" type="bool" label="TVRelease" default="true" visible="!eq(-18,Movies)"/>
-		<setting id="sstv_mynewvideolinks" type="bool" label="MyNewVideoLinks" default="true" visible="!eq(-19,Movies)"/>
-		<setting id="sstv_rlsmix" type="bool" label="RlsMix" default="true" visible="!eq(-20,Movies)"/>
-		<setting id="sstv_scenelog" type="bool" label="SceneLog" default="true" visible="!eq(-21,Movies)"/>
-		<setting id="sstv_sceper" type="bool" label="Sceper" default="true" visible="!eq(-22,Movies)"/>
-		<setting id="sstv_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-23,Movies)"/>
+		<setting id="sstv_mbox" type="bool" label="MBox" default="true" visible="!eq(-14,Movies)"/>
+		<setting id="sstv_watchseries" type="bool" label="WatchSeries" default="true" visible="!eq(-15,Movies)"/>
+		<setting id="sstv_iwatch" type="bool" label="iWatchOnline" default="true" visible="!eq(-16,Movies)"/>
+		<setting id="sstv_icefilms" type="bool" label="IceFilms" default="true" visible="!eq(-17,Movies)"/>
+		<setting id="sstv_tubeplus" type="bool" label="TubePlus" default="true" visible="!eq(-18,Movies)"/>
+		<setting id="sstv_tvrelease" type="bool" label="TVRelease" default="true" visible="!eq(-19,Movies)"/>
+		<setting id="sstv_mynewvideolinks" type="bool" label="MyNewVideoLinks" default="true" visible="!eq(-20,Movies)"/>
+		<setting id="sstv_rlsmix" type="bool" label="RlsMix" default="true" visible="!eq(-21,Movies)"/>
+		<setting id="sstv_scenelog" type="bool" label="SceneLog" default="true" visible="!eq(-22,Movies)"/>
+		<setting id="sstv_sceper" type="bool" label="Sceper" default="true" visible="!eq(-23,Movies)"/>
+		<setting id="sstv_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-24,Movies)"/>
    </category>
    
    <category label="Log-ins">

@@ -19,8 +19,8 @@ if selfAddon.getSetting('visitor_ga')=='':
     selfAddon.setSetting('visitor_ga',str(randint(0, 0x7fffffff)))
 
 VERSION = "1.4.0"
-#PATH = "MashUp-DEV"  
-PATH = "MashUp-"            
+PATH = "MashUp-DEV"  
+#PATH = "MashUp-"            
 UATRACK="UA-38312513-1" 
 
 try:
@@ -48,11 +48,12 @@ else:
 elogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/bigx.png')
 slogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/art/smallicon.png')
 
-def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie = None, data = None, cookiejar = False):
+def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie = None, data = None, cookiejar = False, log = True, headers = [], type = ''):
     import urllib2 
     UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
     try:
-        print "MU-Openurl = " + url
+        if log:
+            print "MU-Openurl = " + url
         if cookie and not cookiejar:
             import cookielib
             cookie_file = os.path.join(os.path.join(datapath,'Cookies'), cookie+'.cookies')
@@ -72,8 +73,15 @@ def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie
             opener.addheaders = [('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7')]
         else:
             opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')]
+        for header in headers:
+            opener.addheaders.append(header)
         if data:
-            response = opener.open(url, urllib.urlencode(data), timeout)
+            if type == 'json': 
+                import json
+                data = json.dumps(data)
+                opener.addheaders.append(('Content-Type', 'application/json'))
+            else: data = urllib.urlencode(data)
+            response = opener.open(url, data, timeout)
         else:
             response = opener.open(url, timeout=timeout)
         if cookie and not cookiejar:
@@ -86,7 +94,7 @@ def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie
         link=link.replace('%3A',':').replace('%2F','/')
         if q: q.put(link)
         return link
-    except:
+    except Exception as e:
         if verbose:
             xbmc.executebuiltin("XBMC.Notification(Sorry!,Source Website is Down,3000,"+elogo+")")
         xbmc.log('***********Website Error: '+str(e)+'**************', xbmc.LOGERROR)
@@ -1291,8 +1299,8 @@ def addLink(name,url,iconimage):
     liz.setProperty('fanart_image', fanartimage)
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
 
-def addDir(name,url,mode,iconimage,plot=''):
-    return addDirX(name,url,mode,iconimage,plot,addToFavs=0,replaceItems=False)
+def addDir(name,url,mode,iconimage,plot='',fanart=''):
+    return addDirX(name,url,mode,iconimage,plot,fanart,addToFavs=0,replaceItems=False)
 
 def addDirHome(name,url,mode,iconimage):
     return addDirX(name,url,mode,iconimage,addToFavs=0)

@@ -100,11 +100,11 @@ def MAIN():
         elif index==26:
             main.addDirHome('HackerMils Stash','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Directory/HackerMil_Directory.xml',235,art+'/hackermil.png')
         elif index==27:
-            main.addDirHome('The New Pirate Bay','https://raw.github.com/mash2k3/MashUpTNPB/master/TNPB_Directory.xml',235,art+'/tnpb.png')
+            main.addDirHome('The New Pirate Bay','https://raw.github.com/mash2k3/MashUpTNPB/master/TNPB_Directory.xml',235,'/tnpb.png')
         elif index==28:
-            main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,art+'/morepower.png')
+            main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,'/morepower.png')
         elif index==29:
-            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,art+'/staael1982.png')
+            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,'/staael1982.png')
         elif index==34:
             main.addDirHome('Demon88 Movies','https://raw.github.com/mash2k3/demon88/master/Demon88_Directory.xml',235,art+'/demon88.png')
         elif index==37:
@@ -120,7 +120,10 @@ def MAIN():
         elif index==35:
             main.addDirHome('Super Search','ss',19,art+'/supersearch.png')
         elif index==36:
-            main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+            if selfAddon.getSetting("stracker") == '0':
+                main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+            else:
+                main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addPlayc('Need Help?','http://www.movie25.com/',100,art+'/help.png','','','','','')
     main.addPlayc('Upload Log','http://www.movie25.so/',156,art+'/loguploader.png','','','','','')
     main.addPlayc('Click Me!!!','https://raw.github.com/mash2k3/MashupArtwork/master/art/donation.png',244,art+'/paypalmash2.png','','','','','')
@@ -257,8 +260,17 @@ def cacheSideReel():
         from resources.libs.movies_tv import sidereel
         sidereel.MAINSIDE(True)
         
+def cacheTrakt():
+    user = selfAddon.getSetting('trusername')
+    passw = selfAddon.getSetting('trpassword')
+    cached_path = os.path.join(CachePath, 'Trakt')
+    import datetime
+    if (user and passw) and (not os.path.exists(cached_path) or time.mktime(datetime.date.today().timetuple()) > os.stat(cached_path).st_mtime):
+        from resources.libs.movies_tv import trakt
+        trakt.showList(True)
+        
 def Notify():
-    mashup=140
+    mashup=139
     runonce=os.path.join(main.datapath,'RunOnce')
     try: os.makedirs(runonce)
     except: pass
@@ -332,7 +344,10 @@ def GlobalFav():
     
 def TV():
     main.ClearDir(TempPath)
-    main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+    if selfAddon.getSetting("stracker") == '0':
+        main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+    else:
+        main.addDir("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addDir('Latest Episodes (Newmyvideolinks) True HD[COLOR red] DC[/COLOR]','TV',34,art+'/tvb.png')
     main.addDir('Latest Episodes (Rlsmix)[COLOR red](Debrid Only)[/COLOR] True HD[COLOR red] DC[/COLOR]','TV',61,art+'/tvb.png')
     if selfAddon.getSetting("ddtv_my") == "true":
@@ -348,6 +363,7 @@ def TV():
     main.addDir('Latest Episodes (Oneclickwatch)','http://oneclickwatch.org',32,art+'/tvb.png')
     main.addDir('Latest Episodes (Seriesgate)','http://seriesgate.tv/latestepisodes/',602,art+'/tvb.png')
     main.addDir('Latest 150 Episodes (ChannelCut)','http://www.channelcut.me/last-150',546,art+'/tvb.png')
+    
 #     main.addDir('Latest 100 Episodes (Tv4stream)','http://www.tv4stream.info/last-100-links/',546,art+'/tvb.png')
     main.GA("None","TV-Latest")
 
@@ -377,13 +393,14 @@ def TVAll():
     main.addDir('SceneSource [COLOR red](Debrid Only)[/COLOR]','TV',387,art+'/scenesource.png')
     main.addDir('Noobroom [COLOR red]DC[/COLOR]','TV',296,art+'/noobroom.png')
     main.addDir('MBox [COLOR red]DC[/COLOR]','TV',276,art+'/mbox.png')
+    #main.addDir('Yify','yify',421,art+'/yify.png')
     main.addDir('SominalTvFilms','TV',619,art+'/sominal.png')
     main.addDir('Dramania','TV',268,art+'/dramania.png')
     main.addDir('SokroStream','french',324,art+'/sokrostream.png')
     main.addDir('Aflam1','arabic',335,art+'/aflam1.png')
     main.addDir('3Arabtv','arabic',351,art+'/3arabtv.png')
     main.addDir('MailRu','http://my.mail.ru/video/top',357,art+'/mailru.png')
-    #main.addDir('Watching Now','TV',530,art+'/watchingnow.png')
+    main.addDir('Watching Now','TV',530,art+'/watchingnow.png')
     main.addDir('FMA','TV',567,art+'/fma.png')
     #main.addDir('Global BC','gbc',165,art+'/globalbc.png')       
     main.GA("None","Plugin")
@@ -413,6 +430,7 @@ def HD():
     main.addDir('Latest HD Movies (Dailyflix) True HD','HD',53,art+'/hd2.png')
     main.addDir('Latest HD Movies ([COLOR=FF67cc33]Noobroom[/COLOR]) Direct MP4 True HD[COLOR red] DC[/COLOR]','/latest.php',57,art+'/hd2.png')
     main.addDir('Latest HD Movies (MBox) True HD[COLOR red] DC[/COLOR]','movies',285,art+'/hd2.png')
+    main.addDir('Latest HD Movies (Yify) True HD[COLOR red] DC[/COLOR]','http://yify.tv/files/movies/',422,art+'/hd2.png')
     main.addDir('Latest HD Movies (Icefilms) True HD[COLOR red] DC[/COLOR]','/movies/added/hd',282,art+'/hd2.png')
     main.addDir('Latest HD Movies (TV-Release) True HD[COLOR red] DC[/COLOR]','http://www.tv-release.net/?cat=Movies-720p',1001,art+'/hd2.png')
     #main.addDir('Latest HD Movies (Oneclickmovies)[COLOR red](Debrid Only)[/COLOR] True HD[COLOR red] DC[/COLOR]','www.scnsrc.me',55,art+'/hd2.png')
@@ -472,6 +490,7 @@ def INTCAT(murl):
         main.addDir('Latest French Documentaire (Video Documentaire)','http://www.dps.com',331,art+'/intl.png')
     if 'kor' in murl:
         main.addDir('Latest Korean/Jappenese/Chinese Movies&Dramas (Dramania)','http://www.cinevip.org/',268,art+'/intl.png')
+        main.addDir('Latest Korean/Jappenese/Chinese Movies&Dramas (Catiii.tv)','http://www.cinevip.org/',434,art+'/intl.png')
     if 'danish' in murl:
         main.addDir('Staael1982 Danish Movies','https://raw.github.com/mash2k3/Staael1982/master/danish%20movies.xml',236,art+'/intl.png')
 
@@ -631,6 +650,15 @@ def MAINDEL(murl):
         if dialog.yesno('Mash Up', 'Are you sure you want to clear XBMC cache ?','','','No', 'Yes'):
             main.ClearDir(xbmc.translatePath('special://temp/'),True)
             xbmc.executebuiltin("XBMC.Notification(Clear XBMC Cache,Successful,5000,"")")
+    elif 'MashCache' in murl:
+        dialog = xbmcgui.Dialog()
+        if dialog.yesno('Mash Up', 'Are you sure you want to clear MashUp Cache & Cookies?','','','No', 'Yes'):
+            import os
+            cached_path = os.path.join(main.datapath,'Cache')
+            cookie_file = os.path.join(main.datapath,'Cookies')
+            main.ClearDir(xbmc.translatePath(cached_path),True)
+            main.ClearDir(xbmc.translatePath(cookie_file),True)
+            xbmc.executebuiltin("XBMC.Notification(Clear XBMC Cache,Successful,5000,"")")
 
 def MAINTENANCE(name):
     if name == 'MAINTENANCE':
@@ -639,6 +667,7 @@ def MAINTENANCE(name):
         main.addSpecial('Install latest UrlResolver','UrlResolver',416,art+'/maintenance.png')
         main.addSpecial('Install latest MetaHandler','MetaHandler',416,art+'/maintenance.png')
         main.addSpecial('Clear XBMC Cache','ClearCache',416,art+'/maintenance.png')
+        main.addSpecial('Clear MashUp Cache & Cookies','MashCache',416,art+'/maintenance.png')
     else:
         main.addSpecial('Zero Cache (0)','ZeroCache.xml',417,art+'/maintenance.png')
         main.addSpecial('Cache Less (20971520)','CacheLess.xml',417,art+'/maintenance.png')
@@ -747,7 +776,7 @@ def openMGuide():
    try:
        main.GA("Live","Dixie")
        dialog = xbmcgui.DialogProgress()
-       dialog.create('Please Wait!', 'Opening TV Guide Dixie...')
+       dialog.create('Pleat Wait!', 'Opening TV Guide Dixie...')
        dialog.update(0)
        dixie = xbmcaddon.Addon('script.tvguidedixie')
        path  = dixie.getAddonInfo('path') 
@@ -834,9 +863,9 @@ def UploadLog():
 repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.mash2k3'))
 try: 
     if not os.path.exists(repopath):
-        url = 'https://bitbucket.org/mash2k3/mash2k3-repository/src/d47f5cdf43b1cb55c54a0329e293a7023ea665ac/zips/repository.mash2k3/repository.mash2k3-1.6.zip?at=master'
+        url = 'https://bitbucket.org/mash2k3/mash2k3-repository/src/a3be11dd1482e4b08fcc3905b9150971117e7955/zips/repository.mash2k3/repository.mash2k3-1.5.zip?at=master'
         path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
-        lib=os.path.join(path, 'repository.mash2k3-1.6.zip')
+        lib=os.path.join(path, 'repository.mash2k3-1.5.zip')
         if main.downloadFile(url,lib):
             print lib
             addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
@@ -1241,13 +1270,17 @@ if mode and url:
         print 'DAILY UPDATE'
         if ENV is 'Prod':
             threading.Thread(target=CheckForAutoUpdate).start()
-
+        else:
+            threading.Thread(target=CheckForAutoUpdateDev).start()
         main.setFile(DailyFilePath,'',True)
 
 if mode==None or url==None or len(url)<1:
     if ENV is 'Prod':
         threading.Thread(target=CheckForAutoUpdate).start()
+    else:
+        threading.Thread(target=CheckForAutoUpdateDev).start()
     threading.Thread(target=cacheSideReel).start()
+    threading.Thread(target=cacheTrakt).start()
     threading.Thread(target=Notify).start()
     MAIN()
     threading.Thread(target=Announcements).start()
@@ -1304,6 +1337,21 @@ elif mode==21:
     name = main.removeColoredText(name)
 #     name = re.sub('(?i)[^a-zA-Z0-9]',' ',name)
     if re.search('(?i)s(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
+        episode = re.search('(?i)Season\s*?(\d+)\s*?Episode\s*?(\d+)',name)
+        if episode:
+            e = str(episode.group(2))
+            if(len(e)==1): e = "0" + e
+            s = episode.group(1)
+            if(len(s)==1): s = "0" + s
+            name = re.sub('(?i)Season\s*?(\d+)\s*?Episode\s*?(\d+)',"S" + s + "E" + e,name)
+        else:
+            episode = re.search('(?i)(\d+)x(\d+)',name)
+            if episode:
+                e = str(episode.group(2))
+                if(len(e)==1): e = "0" + e
+                s = episode.group(1)
+                if(len(s)==1): s = "0" + s
+                name = re.sub('(?i)(\d+)x(\d+)',"S" + s + "E" + e,name)
         supersearch.SEARCH(name,'TV')
     else:
         if re.search('(?i).\s\([12][90]\d{2}\)',name):
@@ -3138,10 +3186,83 @@ elif mode==417:
     
 elif mode==418:
     delAS()
-
+    
 elif mode==419:
     from resources.libs.international import  einthusan
     einthusan.SEARCHEIN()
+
+elif mode==421:
+    from resources.libs.plugins import yify
+    yify.MAIN()
+    
+elif mode==422:
+    from resources.libs.plugins import yify
+    yify.LIST(url)
+
+elif mode==423:
+    from resources.libs.plugins import yify
+    yify.LINK(name,url,iconimage)
+
+elif mode==424:
+    from resources.libs.plugins import yify
+    yify.Searchhistory()
+
+elif mode==425:
+    from resources.libs.plugins import yify
+    yify.SEARCH(url)
+
+elif mode==426:
+    from resources.libs.plugins import yify
+    yify.SortBy(url)
+
+elif mode==427:
+    from resources.libs.plugins import yify
+    yify.GotoPage(url)
+
+elif mode==428:
+    from resources.libs.plugins import yify
+    yify.ENTYEAR()
+    
+elif mode==429:
+    from resources.libs.movies_tv import trakt
+    trakt.showList()
+    
+elif mode==430:
+    from resources.libs.movies_tv import trakt
+    trakt.searchShow()
+    
+elif mode==431:
+    from resources.libs.movies_tv import trakt
+    trakt.trackedShows()
+    
+elif mode==432:
+    from resources.libs.movies_tv import trakt
+    trakt.trackShow(name,url)
+    
+elif mode==433:
+    from resources.libs.movies_tv import trakt
+    trakt.untrackShow(name,url)
+
+elif mode==434:
+    from resources.libs.international import catiii
+    catiii.MAIN()
+    
+elif mode==435:
+    from resources.libs.international import catiii
+    catiii.LIST(url)
+
+elif mode==436:
+    from resources.libs.international import catiii
+    catiii.LINK(name,url,iconimage)
+
+elif mode==437:
+    from resources.libs.international import catiii
+    catiii.GotoPage(url)
+
+elif mode==438:
+    from resources.libs.international import catiii
+    catiii.SEARCH(url)
+ 
 ######################################################################################################
 elif mode==500:
     TVAll()        
@@ -3800,7 +3921,8 @@ elif mode == 1501:
 elif mode == 1998:
     if ENV is 'Prod':
         CheckForAutoUpdate(True)
-
+    else:
+        CheckForAutoUpdateDev(True)
 elif mode == 1999:
     settings.openSettings()
 elif mode == 2000:
