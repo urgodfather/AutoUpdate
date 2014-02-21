@@ -393,7 +393,7 @@ def TVAll():
     main.addDir('SceneSource [COLOR red](Debrid Only)[/COLOR]','TV',387,art+'/scenesource.png')
     main.addDir('Noobroom [COLOR red]DC[/COLOR]','TV',296,art+'/noobroom.png')
     main.addDir('MBox [COLOR red]DC[/COLOR]','TV',276,art+'/mbox.png')
-    #main.addDir('Yify','yify',421,art+'/yify.png')
+    main.addDir('Yify','yify',421,art+'/yify.png')
     main.addDir('SominalTvFilms','TV',619,art+'/sominal.png')
     main.addDir('Dramania','TV',268,art+'/dramania.png')
     main.addDir('SokroStream','french',324,art+'/sokrostream.png')
