@@ -384,7 +384,7 @@ def doRegex(murl):
             response = urllib2.urlopen(req)
             link=response.read()
             response.close()
-            link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+            link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('\/','/')
             r=re.compile(regex.group(1),re.DOTALL).findall(link)[0]
             url = url.replace("$doregex[" + k + "]", r)
    
