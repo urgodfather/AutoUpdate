@@ -104,7 +104,7 @@ def MAIN():
         elif index==28:
             main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,art+'/morepower.png')
         elif index==29:
-            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,art+'/staael1982.png')
+            main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,art+'/staael2014.png')
         elif index==34:
             main.addDirHome('Demon88 Movies','https://raw.github.com/mash2k3/demon88/master/Demon88_Directory.xml',235,art+'/demon88.png')
         elif index==37:
