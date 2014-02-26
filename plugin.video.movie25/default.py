@@ -439,7 +439,7 @@ def HD():
     main.addDir('Latest True 1080p Movies (FilesTube)[COLOR red](Debrid Only)[/COLOR]','HD',405,art+'/hd2.png')
     main.addDir('Latest True 1080p Movies (DL4Free)[COLOR red](Debrid Only)[/COLOR]','HD',407,art+'/hd2.png')
     main.addDir('Latest Movies (Oneclickwatch)','http://oneclickwatch.org/category/movies/',25,art+'/hd2.png')
-    main.addDir('HackerMil HD Movies','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Movies/5%20HD.xml',236,art+'/hd2.png')
+    main.addDir('HackerMil HD Movies','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Movies/HD.xml',236,art+'/hd2.png')
     main.addDir('TNPB HD Movies','https://raw.github.com/mash2k3/MashUpTNPB/master/720p%20Movies.xml',236,art+'/hd2.png')
     main.addDir('MorePower HD Movies','https://raw.github.com/mash2k3/MashUpMorePower/master/Full1080P.xml',236,art+'/hd2.png')
     main.addDir('Staael1982 HD Movies','https://raw.github.com/mash2k3/Staael1982/master/veehdCollection.xml',236,art+'/hd2.png')
