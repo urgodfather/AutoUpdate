@@ -927,7 +927,7 @@ def resolve_180upload(url):
         dialog.update(0)
         
         puzzle_img = os.path.join(datapath, "180_puzzle.png")
-        
+        url=url.replace('180upload.nl','180upload.com')
         print 'Mash Up 180Upload - Requesting GET URL: %s' % url
         html = net().http_GET(url).content
         if ">File Not Found" in html:
