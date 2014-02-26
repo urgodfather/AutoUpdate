@@ -1023,7 +1023,10 @@ def resolve_vidto(url):
                            ,html,re.M|re.DOTALL)
             if r:
                 unpacked = jsunpack.unpack(r[0])#this is where it will error, not sure if resources,libs added to os path
-                r = re.findall(r'label:"\d+p",file:"(.+?)"}',unpacked)
+                try:
+                    r = re.findall(r'label:"360p",file:"(.+?)"}',unpacked)[0]
+                except:
+                    r = re.findall(r'label:"240p",file:"(.+?)"}',unpacked)[0]
             if not r:
                 r = re.findall('type="hidden" name="(.+?)" value="(.+?)">',html)
                 post_data = {}
@@ -1040,12 +1043,15 @@ def resolve_vidto(url):
                                ,html,re.M|re.DOTALL)
                 if r:
                     unpacked = jsunpack.unpack(r[0])
-                    r = re.findall(r'label:"\d+p",file:"(.+?)"}',unpacked)
+                    try:
+                        r = re.findall(r'label:"360p",file:"(.+?)"}',unpacked)[0]
+                    except:
+                        r = re.findall(r'label:"240p",file:"(.+?)"}',unpacked)[0]
                 if not r:
-                    r = re.findall(r"var file_link = '(.+?)';",html)
+                    r = re.findall(r"var file_link = '(.+?)';",html)[0]
         if dialog.iscanceled(): return False
         dialog.update(100)
-        return r[0]
+        return r
     except Exception, e:
         logerror('Mash Up: Resolve Vidto Error - '+str(e))
         raise ResolverError(str(e),"Vidto") 
