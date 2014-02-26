@@ -108,6 +108,11 @@ def SEARCH(mname,type):
                 q = queue.Queue()
                 threading.Thread(target=mbox,args=(encode,type,q)).start()
                 results.append(q)
+            if selfAddon.getSetting('ssm_yify') != 'false':
+                sources.append('Yify')
+                q = queue.Queue()
+                threading.Thread(target=yify,args=(encode,type,q)).start()
+                results.append(q)
             if selfAddon.getSetting('ssm_noobroom') != 'false':
                 if selfAddon.getSetting('username') != '' and selfAddon.getSetting('password') != '':
                     sources.append('NoobRoom')
@@ -364,5 +369,11 @@ def mbox(encode,type,q):
 def scenesource(encode,type,q):
     from resources.libs.plugins import scenesource
     returnList = scenesource.superSearch(encode,type)
+    if q: q.put(returnList)
+    return returnList
+
+def yify(encode,type,q):
+    from resources.libs.plugins import yify
+    returnList = yify.superSearch(encode,type)
     if q: q.put(returnList)
     return returnList

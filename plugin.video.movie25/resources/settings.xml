@@ -147,6 +147,9 @@
 		<setting label="SideReel Account" type="lsep" />
 		<setting id="srusername" type="text" label="SideReel Username" default="" visible="true"/>
 		<setting id="srpassword" type="text"label="SideReel Password" default="" visible="true" option="hidden" />
+		<setting label="Trakt.tv Account" type="lsep" />
+		<setting id="trusername" type="text" label="Trakt Username" default="" visible="true"/>
+		<setting id="trpassword" type="text"label="Trakt Password" default="" visible="true" option="hidden" />
 		<setting label="RLSMIX Account" type="lsep" />
 		<setting id="rlsusername" type="text" label="RlsMix Username" default="" visible="true"/>
 		<setting id="rlspassword" type="text"label="RlsMix Password" default="" visible="true" option="hidden" />
@@ -158,9 +161,7 @@
 		<setting id="ddtv_pdtv" type="bool" label="PDTV" default="false" visible="!eq(-6,) + !eq(-7,)"/>
 		<setting id="ddtv_dsr" type="bool" label="DSR" default="false" visible="!eq(-7,) + !eq(-8,)"/>
 		<setting id="ddtv_dvdrip" type="bool" label="DVDRip" default="false" visible="!eq(-8,) + !eq(-9,)"/>
-		<setting label="GitHub Account" type="lsep" />
-		<setting id="ghusername" type="text" label="GitHub Username" default="" visible="true"/>
-		<setting id="ghpassword" type="text"label="GitHub Password" default="" visible="true" option="hidden" />
+
    </category>
    <category label="Custom Channels">
 		<setting id="customchannel" type="bool" label="Custom Channels" default="true"/>
