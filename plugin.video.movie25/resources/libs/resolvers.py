@@ -206,9 +206,9 @@ def resolve_firedrive(url):
             post_data[name] = value
         post_data['referer'] = url
         html = net().http_POST(url, post_data).content
-        embed=re.findall('(?sim)href="(http://dl.firedrive.com[^"]+?)"',html)
+        embed=re.findall('(?sim)href="([^"]+?)">Download file</a>',html)
         if not embed:
-            embed=re.findall("""(?sim)href="([^"]+?)" id='external_download'""",html)
+            embed=re.findall('(?sim)href="(http://dl.firedrive.com[^"]+?)"',html)
         if dialog.iscanceled(): return None
         if embed:
             dialog.update(100)
