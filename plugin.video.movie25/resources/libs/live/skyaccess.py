@@ -84,7 +84,7 @@ def MAINSA():
     main.addDir('Free Streams','http://skyaccess.se/forum/misc.php?page=livestreams',412,art+'/skyaccess.png')
     if '<title>Axxess Menu</title>' in link:
         main.addDir('Elite Streams',link,410,art+'/skyaccess.png')
-    main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','https://dl.dropboxusercontent.com/u/35068738/Mashup/Untitled.png',244,art+'/skyaccess.png','','','','','')
+    main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','http://i.imgur.com/5Y8Eaq0.png',244,art+'/skyaccess.png','','','','','')
 
 def LISTMENU(murl):
     match=re.compile('<li><a href="(.+?)"><center>(.+?)<img src="(.+?)"/></a></li>').findall(murl)
