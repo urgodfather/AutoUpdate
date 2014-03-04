@@ -1225,8 +1225,10 @@ def resolve_mightyupload(url):
 def resolve_hugefiles(url):
     from resources.libs import jsunpack
     try:
+        import time
+        puzzle_img = os.path.join(datapath, "hugefiles_puzzle.png")
         dialog = xbmcgui.DialogProgress()
-        dialog.create('Resolving', 'Resolving HugeFiles Link...')       
+        dialog.create('Resolving', 'Resolving MashUp HugeFiles Link...')       
         dialog.update(0)
         html = net().http_GET(url).content
         r = re.findall('File Not Found',html)
@@ -1246,6 +1248,77 @@ def resolve_hugefiles(url):
             return False
         if dialog.iscanceled(): return False
         dialog.update(33)
+        #Check for SolveMedia Captcha image
+        solvemedia = re.search('<iframe src="(http://api.solvemedia.com.+?)"', html)
+        recaptcha = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
+    
+        if solvemedia:
+            dialog.close()
+            html = net().http_GET(solvemedia.group(1)).content
+            hugekey=re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
+            open(puzzle_img, 'wb').write(net.http_GET("http://api.solvemedia.com%s" % re.search('<img src="(.+?)"', html).group(1)).content)
+            img = xbmcgui.ControlImage(450,15,400,130, puzzle_img)
+            wdlg = xbmcgui.WindowDialog()
+            wdlg.addControl(img)
+            wdlg.show()
+            
+            xbmc.sleep(3000)
+    
+            kb = xbmc.Keyboard('', 'Type the letters in the image', False)
+            kb.doModal()
+            capcode = kb.getText()
+       
+            if (kb.isConfirmed()):
+                userInput = kb.getText()
+                if userInput != '':
+                    solution = kb.getText()
+                elif userInput == '':
+                    xbmc.executebuiltin("XBMC.Notification(No text entered, You must enter text in the image to access video,2000)")
+                    return False
+            else:
+                return False
+                   
+            wdlg.close()
+            dialog.create('Resolving', 'Resolving HugeFiles Link...') 
+            dialog.update(50)
+            if solution:
+                data.update({'adcopy_challenge': hugekey,'adcopy_response': solution})
+
+        elif recaptcha:
+            dialog.close()
+            html = net().http_GET(recaptcha.group(1)).content
+            part = re.search("challenge \: \\'(.+?)\\'", html)
+            captchaimg = 'http://www.google.com/recaptcha/api/image?c='+part.group(1)
+            img = xbmcgui.ControlImage(450,15,400,130,captchaimg)
+            wdlg = xbmcgui.WindowDialog()
+            wdlg.addControl(img)
+            wdlg.show()
+        
+            time.sleep(3)
+        
+            kb = xbmc.Keyboard('', 'Type the letters in the image', False)
+            kb.doModal()
+            capcode = kb.getText()
+        
+            if (kb.isConfirmed()):
+                userInput = kb.getText()
+                if userInput != '':
+                    solution = kb.getText()
+                elif userInput == '':
+                    raise Exception ('You must enter text in the image to access video')
+            else:
+                raise Exception ('Captcha Error')
+            wdlg.close()
+            dialog.close() 
+            dialog.create('Resolving', 'Resolving HugeFiles Link...') 
+            dialog.update(50)
+            data.update({'recaptcha_challenge_field':part.group(1),'recaptcha_response_field':solution})
+
+        else:
+            captcha = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
+            result = sorted(captcha, key=lambda ltr: int(ltr[0]))
+            solution = ''.join(str(int(num[1])-48) for num in result)
+            data.update({'code':solution})
         html = net().http_POST(url, data).content
         if dialog.iscanceled(): return False
         dialog.update(66)
@@ -1253,19 +1326,8 @@ def resolve_hugefiles(url):
             logerror('Mash Up: Resolve HugeFiles - Daily Limit Reached, Cannot Get The File\'s Url')
             xbmc.executebuiltin("XBMC.Notification(Daily Limit Reached,HugeFiles,2000)")
             return False
-        embed = re.search('<h2>Embed code</h2>.+?<IFRAME SRC="(.+?)"', html, re.DOTALL + re.IGNORECASE)
-        html = net().http_GET(embed.group(1)).content
-        sPattern = '''<div id="player_code">.*?<script type='text/javascript'>(eval.+?)</script>'''
-        r = re.findall(sPattern, html, re.DOTALL|re.I)
+        r = re.findall("software_download_url : '(.+?)',", html, re.DOTALL + re.IGNORECASE)
         if r:
-            sUnpacked = jsunpack.unpack(r[0])
-            sUnpacked = sUnpacked.replace("\\'","")
-            r = re.findall('file,(.+?)\)\;s1',sUnpacked)
-            if not r:
-               r = re.findall('"src"value="(.+?)"/><embed',sUnpacked)
-            if dialog.iscanceled(): return False
-            dialog.update(100)
-            dialog.close()
             return r[0]
         if not r:
             logerror('***** HugeFiles - Cannot find final link')
