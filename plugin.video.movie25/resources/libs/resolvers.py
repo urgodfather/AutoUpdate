@@ -1253,10 +1253,9 @@ def resolve_hugefiles(url):
         recaptcha = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
     
         if solvemedia:
-            dialog.close()
             html = net().http_GET(solvemedia.group(1)).content
             hugekey=re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
-            open(puzzle_img, 'wb').write(net.http_GET("http://api.solvemedia.com%s" % re.search('<img src="(.+?)"', html).group(1)).content)
+            open(puzzle_img, 'wb').write(net().http_GET("http://api.solvemedia.com%s" % re.search('img src="(.+?)"', html).group(1)).content)
             img = xbmcgui.ControlImage(450,15,400,130, puzzle_img)
             wdlg = xbmcgui.WindowDialog()
             wdlg.addControl(img)
@@ -1279,13 +1278,11 @@ def resolve_hugefiles(url):
                 return False
                    
             wdlg.close()
-            dialog.create('Resolving', 'Resolving HugeFiles Link...') 
-            dialog.update(50)
+            dialog.update(66)
             if solution:
                 data.update({'adcopy_challenge': hugekey,'adcopy_response': solution})
 
         elif recaptcha:
-            dialog.close()
             html = net().http_GET(recaptcha.group(1)).content
             part = re.search("challenge \: \\'(.+?)\\'", html)
             captchaimg = 'http://www.google.com/recaptcha/api/image?c='+part.group(1)
@@ -1309,29 +1306,39 @@ def resolve_hugefiles(url):
             else:
                 raise Exception ('Captcha Error')
             wdlg.close()
-            dialog.close() 
-            dialog.create('Resolving', 'Resolving HugeFiles Link...') 
-            dialog.update(50)
+            dialog.update(66)
             data.update({'recaptcha_challenge_field':part.group(1),'recaptcha_response_field':solution})
 
         else:
             captcha = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
             result = sorted(captcha, key=lambda ltr: int(ltr[0]))
             solution = ''.join(str(int(num[1])-48) for num in result)
+            dialog.update(66)
             data.update({'code':solution})
         html = net().http_POST(url, data).content
         if dialog.iscanceled(): return False
-        dialog.update(66)
         if 'reached the download-limit' in html:
             logerror('Mash Up: Resolve HugeFiles - Daily Limit Reached, Cannot Get The File\'s Url')
             xbmc.executebuiltin("XBMC.Notification(Daily Limit Reached,HugeFiles,2000)")
             return False
         r = re.findall("software_download_url : '(.+?)',", html, re.DOTALL + re.IGNORECASE)
         if r:
+            dialog.update(100)
             return r[0]
         if not r:
-            logerror('***** HugeFiles - Cannot find final link')
-            raise Exception('Unable to resolve HugeFiles Link')
+            sPattern = '''<div id="player_code">.*?<script type='text/javascript'>(eval.+?)</script>'''
+            jpack = re.findall(sPattern, html, re.DOTALL|re.I)
+            if jpack:
+                dialog.update(100)
+                sUnpacked = jsunpack.unpack(jpack[0])
+                sUnpacked = sUnpacked.replace("\\'","")
+                r = re.findall('file,(.+?)\)\;s1',sUnpacked)
+                if not r:
+                  r = re.findall('"src"value="(.+?)"/><embed',sUnpacked)
+                return r[0]
+            else:
+                logerror('***** HugeFiles - Cannot find final link')
+                raise Exception('Unable to resolve HugeFiles Link')
     except Exception, e:
         logerror('Mash Up: Resolve HugeFiles Error - '+str(e))
-        raise ResolverError(str(e),"HugeFiles") 
+        raise ResolverError(str(e),"HugeFiles")  
