@@ -206,7 +206,7 @@ def superSearch(encode,type):
         link=link.replace('\r','').replace('\n','').replace('\t','')
         match=re.compile('{"ID":.+?,"title":"(.*?)","link":"(.*?)","post_content":".*?","image":"(.*?)","slidercap":".*?","year":"(.*?)","genre":".*?","director":".+?}',re.DOTALL).findall(link)
         for title,url,thumb,year in match:
-            returnList.append((title.strip() + " (" + year + ")",prettyName,url,thumb,390,False))
+            returnList.append((title.strip() + " (" + year + ")",prettyName,url,thumb,423,False))
         return returnList            
     except: return []
     
