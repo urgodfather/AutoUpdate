@@ -50,7 +50,7 @@ def SEARCH():
                 surl='http://www.sominaltvfilms.com/?s='+encode
         link=main.OPENURL(surl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-        match=re.compile("""<div class='inner'><figure><a href="([^<]+)"><img src="(.+?)" alt="(.+?)"/>.+?<div class='description'><div class='date'>.+?<p>(.+?)</p>""").findall(link)
+        match=re.compile('<img width=".+?" height=".+?" src="(.+?)" class=".+?" alt=".+?".+?<h1 class=".+?"><a class=".+?" href="(.+?)" title=".+?">(.+?)</a></h1>.+?<div class="excerpt-wrapper"><div class="excerpt"><p>(.+?)</p>').findall(link)
         for thumb,url,name,desc in match:
             desc=desc.replace('</div><div class="separator" style="clear: both; text-align: left;">','').replace('<span class="Apple-style-span" style="background-color: white; color: #333333; font-family: Verdana, Arial, sans-serif; font-size: 13px; line-height: 18px;">','').replace('</div><div class="separator" style="clear: both; text-align: justify;">','').replace('</div><div class="separator" style="clear: both; text-align: center;">','').replace('</span>','').replace('<span>','').replace('</div><div class="separator" style="clear: both; text-align: justify;"><span class="Apple-style-span" style="background-color: white; color: #333333; font-family: Verdana, Arial, sans-serif; font-size: 13px; line-height: 18px;">','')
             desc=desc.replace('<br>','').replace('</br>','').replace('</div>','').replace('<div>','')
@@ -122,13 +122,121 @@ def LINK(mname,murl,thumb,fan,desc):
         if parts and len(parts)>1:
             main.addPlayc(mname+' [COLOR blue]Play All[/COLOR]',str(parts),622,thumb,desc,fan,'','','')
 
+def unescapes(text):
+    if text:
+        rep = {"\u003d":"=","\u0026":"&","u003d":"=","u0026":"&","%26":"&","&#38;":"&","&amp;":"&","&#044;": ",","&nbsp;": " ","\n": "","\t": "","\r": "","%5B": "[","%5D": "]",
+               "%3a": ":","%3A":":","%2f":"/","%2F":"/","%3f":"?","%3F":"?","%3d":"=","%3D":"=","%2C":",","%2c":",","%3C":"<",
+               "%20":" ","%22":'"',"%3D":"=","%3A":":","%2F":"/","%3E":">","%3B":",","%27":"'","%0D":"","%0A":"","%92":"'",
+               "&lt;": "<","&gt;": ">","&quot": '"',"&rsquo;": "'","&acute;": "'"}
+        for s, r in rep.items():
+            text = text.replace(s, r) 
+    #except TypeError: pass
+    return text
 
-def getvideo2(murl):
-        link=main.OPENURL(murl)
-        link2=dekode(link)
-        print link2
-        stream_url2= re.compile('file: "(.+?)"').findall(link2)[0]
-        return stream_url2
+def getvideo2(murl,answer=''):
+        link2=main.OPENURL(murl)
+        linkx=dekode(link2)
+        stream_url2= re.compile('file: "(.+?)"').findall(linkx)
+        if stream_url2:
+                return stream_url2[0]
+        else:
+                namelist=[]
+                urllist=[]
+                SRT=os.path.join(datapath,'Sub.srt')
+                link2=link2.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('iframe src="//www.facebook.com','')
+                docUrl= re.compile('iframe src="(.+?)"').findall(link2)
+                if len(docUrl)==0:
+                    link3=dekode(link2)
+                    try:
+                            docUrl= re.compile('iframe src="(.+?)"').findall(link3)
+                    except:
+                        youtube= re.compile('<iframe width=".+?" height=".+?" src="http://www.youtube.com/embed/(.+?)" scrolling=".+?"').findall(link2)
+                        url = "plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid="+youtube[0]+"&hd=1"
+                        stream_url = url
+                        # play with bookmark
+                        player = playbackengine.PlayWithoutQueueSupport(resolved_url=stream_url, addon_id=addon_id, video_type='', title=mname,season='', episode='', year='',img=thumb,infolabels='', watchedCallbackwithParams=main.WatchedCallbackwithParams,imdb_id='')
+                        #WatchHistory
+                        if selfAddon.getSetting("whistory") == "true":
+                            wh.add_item(mname+' '+'[COLOR green]SominalFilms[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
+                        player.KeepAlive()
+                        return ok
+
+        
+
+                if docUrl:
+                
+                        xbmc.executebuiltin("XBMC.Notification(Please Wait!,Collecting Links,3000)")
+                        link2=main.OPENURL(docUrl[0])
+                        link2=link2.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('\/','/').replace('\\','')
+                        link2=unescapes(link2)
+                        match= re.compile('url_encoded_fmt_stream_map":"(.+?),"').findall(link2)[0]
+                        if match:
+                                subtitle_url_start= re.compile("\"ttsurl\":\"(.+?)\"").findall(link2)
+                                print unescapes(str(subtitle_url_start[0]))
+                                v_add= re.compile("id=(.+?)&").findall(subtitle_url_start[0])
+                                if v_add:
+                                        print v_add
+                                        subtitle_url_start = subtitle_url_start[0] + '&v=' + v_add[0]
+                                        subtitle_url_start = subtitle_url_start + '&name&lang=en&hl=en&format=1&type=track&kind'
+                                        print "Subtitle File="+str(subtitle_url_start)
+                                #Converts Xml file to SRT file
+                                try:
+                                        link=main.OPENURL(subtitle_url_start)
+                                        link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('<text start="0">','')
+                                except:
+                                        link=''
+                        
+                                submatch= re.compile('<text start="(.+?)" dur="(.+?)">(.+?)</text>').findall(link)
+                                if submatch:
+                                        i=1
+                                        for start,dur,text in submatch:
+                                                #Converts seconds to HH:MM:SS,MS format for srt file
+                                                text=text.replace('&#39;',"'").replace('&quot;','"').replace('&amp;',"&").replace("&#39;","'").replace('&lt;i&gt;','').replace("#8211;","-").replace('&lt;/i&gt;','').replace("&#8217;","'").replace('&amp;quot;','"').replace('&#215;','').replace('&#038;','').replace('&#8216;','').replace('&#8211;','').replace('&#8220;','').replace('&#8221;','').replace('&#8212;','')
+                                                dur=Decimal(start)+Decimal(dur)
+                                                dur=str(dur)
+                                                if(float(start)%1 != 0):
+                                                        start1=start.split('.')[0]
+                                                        start2=start.split('.')[1]
+                                                else:
+                                                        start1=start
+                                                        start2=0
+                                                start = time.strftime('%H:%M:%S', time.gmtime(float(start1)))
+                                                if(float(dur)%1 != 0):
+                                                        dur1=dur.split('.')[0]
+                                                        dur2=dur.split('.')[1]
+                                                else:
+                                                        dur1=dur
+                                                        dur2=0
+                                                dur = time.strftime('%H:%M:%S', time.gmtime(float(dur1)))
+                                                #creating srt file and saving it on mashup profile folder
+                                                open(SRT,'a').write("""
+        """+str(i)+"""
+        """+str(start)+","+str(start2)+" --> "+str(dur)+","+str(dur2)+"""
+        """+text+"""
+        """) 
+                                                i=i+1
+
+                                streams_map = str(match)
+                                print streams_map
+                                stream= re.compile('url=(.+?)&type=.+?&quality=(.+?)[,\"]{1}').findall(streams_map)
+                                for stream_url,stream_quality in stream:
+                                        stream_url = stream_url
+                                        stream_url = main.unescapes(stream_url)
+                                        urllist.append(stream_url)
+                                        stream_qlty = stream_quality.upper()
+                                        if (stream_qlty == 'HD720'):
+                                            stream_qlty = 'HD-720p'
+                                        elif (stream_qlty == 'LARGE'):
+                                            stream_qlty = 'SD-480p'
+                                        elif (stream_qlty == 'MEDIUM'):
+                                            stream_qlty = 'SD-360p'
+                                        namelist.append(stream_qlty)
+                                dialog = xbmcgui.Dialog()
+                                if answer=='x11g':
+                                        answer='0'
+                                else:
+                                        answer =dialog.select("Quality Select", namelist)
+                                return urllist[int(answer)]
         
                 
 def LINK2(mname,murl,thumb,desc):
@@ -152,7 +260,7 @@ def LINK2(mname,murl,thumb,desc):
                     pl=xbmc.PlayList(1);pl.clear()
                     playlist = sorted(list(set(eval(murl))), key=lambda playlist: playlist[0])
                     for xname,link in playlist:
-                        pl.add(getvideo2(link),xbmcgui.ListItem(mname+' '+xname,thumbnailImage=img))
+                        pl.add(getvideo2(link,answer='x11g'),xbmcgui.ListItem(mname+' '+xname,thumbnailImage=img))
                     xbmc.Player().play(pl)
                     xbmc.Player().setSubtitles(SRT)
                     while xbmc.Player().isPlaying():
@@ -237,4 +345,4 @@ def dekode(html):
                 kode = x
         kodeParts = re.compile('kode\="(.+?)";(.*)').findall(kode.replace('\\"', 'BY_PASS_D').replace('\\\'', 'BY_PASS_S'))
     dekoded = kode.replace('\\"', '"').replace('\\\'', '\'').replace('\\\\', '\\')
-    return dekoded         
+    return dekoded          
