@@ -13,7 +13,7 @@ Mainlogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/icon.p
 refererTXT = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources/message/referer.txt')    
 
 def Mplaylists(murl):
-        link=main.OPENURL2(murl)
+        link=main.OPENURL(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         r=re.findall('<poster>(.+?)</poster>',link)
         if r:
@@ -60,7 +60,7 @@ def Mplaylists(murl):
 
 def MList(mname,murl):
         mname  = mname.split('[C')[0]
-        link=main.OPENURL2(murl)
+        link=main.OPENURL(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         r=re.findall('<poster>(.+?)</poster>',link)
         if r:
