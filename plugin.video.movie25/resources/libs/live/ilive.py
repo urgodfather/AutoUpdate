@@ -87,8 +87,8 @@ def iLiveList(murl):
         dialogWait.update(0,'[B]Loading.....[/B]',remaining_display)
         for durl in urllist:
                 link=main.OPENURL(durl)
-                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-                match=re.compile('src=".+?" alt=".+?<img width=".+?" height=".+?" src="([^<]+)" alt=".+?"/></noscript></a><a href="(.+?)"><strong>(.*?)</strong></a><br/>').findall(link)
+                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
+                match=re.compile('src=".+?" alt=".+?<img width=".+?" height=".+?" src="([^<]+)" alt=".+?</noscript></a><a href="(.+?)"><strong>(.*?)</strong></a><br/>').findall(link)
                 for thumb,url,name in match:
                         if 'venus' not in name.lower() and '+16' not in name.lower() and '+18' not in name.lower() and 'hongkong' not in name.lower() and   'playboy' not in name.lower() and   'sex' not in name.lower() and   'girls' not in name.lower() and   'fuck' not in name.lower() and   'hardcore' not in name.lower() and   'softcore' not in name.lower() and   'pussy' not in name.lower() and   'dick' not in name.lower() and   'anal' not in name.lower() and   'cum' not in name.lower() and   'blowjob' not in name.lower() and   'adult' not in name.lower() and   '18+' not in name.lower() and  '16+' not in name.lower():
                                 main.addPlayL(name,url,121,thumb,'','','','','',secName='iLive',secIcon=art+'/ilive.png')
@@ -128,15 +128,19 @@ def iLiveLink(mname,murl,thumb):
         link=main.OPENURL(murl)
         ok=True
         if link:
-                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('\/','/')
-                rtmp=re.compile('streamer: "(.+?)"').findall(link)[0]
-                val=rtmp.split('?')
-                playpath=re.compile('file: "(.+?).flv"').findall(link)
-                token=getToken(murl)
-                if len(playpath)==0:
-                        playpath=re.compile('http://snapshots.ilive.to/snapshots/(.+?)_snapshot.jpg').findall(thumb)      
-                for playPath in playpath:
-                    stream_url = val[0] +" app=edge/_definst_/?"+val[1]+" playpath="+ playPath + " live=1 timeout=15 swfUrl=http://player.ilive.to/player_ilive_2.swf pageUrl="+murl+" token="+token
+                playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+                playlist.clear()
+                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+                match=re.compile('http://www.ilive.to/embed/(.+?)&width=(.+?)&height=(.+?)&autoplay=true').findall(link)
+                for fid,wid,hei in match:
+                    pageUrl='http://www.ilive.to/m/channel.php?n='+fid
+                link=main.OPENURL(pageUrl).replace('\/','/').replace('\\','')
+                print link
+                playpath=re.compile('''file': "([^"]+?)"''').findall(link)
+                #token=getToken(pageUrl)
+                #if len(playpath)==0:
+                #        playpath=re.compile('http://snapshots.ilive.to/snapshots/(.+?)_snapshot.jpg').findall(thumb)      
+                stream_url = playpath[0]
                 listitem = xbmcgui.ListItem(thumbnailImage=thumb)
                 infoL={'Title': mname, 'Genre': 'Live'} 
                 from resources.universal import playbackengine
