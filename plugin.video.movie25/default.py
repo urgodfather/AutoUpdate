@@ -198,7 +198,7 @@ def CheckForAutoUpdate(force = False):
     GitHubBranch  = 'master'
     UpdateVerFile = 'update'
     RunningFile   = 'running'
-    verCheck=main.CheckVersion()#Checks If Plugin Version is up to date
+    verCheck=True #main.CheckVersion()#Checks If Plugin Version is up to date
     if verCheck == True:
         from resources.libs import autoupdate
         try:
