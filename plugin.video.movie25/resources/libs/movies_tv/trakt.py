@@ -122,9 +122,9 @@ def showList(cacheOnly = False):
             else: epi=str(showdata['episode']['number'])
             episodenumber= 'S'+sea+'E'+epi
             airtime = showdata['show']['air_time_localized'].upper().replace("AM"," AM").replace("PM"," PM")+' on ' + showdata['show']['network']
-            main.addDir(showdata['show']['title'].encode('utf-8')+' '+episodenumber+' [COLOR red]"'+showdata['episode']['title']+
-                        '"[/COLOR] [COLOR blue]'+ airtime +'[/COLOR]','TV',20,showdata['show']['images']['poster'],
-                        showdata['episode']['overview'].encode('utf-8'),showdata['episode']['images']['screen'])
+            main.addDir(showdata['show']['title'].encode('utf-8')+' '+episodenumber+' [COLOR red]"'+showdata['episode']['title'].encode('utf-8')+
+                        '"[/COLOR] [COLOR blue]'+ airtime.encode('utf-8') +'[/COLOR]','TV',20,showdata['show']['images']['poster'].encode('utf-8'),
+                        showdata['episode']['overview'].encode('utf-8'),showdata['episode']['images']['screen'].encode('utf-8'))
             showsdisplayed += 1
     if not showsdisplayed: main.removeFile(cached_path)
     
