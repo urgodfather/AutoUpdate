@@ -12,7 +12,7 @@ to have them in one file.
 import unittest
 
 import pyamf
-from pyamf import ClassAlias
+from resources.pyamf import ClassAlias
 from pyamf.tests.util import ClassCacheClearingTestCase, Spam, get_fqcn
 
 try:
@@ -182,7 +182,7 @@ class GetEncodableAttributesTestCase(unittest.TestCase):
         self.assertEqual(attrs, {'foo': 'bar', 'bar': 'foo'})
 
     def test_proxy(self):
-        from pyamf import flex
+        from resources.pyamf import flex
 
         c = pyamf.get_encoder(pyamf.AMF3)
 
@@ -360,7 +360,7 @@ class GetDecodableAttributesTestCase(unittest.TestCase):
         self.assertEqual(ret, {'foo': 'foo', 'bar': 'bar'})
 
     def test_proxy(self):
-        from pyamf import flex
+        from resources.pyamf import flex
 
         c = pyamf.get_encoder(pyamf.AMF3)
 

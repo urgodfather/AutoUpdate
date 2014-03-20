@@ -12,7 +12,7 @@ Flex compatibility tests.
 import unittest
 
 import pyamf
-from pyamf import flex, util, amf3, amf0
+from resources.pyamf import flex, util, amf3, amf0
 from pyamf.tests.util import EncoderMixIn
 
 

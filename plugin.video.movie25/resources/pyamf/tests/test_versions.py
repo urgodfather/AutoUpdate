@@ -7,7 +7,7 @@ Tests for L{pyamf.version}
 
 import unittest
 
-from pyamf import versions
+from resources.pyamf import versions
 
 
 class VersionTestCase(unittest.TestCase):

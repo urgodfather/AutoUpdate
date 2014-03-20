@@ -11,7 +11,7 @@ import urllib2
 import urlparse
 
 import pyamf
-from pyamf import remoting
+from resources.pyamf import remoting
 
 try:
     from gzip import GzipFile

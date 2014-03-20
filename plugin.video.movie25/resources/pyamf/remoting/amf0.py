@@ -10,7 +10,7 @@ AMF0 Remoting support.
 import traceback
 import sys
 
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import gateway
 
 

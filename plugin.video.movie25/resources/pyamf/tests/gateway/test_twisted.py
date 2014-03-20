@@ -20,7 +20,7 @@ except ImportError:
     import unittest
 
 import pyamf
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import gateway
 from pyamf.flex import messaging
 

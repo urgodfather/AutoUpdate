@@ -13,7 +13,7 @@ import struct
 import os
 
 import pyamf
-from pyamf import amf3
+from resources.pyamf import amf3
 from pyamf.tests import util
 
 try:

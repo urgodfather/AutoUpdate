@@ -10,7 +10,7 @@ Tests for the adapters module.
 import os
 import sys
 
-from pyamf import adapters
+from resources.pyamf import adapters
 from pyamf.tests import util
 from pyamf.tests.test_imports import ImportsTestCase
 

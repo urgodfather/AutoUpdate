@@ -15,7 +15,7 @@ This module contains the message classes used with Flex Data Services.
 import uuid
 
 import pyamf.util
-from pyamf import amf3
+from resources.pyamf import amf3
 
 
 __all__ = [

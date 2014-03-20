@@ -11,7 +11,7 @@ import unittest
 import copy
 
 import pyamf
-from pyamf import python
+from resources.pyamf import python
 
 
 class ClassicSpam:

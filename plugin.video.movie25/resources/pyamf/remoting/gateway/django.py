@@ -17,7 +17,7 @@ conf = __import__('django.conf')
 conf = conf.conf
 
 import pyamf
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import gateway
 
 __all__ = ['DjangoGateway']

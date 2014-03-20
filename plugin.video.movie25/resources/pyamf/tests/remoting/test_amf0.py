@@ -11,7 +11,7 @@ Tests for AMF Remoting AMF0 style.
 
 import unittest
 
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import amf0
 
 

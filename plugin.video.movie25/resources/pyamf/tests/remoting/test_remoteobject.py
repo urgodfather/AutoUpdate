@@ -12,7 +12,7 @@ RemoteObject Tests.
 import unittest
 
 import pyamf
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import amf3, gateway
 from pyamf.flex import messaging
 

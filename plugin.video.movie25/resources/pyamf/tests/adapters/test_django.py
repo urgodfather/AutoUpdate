@@ -423,7 +423,7 @@ class ForeignKeyTestCase(BaseTestCase):
         """
         @see: #693
         """
-        from pyamf import util
+        from resources.pyamf import util
 
         pyamf.register_class(models.StaticRelation)
         alias = adapter.DjangoClassAlias(models.StaticRelation,

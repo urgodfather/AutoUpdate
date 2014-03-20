@@ -35,7 +35,7 @@ threads = twisted.internet.threads
 resource = twisted.web.resource
 server = twisted.web.server
 
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.remoting import gateway, amf0, amf3
 
 __all__ = ['TwistedGateway']

@@ -18,7 +18,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from pyamf import python
+from resources.pyamf import python
 
 # worked out a little further down
 SYSTEM_ENDIAN = None

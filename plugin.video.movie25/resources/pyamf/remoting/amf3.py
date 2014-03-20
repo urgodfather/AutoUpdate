@@ -16,7 +16,7 @@ import uuid
 import sys
 
 import pyamf.python
-from pyamf import remoting
+from resources.pyamf import remoting
 from pyamf.flex import messaging
 
 

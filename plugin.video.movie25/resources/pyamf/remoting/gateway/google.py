@@ -23,7 +23,7 @@ except ValueError:
 google = __import__('google.appengine.ext.webapp')
 webapp = google.appengine.ext.webapp
 
-from pyamf import remoting, DecodeError
+from resources.pyamf import remoting, DecodeError
 from pyamf.remoting import gateway
 
 __all__ = ['WebAppGateway']

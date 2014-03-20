@@ -15,7 +15,7 @@ a per-domain basis.
 """
 
 import pyamf
-from pyamf import util
+from resources.pyamf import util
 
 #: Magic Number - 2 bytes
 HEADER_VERSION = '\x00\xbf'

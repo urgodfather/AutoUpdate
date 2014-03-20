@@ -13,7 +13,7 @@ import unittest
 import datetime
 
 import pyamf
-from pyamf import amf3, util, xml, python
+from resources.pyamf import amf3, util, xml, python
 from pyamf.tests.util import (
     Spam, EncoderMixIn, DecoderMixIn, ClassCacheClearingTestCase)
 

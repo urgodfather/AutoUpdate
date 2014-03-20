@@ -12,7 +12,7 @@ Tests for AMF Remoting.
 import unittest
 
 import pyamf
-from pyamf import remoting, util
+from resources.pyamf import remoting, util
 
 
 class DecoderTestCase(unittest.TestCase):

@@ -11,7 +11,7 @@ Elixir adapter module. Elixir adds a number of properties to the mapped instance
 import elixir.entity
 
 import pyamf
-from pyamf import adapters
+from resources.pyamf import adapters
 
 adapter = adapters.get_adapter('sqlalchemy.orm')
 

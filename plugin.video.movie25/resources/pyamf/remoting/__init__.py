@@ -27,7 +27,7 @@ essential for the Adobe Flash Player to understand the response therefore.
 """
 
 import pyamf
-from pyamf import util
+from resources.pyamf import util
 
 
 __all__ = ['Envelope', 'Request', 'Response', 'decode', 'encode']

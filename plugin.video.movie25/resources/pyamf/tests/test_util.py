@@ -15,7 +15,7 @@ from datetime import datetime
 from StringIO import StringIO
 
 import pyamf
-from pyamf import util
+from resources.pyamf import util
 from pyamf.tests.util import replace_dict
 
 PosInf = 1e300000

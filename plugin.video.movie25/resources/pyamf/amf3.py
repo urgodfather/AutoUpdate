@@ -25,7 +25,7 @@ import datetime
 import zlib
 
 import pyamf
-from pyamf import codec, util, xml, python
+from resources.pyamf import codec, util, xml, python
 
 
 __all__ = [
@@ -702,7 +702,7 @@ class Context(codec.Context):
         obj = self.proxied_objects.get(id(proxy))
 
         if obj is None:
-            from pyamf import flex
+            from resources.pyamf import flex
 
             obj = flex.unproxy_object(proxy)
 
@@ -731,7 +731,7 @@ class Context(codec.Context):
         proxied = self.proxied_objects.get(id(obj))
 
         if proxied is None:
-            from pyamf import flex
+            from resources.pyamf import flex
 
             proxied = flex.proxy_object(obj)
 

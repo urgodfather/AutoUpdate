@@ -9,7 +9,7 @@ import types
 import datetime
 
 import pyamf
-from pyamf import util, python, xml
+from resources.pyamf import util, python, xml
 
 __all__ = [
     'IndexedCollection',

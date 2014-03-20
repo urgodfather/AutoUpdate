@@ -12,7 +12,7 @@ import datetime
 import inspect
 
 import pyamf
-from pyamf import python
+from resources.pyamf import python
 
 try:
     from cpyamf.util import BufferedByteStream

@@ -13,7 +13,7 @@ import unittest
 import urllib2
 
 import pyamf
-from pyamf import remoting, util
+from resources.pyamf import remoting, util
 from pyamf.remoting import client
 
 

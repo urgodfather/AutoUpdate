@@ -10,7 +10,7 @@ Class alias base functionality.
 import inspect
 
 import pyamf
-from pyamf import python, util
+from resources.pyamf import python, util
 
 
 class UnknownClassAlias(Exception):

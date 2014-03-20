@@ -17,7 +17,7 @@ import tempfile
 from StringIO import StringIO
 
 import pyamf
-from pyamf import sol
+from resources.pyamf import sol
 from pyamf.tests.util import check_buffer, expectedFailureIfAppengine
 
 warnings.simplefilter('ignore', RuntimeWarning)

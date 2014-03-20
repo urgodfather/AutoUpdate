@@ -20,7 +20,7 @@ except ImportError:
     django = None
 
 import pyamf
-from pyamf import remoting, util
+from resources.pyamf import remoting, util
 
 
 class BaseTestCase(unittest.TestCase):

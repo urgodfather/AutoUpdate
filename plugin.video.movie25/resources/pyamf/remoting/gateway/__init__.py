@@ -12,7 +12,7 @@ import types
 import datetime
 
 import pyamf
-from pyamf import remoting, util, python
+from resources.pyamf import remoting, util, python
 
 try:
     from platform import python_implementation

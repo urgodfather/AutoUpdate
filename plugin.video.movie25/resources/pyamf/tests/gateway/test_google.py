@@ -27,7 +27,7 @@ if os.environ.get('SERVER_SOFTWARE', None) is None:
 
 
 import pyamf
-from pyamf import remoting
+from resources.pyamf import remoting
 
 
 class BaseTestCase(unittest.TestCase):

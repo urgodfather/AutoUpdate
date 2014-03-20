@@ -10,7 +10,7 @@ Tests for AMF utilities.
 import unittest
 
 import pyamf
-from pyamf import codec
+from resources.pyamf import codec
 
 try:
     unicode

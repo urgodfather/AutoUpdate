@@ -12,7 +12,7 @@ Tests for XML library integration
 import unittest
 
 import pyamf.xml
-from pyamf import util
+from resources.pyamf import util
 
 
 class ElementTreeTestCase(unittest.TestCase):

@@ -14,9 +14,9 @@ is compatible with the Adobe U{Flash Player
 import types
 import inspect
 
-from pyamf import util, _version
+from resources.pyamf import util, _version
 from pyamf.adapters import register_adapters
-from pyamf import python
+from resources.pyamf import python
 from pyamf.alias import ClassAlias, UnknownClassAlias
 
 
@@ -444,14 +444,14 @@ def get_decoder(encoding, *args, **kwargs):
             try:
                 from cpyamf import amf0
             except ImportError:
-                from pyamf import amf0
+                from resources.pyamf import amf0
 
             return amf0.Decoder
         elif encoding == AMF3:
             try:
                 from cpyamf import amf3
             except ImportError:
-                from pyamf import amf3
+                from resources.pyamf import amf3
 
             return amf3.Decoder
 
@@ -471,14 +471,14 @@ def get_encoder(encoding, *args, **kwargs):
             try:
                 from cpyamf import amf0
             except ImportError:
-                from pyamf import amf0
+                from resources.pyamf import amf0
 
             return amf0.Encoder
         elif encoding == AMF3:
             try:
                 from cpyamf import amf3
             except ImportError:
-                from pyamf import amf3
+                from resources.pyamf import amf3
 
             return amf3.Encoder
 
@@ -833,7 +833,7 @@ def set_default_etree(etree):
 
     For testing purposes, will return the previous value for this (if any).
     """
-    from pyamf import xml
+    from resources.pyamf import xml
 
     return xml.set_default_interface(etree)
 
