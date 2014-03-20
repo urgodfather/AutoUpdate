@@ -13,7 +13,16 @@ art = main.art
     
 wh = watchhistory.WatchHistory('plugin.video.movie25')
 
-
+pyamfpath = xbmc.translatePath(os.path.join('special://home/addons', 'script.module.pyamf'))
+try: 
+    if not os.path.exists(pyamfpath):
+        url = 'https://github.com/mash2k3/MashUpFixes/raw/master/FIXES/script.module.pyamf.zip'
+        path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
+        lib=os.path.join(path, 'script.module.pyamf.zip')
+        if main.downloadFile(url,lib):
+            addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
+            xbmc.executebuiltin("XBMC.Extract(%s,%s)"%(lib,addonfolder))
+except: pass
 
 def SKYSPORTS():
         main.addDir('All Videos','http://www1.skysports.com/watch/more/5/27452/200/1',173,art+'/skysports.png')
@@ -280,8 +289,7 @@ def SKYSPORTSList2(murl):
                 xbmc.executebuiltin("XBMC.Notification(Sorry!,No Video's to list,3000)")
 
 def playBrightCoveStream(bc_videoID):
-        print bc_videoID
-        from resources.pyamf import remoting
+        from pyamf import remoting
         import httplib
         bc_playerID = 813474149001
         bc_publisherID = 165012893
