@@ -318,7 +318,6 @@ def resolve_VK(url):
             logerror('***** MashUp VK - This video has been removed')
             xbmc.executebuiltin("XBMC.Notification(This video has been removed,VK,2000)")
             return False
-        print link2
         match = re.search('(?i)<source src="(.+?\.1080.mp4.+?)"',link2)
         if not match:
             match = re.search('(?i)<source src="(.+?\.720.mp4.+?)"',link2)
@@ -329,7 +328,6 @@ def resolve_VK(url):
                     if not match:
                         match = re.search('(?i)<source src="(.+?\.240.mp4.+?)"',link2)
         if match:
-            print match.group(1)
             return match.group(1).replace("\/",'/')
     except Exception, e:
         logerror('**** VK Error occured: %s' % e)
