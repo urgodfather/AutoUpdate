@@ -130,17 +130,12 @@ def iLiveLink(mname,murl,thumb):
         if link:
                 playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
                 playlist.clear()
-                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-                match=re.compile('http://www.ilive.to/embed/(.+?)&width=(.+?)&height=(.+?)&autoplay=true').findall(link)
-                for fid,wid,hei in match:
-                    pageUrl='http://www.ilive.to/m/channel.php?n='+fid
-                link=main.OPENURL(pageUrl).replace('\/','/').replace('\\','')
-                print link
-                playpath=re.compile('''file': "([^"]+?)"''').findall(link)
-                #token=getToken(pageUrl)
-                #if len(playpath)==0:
-                #        playpath=re.compile('http://snapshots.ilive.to/snapshots/(.+?)_snapshot.jpg').findall(thumb)      
-                stream_url = playpath[0]
+                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace("\/",'/')
+                rtmp=re.compile('''streamer: "([^"]+?)"''').findall(link)
+                app=rtmp[0].split('?xs=')
+                playpath=re.compile('''file: "([^"]+?).flv"''').findall(link)
+                token=getToken(murl)
+                stream_url =rtmp[0]+' app=edge/?xs='+app[1]+' playpath='+playpath[0]+' swfUrl=http://cdn.ilive.to/player/player_ilive_2.swf pageUrl=http://www.ilive.to/ live=true timeout=10 token='+token
                 listitem = xbmcgui.ListItem(thumbnailImage=thumb)
                 infoL={'Title': mname, 'Genre': 'Live'} 
                 from resources.universal import playbackengine
