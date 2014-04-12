@@ -11,8 +11,11 @@ art = main.art
 smalllogo = art+'/smallicon.png'
 datapath = xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 profile = os.path.join(main.datapath,'MBox')
-dataurl = 'http://mobapps.cc/data/data_en.zip'
 prettyName = 'MBox'
+
+apibase = 'http://mobapps.cc'
+dataurl = apibase + '/data/data_en.zip'
+useragent = 'android-async-http/1.4.1 (http://loopj.com/android-async-http)'
 
 def MAIN():
     lock_file_path = os.path.join(os.path.join(main.datapath,'Temp'), 'mbox.lock')
@@ -75,9 +78,9 @@ def LIST(type):
         if data['active'] == '1':
             thumb=str(data["poster"]).replace("\/'",'/')
             if 'movies'in type or '25movies'in type:
-                main.addDown4(str(data["title"].encode('utf-8'))+' ('+str(data["year"])+')','http://mobapps.cc/api/serials/get_movie_data?id='+str(data["id"]),279,thumb,'','','','','')
+                main.addDown4(str(data["title"].encode('utf-8'))+' ('+str(data["year"])+')',apibase+'/api/serials/get_movie_data?id='+str(data["id"]),279,thumb,'','','','','')
             elif 'music' in type:
-                main.addDirMs(str(data["title"].encode('utf-8')),'http://mobapps.cc/api/serials/get_artist_data/?id='+str(data["id"])+'&type=1',302,thumb,'','','','','')
+                main.addDirMs(str(data["title"].encode('utf-8')),apibase+'/api/serials/get_artist_data/?id='+str(data["id"])+'&type=1',302,thumb,'','','','','')
             else:
                 main.addDirT(str(data["title"].encode('utf-8')),data["id"]+'xoxe'+data["seasons"],280,thumb,'','','','','')
         loadedLinks = loadedLinks + 1
@@ -89,7 +92,7 @@ def LIST(type):
     main.VIEWS()
 
 def MUSICLIST(mname,murl):
-    link=main.OPENURL(murl)
+    link=main.OPENURL(murl,ua=useragent)
     fan=re.findall('"banner":"(.+?)",',link,re.DOTALL)[0]
     match=re.findall('{"id":".+?","link":"(.+?)","name":"(.+?)","year":"(.+?)","pic":"(.+?)"}',link,re.DOTALL)
     dialogWait = xbmcgui.DialogProgress()
@@ -116,8 +119,8 @@ def SEASONS(mname,murl):
 
 def EPISODES(mname,murl):
     sea=re.findall('\sSeason\s(\d+)',mname,re.DOTALL)[0]
-    getepi='http://mobapps.cc/api/serials/es/?id='+murl+'&season='+sea
-    link=main.OPENURL(getepi)
+    getepi=apibase+'/api/serials/es/?id='+murl+'&season='+sea
+    link=main.OPENURL(getepi,ua=useragent)
     match=re.findall('"(\d+)":"([^"]+?)"',link,re.DOTALL)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Episodes list is cached.')
@@ -127,7 +130,7 @@ def EPISODES(mname,murl):
     dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
     xbmc.executebuiltin("XBMC.Dialog.Close(busydialog,true)")
     for epinum,thumb in match:
-        main.addDown4(mname+' Episode '+epinum,'http://mobapps.cc/api/serials/e/?h='+murl+'&u='+sea+'&y='+epinum,279,thumb.replace('\/','/'),'','','','','')
+        main.addDown4(mname+' Episode '+epinum,apibase+'/api/serials/e?h='+murl+'&u='+sea+'&y='+epinum,279,thumb.replace('\/','/'),'','','','','')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -155,7 +158,7 @@ def superSearch(encode,type):
                 if type == 'Movies':
                     name = str(data["title"].encode('utf-8'))+' ('+str(data["year"])+')'
                     if re.search('(?i)'+encode,name):
-                        returnList.append((name,prettyName,'http://mobapps.cc/api/serials/get_movie_data?id='+str(data["id"]),thumb,279,False))
+                        returnList.append((name,prettyName,apibase+'/api/serials/get_movie_data?id='+str(data["id"]),thumb,279,False))
                 else:
                     name = str(data["title"].encode('utf-8'))
                     if re.search('(?i)'+encode,name):
@@ -164,11 +167,12 @@ def superSearch(encode,type):
     except: return []
 
 def resolveMBLink(url):
+    print 'resolve' + url
     try:
         r = re.findall('h=(\d+?)&u=(\d+?)&y=(\d+)',url,re.I)
         if r: r = int(r[0][0]) + int(r[0][1]) + int(r[0][2])
         else: r = 537 + int(re.findall('id=(\d+)',url,re.I)[0])
-        link=main.OPENURL(url,verbose=False)
+        link=main.OPENURL(url,verbose=False,ua=useragent)
         q = re.findall('"lang":"en","apple":([-\d]+?),"google":([-\d]+?),"microsoft":"([^"]+?)"',link,re.I)
         vklink = "https://vk.com/video_ext.php?oid="+str(r + int(q[0][0]))+"&id="+str(r + int(q[0][1]))+"&hash="+q[0][2]
     except:
