@@ -837,7 +837,8 @@ def MAIN():
 
 def _get_channel_time_player(channel_name):
     #from t0mm0.common.net import Net as net
-    url = 'http://www.teledunet.com/tv_/?channel=%s&no_pub' % channel_name
+    #url = 'http://www.teledunet.com/tv_/?channel=%s&no_pub' % channel_name
+    url = 'http://www.teledunet.com/player/?channel=%s&no_pub' % channel_name
     """source = net().http_GET(url).content
     cookie=net().get_cookies()
     cooks= str(cookie)
