@@ -95,13 +95,14 @@ def LISTWATCHS(murl):
                 if(len(s)==1): s = "0" + s
                 name = re.sub('Seas(on)?\.? (\d+).*?Ep(isode)?\.? (\d+)','',name,re.I)
                 name = name.strip() + " " + "S" + s + "E" + e
-            main.addDirTE(name,'http://watchseries.lt'+url,575,'','','','','','')
-            loadedLinks = loadedLinks + 1
-            percent = (loadedLinks * 100)/totalLinks
-            remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
-            dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-            if (dialogWait.iscanceled()):
-                return False   
+            if 'watchseries.' not in name and 'watchtvseries.' not in name:
+                    main.addDirTE(name,'http://watchseries.lt'+url,575,'','','','','','')
+                    loadedLinks = loadedLinks + 1
+                    percent = (loadedLinks * 100)/totalLinks
+                    remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+                    dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
+                    if (dialogWait.iscanceled()):
+                        return False   
         dialogWait.close()
         del dialogWait
 
@@ -119,13 +120,16 @@ def LISTWATCHSEASON(mname, murl):
         thumb=art+'/folder.png'
         match=re.compile('<a class="null" href="(.+?)">(.+?)</a>').findall(link)
         for url, name in reversed(match):
-            main.addDir(mname+' [COLOR red]'+name+'[/COLOR]','http://watchseries.lt'+url,579,thumb)
+            main.addDir(mname+' [COLOR red]'+name+'[/COLOR]',murl,579,thumb)
 
 
 def LISTWATCHEPISODE(mname, murl):
         link=main.OPENURL(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace("&nbsp;&nbsp;&nbsp;"," ")
-        match=re.compile('href="([^<]+)"><span class="" >([^<]+)</span>').findall(link)
+        print mname
+        xname=re.findall('(Season .+?)',mname)[0]
+        print xname
+        match=re.compile('<a title=".+?- '+xname+' -.+?" href="([^"]+)"><span class="" >([^<]+)</span>').findall(link)
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait until Show list is cached.')
         totalLinks = len(match)
