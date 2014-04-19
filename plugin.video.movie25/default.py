@@ -126,7 +126,6 @@ def MAIN():
                 main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addPlayc('Need Help?','http://www.movie25.com/',100,art+'/help.png','','','','','')
     main.addPlayc('Upload Log','http://www.movie25.so/',156,art+'/loguploader.png','','','','','')
-    main.addPlayc('Click Me!!!','https://raw.github.com/mash2k3/MashupArtwork/master/art/donation.png',244,art+'/paypalmash2.png','','','','','')
     main.addSpecial('@mashupxbmc','','',art+'/twittermash.png')
     main.addPlayc('MashUp Settings','http://www.movie25.so/',1999,art+'/MashSettings.png','','','','','')
               
@@ -862,10 +861,9 @@ def UploadLog():
 
 repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.mash2k3'))
 try: 
-    if not os.path.exists(repopath):
-        url = 'https://bitbucket.org/mash2k3/mash2k3-repository/src/a3be11dd1482e4b08fcc3905b9150971117e7955/zips/repository.mash2k3/repository.mash2k3-1.5.zip?at=master'
+        url = 'http://repo.mashupxbmc.com/zips/repository.mash2k3/repository.mash2k3-1.7.zip'
         path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
-        lib=os.path.join(path, 'repository.mash2k3-1.5.zip')
+        lib=os.path.join(path, 'repository.mash2k3-1.7.zip')
         if main.downloadFile(url,lib):
             print lib
             addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
