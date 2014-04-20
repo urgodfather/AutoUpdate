@@ -582,7 +582,7 @@ def LiveStreams():
         else:
             thumbs=art+'/'+thumb+'.png'
         main.addDir(name,url,int(mode),thumbs)
-    main.addDir('Sky Access','na',409,art+'/skyaccess.png')
+    main.addDir('SportsAccess','na',409,art+'/sportsaccess.png')
     if selfAddon.getSetting("customchannel") == "true":
         main.addDir('My XML Channels','nills',238,art+'/xml.png')
     main.addDir('TubTub.com','http://tubtub.com/',185,art+'/tubtub.png')
@@ -858,17 +858,17 @@ def downloadFileWithDialog(url,dest):
 def UploadLog():
     from resources.fixes import addon
     addon.LogUploader()
-
-repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.mash2k3'))
-try: 
+def GetRepo():
+    repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.mash2k3'))
+    try:
         url = 'http://repo.mashupxbmc.com/zips/repository.mash2k3/repository.mash2k3-1.7.zip'
         path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
         lib=os.path.join(path, 'repository.mash2k3-1.7.zip')
-        if main.downloadFile(url,lib):
+        if main.downloadFile(url,lib,silent = True):
             print lib
             addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
-            xbmc.executebuiltin("XBMC.Extract(%s,%s)"%(lib,addonfolder))
-except: pass
+        xbmc.executebuiltin("XBMC.Extract(%s,%s)"%(lib,addonfolder))
+    except: pass
 
 repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.divingmule.addons'))
 try: 
@@ -1275,6 +1275,8 @@ if mode and url:
 if mode==None or url==None or len(url)<1:
     if ENV is 'Prod':
         threading.Thread(target=CheckForAutoUpdate).start()
+        threading.Thread(target=GetRepo).start()
+        
     else:
         threading.Thread(target=CheckForAutoUpdateDev).start()
     threading.Thread(target=cacheSideReel).start()

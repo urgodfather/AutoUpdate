@@ -9,7 +9,7 @@ addon_id = 'plugin.video.movie25'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 art = main.art
 #MAINURL='https://www.sidereel.com/users'
-prettyName='Sky Access'
+prettyName='Sports Access'
 
 
 user = selfAddon.getSetting('skyusername')
@@ -20,7 +20,7 @@ if user == '' or passw == '':
         try: os.remove(cookie_file)
         except: pass
     dialog = xbmcgui.Dialog()
-    ret = dialog.yesno('[COLOR=FF67cc33]MashUp[/COLOR]', 'Please set your SkyAccess credentials','or register if you don have an account','at skyaccess.se','Cancel','Login')
+    ret = dialog.yesno('[COLOR=FF67cc33]MashUp[/COLOR]', 'Please set your SportsAccess credentials','or register if you don have an account','at sportsaccess.se','Cancel','Login')
     if ret == 1:
         keyb = xbmc.Keyboard('', 'Enter Username or Email')
         keyb.doModal()
@@ -81,10 +81,10 @@ def MAINSA():
         main.addLink('[COLOR red]Elite Member[/COLOR]','','')
     else:
         main.addLink('[COLOR red]Free Member[/COLOR]','','')
-    main.addDir('Free Streams','http://skyaccess.se/forum/misc.php?page=livestreams',412,art+'/skyaccess.png')
+    main.addDir('Free Streams','http://sportsaccess.se/forum/misc.php?page=livestreams',412,art+'/skyaccess.png')
     if '<title>Axxess Menu</title>' in link:
         main.addDir('Elite Streams',link,410,art+'/skyaccess.png')
-    main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','http://i.imgur.com/5Y8Eaq0.png',244,art+'/skyaccess.png','','','','','')
+    main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','https://dl.dropboxusercontent.com/u/35068738/picture%20for%20post/sky.png',244,art+'/skyaccess.png','','','','','')
 
 def LISTMENU(murl):
     match=re.compile('<li><a href="(.+?)"><center>(.+?)<img src="(.+?)"/></a></li>').findall(murl)
@@ -94,7 +94,6 @@ def LISTMENU(murl):
         main.addDir(name,url,411,thumb)
 
 def LISTMENU2(murl):
-    setCookie(murl)
     response = net().http_GET(murl)
     link = response.content
     link = cleanHex(link)
@@ -103,10 +102,9 @@ def LISTMENU2(murl):
     for url,name,thumb in match:
         thumb=thumb.replace('http://i.imgur.com/D2gzK0U.png','http://i.imgur.com/zo1FeZA.png').replace('http://cdn0.agoda.net/images/default/icon_questionmark.png','http://i.imgur.com/R7xiSJg.png').replace('http://i.imgur.com/8h0WVhG.png','http://i.imgur.com/KF3PQAV.png').replace('http://i.imgur.com/my0hcfg.png','http://i.imgur.com/uQunKHh.png').replace('http://i.imgur.com/ufhNZ8q.png','http://i.imgur.com/OOaeIzT.png')
         name = re.sub('(?sim)<[^>]*?>','',name)
-        main.addDir(name,'http://skyaccess.se'+url,411,thumb)
+        main.addDir(name,'http://sportsaccess.se'+url,411,thumb)
 
 def LISTCONTENT(murl,thumb):
-    setCookie(murl)
     response = net().http_GET(murl)
     link = response.content
     link = cleanHex(link)
@@ -117,7 +115,7 @@ def LISTCONTENT(murl,thumb):
         if 'GO BACK' not in name and '1 Year Subscriptions' not in name and 'Live Broadcasts' not in name:
             name = re.sub('(?sim)<[^>]*?>','',name)
             if 'http' not in url:
-                url='http://skyaccess.se'+url
+                url='http://sportsaccess.se'+url
             main.addPlayL(name,url,413,thumb,'','','','','')
 
 
