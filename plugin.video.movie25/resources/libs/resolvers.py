@@ -317,18 +317,22 @@ def resolve_VK(url):
         if re.search('This video has been removed', link2, re.I):
             logerror('***** MashUp VK - This video has been removed')
             xbmc.executebuiltin("XBMC.Notification(This video has been removed,VK,2000)")
+            return Fals
+        urllist=[]
+        quaList=[]
+        match=re.findall('(?sim)<source src="([^"]+)"',link2)
+        for url in match:
+            print url
+            urllist.append(url)
+            qua=re.findall('(?sim).(\d+).mp4',url)
+            quaList.append(str(qua[0]))
+        dialog2 = xbmcgui.Dialog()
+        ret = dialog2.select('[COLOR=FF67cc33][B]Select Quality[/COLOR][/B]',quaList)
+        if ret == -1:
             return False
-        match = re.search('(?i)<source src="(.+?\.1080.mp4.+?)"',link2)
-        if not match:
-            match = re.search('(?i)<source src="(.+?\.720.mp4.+?)"',link2)
-            if not match:
-                match = re.search('(?i)<source src="(.+?\.480.mp4.+?)"',link2)
-                if not match:
-                    match = re.search('(?i)<source src="(.+?\.360.mp4.+?)"',link2)
-                    if not match:
-                        match = re.search('(?i)<source src="(.+?\.240.mp4.+?)"',link2)
-        if match:
-            return match.group(1).replace("\/",'/')
+        stream_url = urllist[ret]
+        if match: 
+            return stream_url.replace("\/",'/')
     except Exception, e:
         logerror('**** VK Error occured: %s' % e)
         xbmc.executebuiltin('[B][COLOR white]VK[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
