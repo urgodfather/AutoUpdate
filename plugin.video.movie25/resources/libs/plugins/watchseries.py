@@ -205,93 +205,93 @@ def LISTHOST(name,murl):
         link=link.replace('\r','').replace('\n','').replace('\t','')
         if selfAddon.getSetting("hide-download-instructions") != "true":
             main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
-        putlocker=re.compile('<span>putlocker.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        putlocker=re.compile('<span>putlocker</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(putlocker) > 0:
             for url in putlocker:
                 main.addDown2(name+"[COLOR blue] : Putlocker[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/putlocker.png',art+'/hosts/putlocker.png')
-        sockshare=re.compile('<span>sockshare.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        sockshare=re.compile('<span>sockshare</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(sockshare) > 0:
             for url in sockshare:
                 main.addDown2(name+"[COLOR blue] : Sockshare[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/sockshare.png',art+'/hosts/sockshare.png')
-        nowvideo=re.compile('<span>nowvideo.co</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        nowvideo=re.compile('<span>nowvideo</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(nowvideo) > 0:
             for url in nowvideo:
                 main.addDown2(name+"[COLOR blue] : Nowvideo[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/nowvideo.png',art+'/hosts/nowvideo.png')
-        oeupload=re.compile('<span>180upload.com/span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        oeupload=re.compile('<span>180upload</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(oeupload) > 0:
             for url in oeupload:
                 main.addDown2(name+"[COLOR blue] : 180upload[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/180upload.png',art+'/hosts/180upload.png')
-        filenuke=re.compile('<span>filenuke.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        filenuke=re.compile('<span>filenuke</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(filenuke) > 0:
             for url in filenuke:
                 main.addDown2(name+"[COLOR blue] : Filenuke[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/filenuke.png',art+'/hosts/filenuke.png')
-        flashx=re.compile('<span>flashx.tv</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        flashx=re.compile('<span>flashx</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(flashx) > 0:
             for url in flashx:
                 main.addDown2(name+"[COLOR blue] : Flashx[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/flashx.png',art+'/hosts/flashx.png')
-        novamov=re.compile('<span>novamov.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        novamov=re.compile('<span>novamov</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(novamov) > 0:
             for url in novamov:
                 main.addDown2(name+"[COLOR blue] : Novamov[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/novamov.png',art+'/hosts/novamov.png')
-        uploadc=re.compile('<span>uploadc.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        uploadc=re.compile('<span>uploadc</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(uploadc) > 0:
             for url in uploadc:
                 main.addDown2(name+"[COLOR blue] : Uploadc[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/uploadc.png',art+'/hosts/uploadc.png')
-        xvidstage=re.compile('<span>xvidstage.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        xvidstage=re.compile('<span>xvidstage</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(xvidstage) > 0:
             for url in xvidstage:
                 main.addDown2(name+"[COLOR blue] : Xvidstage[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/xvidstage.png',art+'/hosts/xvidstage.png')
-        stagevu=re.compile('<span>stagevu.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        stagevu=re.compile('<span>stagevu</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(stagevu) > 0:
             for url in stagevu:
                 main.addDown2(name+"[COLOR blue] : StageVu[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/stagevu.png',art+'/hosts/stagevu.png')        
-        gorillavid=re.compile('<span>gorillavid.in</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        gorillavid=re.compile('<span>gorillavid</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(gorillavid)==0:
-                gorillavid=re.compile('<span>gorillavid.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+                gorillavid=re.compile('<span>gorillavid</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(gorillavid) > 0:
             for url in gorillavid:
                 main.addDown2(name+"[COLOR blue] : Gorillavid[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/gorillavid.png',art+'/hosts/gorillavid.png')
-        divxstage=re.compile('<span>divxstage.eu</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        divxstage=re.compile('<span>divxstage</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(divxstage) > 0:
             for url in divxstage:
                 main.addDown2(name+"[COLOR blue] : Divxstage[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/divxstage.png',art+'/hosts/divxstage.png')
-        moveshare=re.compile('<span>moveshare.net</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        moveshare=re.compile('<span>moveshare</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(moveshare) > 0:
             for url in moveshare:
                 main.addDown2(name+"[COLOR blue] : Moveshare[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/moveshare.png',art+'/hosts/moveshare.png')
-        sharesix=re.compile('<span>sharesix.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        sharesix=re.compile('<span>sharesix</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(sharesix) > 0:
             for url in sharesix:
                 main.addDown2(name+"[COLOR blue] : Sharesix[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/sharesix.png',art+'/hosts/sharesix.png')
-        movpod=re.compile('<span>movpod.in</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        movpod=re.compile('<span>movpod</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(movpod)==0:
-                movpod=re.compile('<span>movpod.net</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+                movpod=re.compile('<span>movpod</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(movpod) > 0:
             for url in movpod:
                 main.addDown2(name+"[COLOR blue] : Movpod[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/movpod.png',art+'/hosts/movpod.png')
-        daclips=re.compile('<span>daclips.in</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        daclips=re.compile('<span>daclips</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(daclips)==0:
-                daclips=re.compile('<span>daclips.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+                daclips=re.compile('<span>daclips</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(daclips) > 0:
             for url in daclips:
                 main.addDown2(name+"[COLOR blue] : Daclips[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/daclips.png',art+'/hosts/daclips.png')
-        videoweed=re.compile('<span>videoweed.es</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        videoweed=re.compile('<span>videoweed</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(videoweed) > 0:
             for url in videoweed:
                 main.addDown2(name+"[COLOR blue] : Videoweed[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/videoweed.png',art+'/hosts/videoweed.png')        
-        zooupload=re.compile('<span>zooupload.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        zooupload=re.compile('<span>zooupload</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(zooupload) > 0:
             for url in zooupload:
                 main.addDown2(name+"[COLOR blue] : Zooupload[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/zooupload.png',art+'/hosts/zooupload.png')
-        zalaa=re.compile('<span>zalaa.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        zalaa=re.compile('<span>zalaa</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(zalaa) > 0:
             for url in zalaa:
                 main.addDown2(name+"[COLOR blue] : Zalaa[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/zalaa.png',art+'/hosts/zalaa.png')
-        vidxden=re.compile('<span>vidxden.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        vidxden=re.compile('<span>vidxden</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(vidxden) > 0:
             for url in vidxden:
                 main.addDown2(name+"[COLOR blue] : Vidxden[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/vidxden.png',art+'/hosts/vidxden.png')
-        vidbux=re.compile('<span>vidbux.com</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
+        vidbux=re.compile('<span>vidbux</span></td><td> <a target=".+?" href="(.+?)"').findall(link)
         if len(vidbux) > 0:
             for url in vidbux:
                 main.addDown2(name+"[COLOR blue] : Vidbux[/COLOR]",url+'xocx'+murl+'xocx',574,art+'/hosts/vidbux.png',art+'/hosts/vidbux.png')
