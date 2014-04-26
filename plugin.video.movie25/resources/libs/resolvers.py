@@ -69,6 +69,8 @@ def resolve_url(url, filename = False):
                 stream_url=resolve_yify(url)
             elif re.search('mail.ru',url,re.I):
                 stream_url=resolve_mailru(url)
+            elif re.search('g2g.fm',url,re.I):
+                stream_url=resolve_g2g(url)
             elif re.search('youtube',url,re.I):
                 try:url=url.split('watch?v=')[1]
                 except:
@@ -188,7 +190,62 @@ def load_json(data):
                   for line in sys.exc_info():
                         print "%s" % line
       return None
+def resolve_g2g(url):
+    html = net().http_GET(url).content
+    phpUrl = re.findall('(?sim)<iframe src="(.+?php)"', html)[0]
+    req = urllib2.Request(phpUrl)
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('Referer', url)   
+    response = urllib2.urlopen(req)
+    html2=response.read()
+    response.close()
+    googleUrl = re.findall('(?sim)<iframe src="(.+?preview)"', html2)[0]
+    return resolve_googleDocs(googleUrl)
+     
+def unescapes(text):
+    if text:
+        rep = {"\u003d":"=","\u0026":"&","u003d":"=","u0026":"&","%26":"&","&#38;":"&","&amp;":"&","&#044;": ",","&nbsp;": " ","\n": "","\t": "","\r": "","%5B": "[","%5D": "]",
+               "%3a": ":","%3A":":","%2f":"/","%2F":"/","%3f":"?","%3F":"?","%3d":"=","%3D":"=","%2C":",","%2c":",","%3C":"<",
+               "%20":" ","%22":'"',"%3D":"=","%3A":":","%2F":"/","%3E":">","%3B":",","%27":"'","%0D":"","%0A":"","%92":"'",
+               "&lt;": "<","&gt;": ">","&quot": '"',"&rsquo;": "'","&acute;": "'"}
+        for s, r in rep.items():
+            text = text.replace(s, r) 
+    #except TypeError: pass
+    return text
 
+def resolve_googleDocs(url):
+    namelist=[]
+    urllist=[]
+    dialog = xbmcgui.DialogProgress()
+    dialog.create('Resolving', 'Resolving MashUp GoogleDoc Link...')       
+    dialog.update(0)
+    print 'MashUp GoogleDoc - Requesting GET URL: %s' % url
+    html = net().http_GET(url).content
+    dialog.update(100)
+    link2=unescapes(html)
+    match= re.compile('url_encoded_fmt_stream_map":"(.+?),"').findall(link2)[0]
+    streams_map = str(match)
+    stream= re.compile('url=(.+?)&type=.+?&quality=(.+?),').findall(streams_map)
+    for stream_url,stream_quality in stream:
+        stream_url = stream_url
+        stream_url = unescapes(stream_url)
+        urllist.append(stream_url)
+        stream_qlty = stream_quality.upper()
+        if (stream_qlty == 'hd1080'):
+            stream_qlty = 'HD-1080p'
+        elif (stream_qlty == 'hd720'):
+            stream_qlty = 'HD-720p'
+        elif (stream_qlty == 'latge'):
+            stream_qlty = 'SD-480p'
+        elif (stream_qlty == 'medium'):
+            stream_qlty = 'SD-360p'
+        namelist.append(stream_qlty)
+    dialog = xbmcgui.Dialog()
+    answer =dialog.select("Quality Select", namelist)
+    if answer==-1:
+        return
+    else:
+        return urllist[int(answer)]
 
 def resolve_firedrive(url):
     try:

@@ -126,6 +126,7 @@ def MAIN():
                 main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addPlayc('Need Help?','http://www.movie25.com/',100,art+'/help.png','','','','','')
     main.addPlayc('Upload Log','http://www.movie25.so/',156,art+'/loguploader.png','','','','','')
+    main.addPlayc('Click Me!!!','https://raw.github.com/mash2k3/MashupArtwork/master/skins/vector/donation.png',244,art+'/paypalmash2.png','','','','','')
     main.addSpecial('@mashupxbmc','','',art+'/twittermash.png')
     main.addPlayc('MashUp Settings','http://www.movie25.so/',1999,art+'/MashSettings.png','','','','','')
               
@@ -861,14 +862,25 @@ def UploadLog():
 def GetRepo():
     repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.mash2k3'))
     try:
-        url = 'http://repo.mashupxbmc.com/zips/repository.mash2k3/repository.mash2k3-1.7.zip'
-        path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
-        lib=os.path.join(path, 'repository.mash2k3-1.7.zip')
-        if main.downloadFile(url,lib,silent = True):
-            print lib
-            addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
-        xbmc.executebuiltin("XBMC.Extract(%s,%s)"%(lib,addonfolder))
-    except: pass
+        repo = os.path.join(repopath, 'addon.xml')
+        repofile = open(repo, 'r').read()
+        repov=re.compile('version="([^"]+?)" provider-name').findall(repofile)
+        if repov:
+            RepoVer = repov[0]
+                
+    except:
+        RepoVer='Repo Not Intalled'
+    print "Repo Ver: "+RepoVer
+    if RepoVer!='1.7':
+        try:
+            url = 'http://repo.mashupxbmc.com/zips/repository.mash2k3/repository.mash2k3-1.7.zip'
+            path = xbmc.translatePath(os.path.join('special://home/addons','packages'))
+            lib=os.path.join(path, 'repository.mash2k3-1.7.zip')
+            if main.downloadFile(url,lib,silent = True):
+                print lib
+                addonfolder = xbmc.translatePath(os.path.join('special://home/addons',''))
+            xbmc.executebuiltin("XBMC.Extract(%s,%s)"%(lib,addonfolder))
+        except: pass
 
 repopath = xbmc.translatePath(os.path.join('special://home/addons', 'repository.divingmule.addons'))
 try: 

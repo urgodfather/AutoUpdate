@@ -365,7 +365,7 @@ def CheckVersion():
             return True
     
     else:
-        print 'BitBucket Link Down'
+        print 'CloudFlare Link Down'
         return False
 ######################################################################## Live Stream do Regex ############################################################
 def doRegex(murl):
@@ -385,7 +385,7 @@ def doRegex(murl):
             response = urllib2.urlopen(req)
             link=response.read()
             response.close()
-            link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+            link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('\/','/')
             r=re.compile(regex.group(1),re.DOTALL).findall(link)[0]
             url = url.replace("$doregex[" + k + "]", r)
    
@@ -1068,7 +1068,7 @@ def APP_LAUNCH():
         try:
             repo = os.path.join(repopath, 'addon.xml')
             repofile = open(repo, 'r').read()
-            repov=re.compile('name="All Addons by Mash2k3" version="(.+?)" provider-name="Mash2k3').findall(repofile)
+            repov=re.compile('version="([^"]+?)" provider-name').findall(repofile)
             if repov:
                 RepoVer = repov[0]
                 
