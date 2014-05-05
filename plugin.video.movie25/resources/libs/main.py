@@ -29,8 +29,8 @@ try:
     logfile = open(log, 'r').read()
     match=re.compile('Starting XBMC \((.+?) Git:.+?Platform: (.+?)\. Built').search(logfile)
     if match:
-        PLATFORM = match.group(1)
-        build = match.group(2)
+        build = match.group(1)
+        PLATFORM = match.group(2)
         print 'XBMC '+build+' Platform '+PLATFORM
     else:
         PLATFORM=''
@@ -890,8 +890,12 @@ def jDownloader(murl):
         cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
         xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
     else:
-        command = 'echo ' + url.strip() + '| clip'
-        os.system(command)
+        if 'Windows' in PLATFORM:
+            command = 'echo ' + url.strip() + '| clip'
+            os.system(command)
+        else:
+            command = 'echo ' + url.strip() + '| pbcopy'
+            os.system(command)
 
 ################################################################################ Message ##########################################################################################################
 
