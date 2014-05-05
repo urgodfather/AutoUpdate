@@ -50,7 +50,7 @@ slogo = xbmc.translatePath('special://home/addons/plugin.video.movie25/resources
 
 def OPENURL(url, mobile = False, q = False, verbose = True, timeout = 10, cookie = None, data = None, cookiejar = False, log = True, headers = [], type = '',ua = False):
     import urllib2 
-    UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
+    UserAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
     if ua: UserAgent = ua
     try:
         if log:
@@ -885,9 +885,13 @@ def _pbhook(numblocks, blocksize, filesize, dp, start_time):
 
 def jDownloader(murl):
     url = resolveDownloadLinks(murl)
-    print "Downloading "+murl+" via jDownlaoder"
-    cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
-    xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
+    if selfAddon.getSetting("jdcb") == "true":
+        print "Downloading "+murl+" via jDownlaoder"
+        cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
+        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
+    else:
+        command = 'echo ' + url.strip() + '| clip'
+        os.system(command)
 
 ################################################################################ Message ##########################################################################################################
 
@@ -1159,7 +1163,11 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=0,genre='',year='',imd
         sysurl = urllib.quote_plus(url)
         sysname= urllib.quote_plus(name)
         Commands.append(('Direct Download', 'XBMC.RunPlugin(%s?mode=190&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
-        Commands.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
+        if selfAddon.getSetting("jdcb") == "true":
+            Commands.append(('Download with jDownloader', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
+        else:
+            Commands.append(('Copy to Clipboard', 'XBMC.RunPlugin(%s?mode=776&name=%s&url=%s)' % (sys.argv[0], sysname, sysurl)))
+
   
     if searchMeta:
         Commands.append(('[B]Super Search [COLOR=FF67cc33]Me[/COLOR][/B]','XBMC.Container.Update(%s?mode=21&name=%s&url=%s)'% (sys.argv[0], urllib.quote_plus(name),'###')))
@@ -1204,7 +1212,8 @@ def addDirX(name,url,mode,iconimage,plot='',fanart='',dur=0,genre='',year='',imd
     
     liz=xbmcgui.ListItem(name, iconImage=art+'/vidicon.png', thumbnailImage=iconimage)
     liz.addContextMenuItems( Commands, replaceItems=False)
-    #liz.setInfo( type="Video", infoLabels=infoLabels )
+    if searchMeta:
+        liz.setInfo( type="Video", infoLabels=infoLabels )
     liz.setProperty('fanart_image', fanart)
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=isFolder)
 

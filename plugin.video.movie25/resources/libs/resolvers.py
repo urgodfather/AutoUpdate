@@ -190,6 +190,13 @@ def load_json(data):
                   for line in sys.exc_info():
                         print "%s" % line
       return None
+
+
+        
+
+
+  
+
 def resolve_g2g(url):
     html = net().http_GET(url).content
     phpUrl = re.findall('(?sim)<iframe src="(.+?php)"', html)[0]
@@ -987,10 +994,10 @@ def resolve_180upload(url):
         dialog.create('Resolving', 'Resolving Mash Up 180Upload Link...')
         dialog.update(0)
         
-        puzzle_img = os.path.join(datapath, "180_puzzle.png")
         url=url.replace('180upload.nl','180upload.com')
         print 'Mash Up 180Upload - Requesting GET URL: %s' % url
         html = net().http_GET(url).content
+        
         if ">File Not Found" in html:
             logerror('Mash Up: Resolve 180Upload - File Not Found')
             xbmc.executebuiltin("XBMC.Notification(File Not Found,180Upload,2000)")
@@ -1013,43 +1020,85 @@ def resolve_180upload(url):
         
         #Check for SolveMedia Captcha image
         solvemedia = re.search('<iframe src="(http://api.solvemedia.com.+?)"', html)
+        recaptcha = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
+        numeric = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
 
         if solvemedia:
-           dialog.close()
-           html = net().http_GET(solvemedia.group(1)).content
-           hugekey=re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
-           open(puzzle_img, 'wb').write(net().http_GET("http://api.solvemedia.com%s" % re.search('<img src="(.+?)"', html).group(1)).content)
-           img = xbmcgui.ControlImage(450,15,400,130, puzzle_img)
-           wdlg = xbmcgui.WindowDialog()
-           wdlg.addControl(img)
-           wdlg.show()
-        
-           kb = xbmc.Keyboard('', 'Type the letters in the image', False)
-           kb.doModal()
-           capcode = kb.getText()
+            captcha=solvemedia.group(1)
+            image = os.path.join(datapath, "solve_puzzle.png")
+            html = net().http_GET(captcha).content
+            challenge = re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
 
-           if (kb.isConfirmed()):
-               userInput = kb.getText()
-               if userInput != '':
-                   solution = kb.getText()
-               elif userInput == '':
-                   xbmc.executebuiltin("XBMC.Notification(You must enter text in the image to access video,2000)")
-                   return False
-           else:
+            try: puzzle = re.search('<div><iframe src="(/papi/media.+?)"', html).group(1)
+            except: puzzle = re.search('<img src="(/papi/media.+?)"', html).group(1)
+            puzzle = "http://api.solvemedia.com%s" % puzzle
+
+            file = open(image, 'wb')
+            file.write(net().http_GET(puzzle).content)
+            file.close()
+
+            if image:
+                img = xbmcgui.ControlImage(450,15,400,130, image)
+                wdlg = xbmcgui.WindowDialog()
+                wdlg.addControl(img)
+                wdlg.show()
+            
+                kb = xbmc.Keyboard('', 'Type the letters in the image', False)
+                kb.doModal()
+                capcode = kb.getText()
+
+                if (kb.isConfirmed()):
+                    userInput = kb.getText()
+                    if userInput != '':
+                        solution = kb.getText()
+                    elif userInput == '':
+                        xbmc.executebuiltin("XBMC.Notification(You must enter text in the image to access video,2000)")
+                        return False
+                else:
+                       return False
+            data['adcopy_challenge'] = challenge
+            data['adcopy_response'] = solution
+        elif recaptcha:
+            captcha=recaptcha.group(1)
+            html = net().http_GET(captcha).content
+            challenge = re.search("challenge \: \\'(.+?)\\'", html).group(1)
+            image = 'http://www.google.com/recaptcha/api/image?c=' + challenge
+            if image:
+                img = xbmcgui.ControlImage(450,15,400,130, image)
+                wdlg = xbmcgui.WindowDialog()
+                wdlg.addControl(img)
+                wdlg.show()
+            
+                kb = xbmc.Keyboard('', 'Type the letters in the image', False)
+                kb.doModal()
+                capcode = kb.getText()
+
+                if (kb.isConfirmed()):
+                    userInput = kb.getText()
+                    if userInput != '':
+                        solution = kb.getText()
+                    elif userInput == '':
+                        xbmc.executebuiltin("XBMC.Notification(You must enter text in the image to access video,2000)")
+                        return False
+                else:
+                       return False
+            data['recaptcha_challenge_field'] = challenge
+            data['recaptcha_response_field'] = solution
+        elif numeric:
+            captcha=numeric
+            result = sorted(captcha, key=lambda ltr: int(ltr[0]))
+            solution = ''.join(str(int(num[1])-48) for num in result)
+            data['code'] = solution
+        else:
                return False
                
-           wdlg.close()
-           dialog.create('Resolving', 'Resolving Mash Up 180Upload Link...') 
-           dialog.update(50)
-           if solution:
-               data.update({'adcopy_challenge': hugekey,'adcopy_response': solution})
-
         print 'Mash Up 180Upload - Requesting POST URL: %s' % url
         html = net().http_POST(url, data).content
+        print html
         if dialog.iscanceled(): return False
         dialog.update(100)
         
-        link = re.search('id="lnk_download" href="([^"]+)"', html)
+        link = re.search('id="lnk_download" href="([^"]+)', html)
         if link:
             print 'Mash Up 180Upload Link Found: %s' % link.group(1)
             return link.group(1)
@@ -1061,7 +1110,8 @@ def resolve_180upload(url):
         raise ResolverError(str(e),"180Upload") 
     finally:
         dialog.close()
-        
+
+                
 def resolve_vidto(url):
     user_agent='Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
     from resources.libs import jsunpack
@@ -1403,3 +1453,4 @@ def resolve_hugefiles(url):
     except Exception, e:
         logerror('Mash Up: Resolve HugeFiles Error - '+str(e))
         raise ResolverError(str(e),"HugeFiles")  
+

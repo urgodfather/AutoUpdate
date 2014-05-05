@@ -13,7 +13,7 @@ prettyName='Movie25'
 def LISTMOVIES(murl):
     link=main.OPENURL(murl)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match = re.findall('movie_pic"><a href="([^"]+)"  target=".+?<img src="(.+?)".+?target="_self">([^<]+)</a>.+?>([^<]+)</a>.+?<br/>Views: <span>(.+?)</span>.+?(.+?)votes',link)
+    match = re.findall('movie_pic"><a href="([^"]+)"  target=".+?<img src="(.+?)".+?target="_self">([^<]+)</a>.+?>([^<]+)</a>.+?<br/>Views: <span>(.+?)</span>.+?(.+?)votes.*?<li class="current-rating" style="width:(\d+?)px',link)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Movie list is cached.')
     totalLinks = len(match)
@@ -21,10 +21,10 @@ def LISTMOVIES(murl):
     remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
     dialogWait.update(0, '[B]Will load instantly from now on[/B]',remaining_display)
     xbmc.executebuiltin("XBMC.Dialog.Close(busydialog,true)")
-    for url,thumb,name,genre,views,votes in match:
+    for url,thumb,name,genre,views,votes,rating in match:
         votes=votes.replace('(','')
         name=name.replace('-','').replace('&','').replace('acute;','').strip()
-        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR]',MainUrl+url,3,thumb,genre,'')
+        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/100[/COLOR]',MainUrl+url,3,thumb,genre,'')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -55,17 +55,17 @@ def UFCMOVIE25():
     surl='http://www.movie25.so/search.php?key=ufc&submit='
     link=main.OPENURL(surl)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">                            <img src="(.+?)" width=".+?" height=".+?" />                            </a></div>            <div class=".+?">              <div class=".+?">                <h1><a href=".+?" target=".+?">                  (.+?)                  </a></h1>                <div class=".+?">Genre:                  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?Views: <span>                (.+?)                </span>.+?<span id=RateCount.+?>                (.+?)                </span> votes.+?<div id=".+?">score:<span id=Rate_.+?>(.+?)</span>').findall(link)
+    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">                            <img src="(.+?)" width=".+?" height=".+?" />                            </a></div>            <div class=".+?">              <div class=".+?">                <h1><a href=".+?" target=".+?">                  (.+?)                  </a></h1>                <div class=".+?">Genre:                  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?Views: <span>                (.+?)                </span>.+?<span id=RateCount.+?>                (.+?)                </span> votes').findall(link)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Movie list is cached.')
     totalLinks = len(match)
     loadedLinks = 0
     remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
     dialogWait.update(0, '[B]Will load instantly from now on[/B]',remaining_display)
-    for url,thumb,name,genre,views,votes,rating in match:
+    for url,thumb,name,genre,views,votes in match:
         name=name.replace('-','').replace('&','').replace('acute;','').strip()
         furl= MainUrl+url
-        main.addInfo(name+'('+year+')[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/5.00[/COLOR]',furl,3,thumb,genre,'')
+        main.addInfo(name+'('+year+')[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR]',furl,3,thumb,genre,'')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -97,7 +97,7 @@ def superSearch(encode,type):
         surl=MainUrl+'/search.php?key='+encode+'&submit='
         link=main.OPENURL(surl,verbose=False)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-        match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.+?>score:(.+?)</div>',re.DOTALL).findall(link)
+        match=re.compile('<div class="movie_pic"><a href="([^"]+?)"[^>]+?>\s*?<img src="([^"]+?)"[^>]+?>.+?<a href[^>]+?>([^<]+?)</a></h1><div class=".+?">().*?Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span>.*?<li class="current-rating" style="width:(\d+?)px').findall(link)
         for url,thumb,name,genre,views,votes,rating in match:
             url= MainUrl+url
             name=name.replace('  ','')
@@ -111,7 +111,7 @@ def SEARCH(murl = ''):
     surl=MainUrl+'/search.php?key='+encode+'&submit='
     link=main.OPENURL(surl)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.+?>score:(.+?)</div>').findall(link)
+    match=re.compile('<div class="movie_pic"><a href="([^"]+?)"[^>]+?>\s*?<img src="([^"]+?)"[^>]+?>.+?<a href[^>]+?>([^<]+?)</a></h1><div class=".+?">().*?Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span>.*?<li class="current-rating" style="width:(\d+?)px').findall(link)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Movie list is cached.')
     totalLinks = len(match)
@@ -122,7 +122,7 @@ def SEARCH(murl = ''):
     for url,thumb,name,genre,views,votes,rating in match:
         name=name.replace('-','').replace('&','').replace('acute;','')
         furl= MainUrl+url
-        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/5.00[/COLOR]',furl,3,thumb,genre,'')
+        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/100[/COLOR]',furl,3,thumb,genre,'')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -198,7 +198,7 @@ def GotoPageB(url):
 def YEARB(murl):
     link=main.OPENURL(murl)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.+?>score:(.+?)</div>').findall(link)
+    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.*?<li class="current-rating" style="width:(\d+?)px').findall(link)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Movie list is cached.')
     totalLinks = len(match)
@@ -208,7 +208,7 @@ def YEARB(murl):
     for url,thumb,name,genre,views,votes,rating in match:
         name=name.replace('-','').replace('&','').replace('acute;','')
         furl= 'http://movie25.com/'+url
-        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/5.00[/COLOR]',furl,3,thumb,genre,'')
+        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/100[/COLOR]',furl,3,thumb,genre,'')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -230,7 +230,7 @@ def YEARB(murl):
 def NEXTPAGE(murl):
     link=main.OPENURL(murl)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.+?>score:(.+?)</div>').findall(link)
+    match=re.compile('<div class="movie_pic"><a href="(.+?)" target=".+?">    <img src="(.+?)" width=".+?" height=".+?" />.+?<a href=".+?" target=".+?">(.+?)</a></h1><div class=".+?">Genre:  <a href=".+?" target=\'.+?\'>(.+?)</a>.+?Release:.+?<br/>Views: <span>(.+?)</span>.+?id=RateCount_.+?>(.+?)</span> votes.*?<li class="current-rating" style="width:(\d+?)px').findall(link)
     dialogWait = xbmcgui.DialogProgress()
     ret = dialogWait.create('Please wait until Movie list is cached.')
     totalLinks = len(match)
@@ -240,7 +240,7 @@ def NEXTPAGE(murl):
     for url,thumb,name,genre,views,votes,rating in match:
         name=name.replace('-','').replace('&','').replace('acute;','')
         furl= MainUrl+url
-        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/5.00[/COLOR]',furl,3,thumb,genre,'')
+        main.addInfo(name+'[COLOR blue] Views: '+views+'[/COLOR] [COLOR red]Votes: '+votes+'[/COLOR] [COLOR green]Rating: '+rating+'/100[/COLOR]',furl,3,thumb,genre,'')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
