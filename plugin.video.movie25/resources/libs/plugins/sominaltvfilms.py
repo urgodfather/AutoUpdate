@@ -144,7 +144,8 @@ def getvideo2(murl,answer=''):
                 urllist=[]
                 SRT=os.path.join(datapath,'Sub.srt')
                 link2=link2.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('iframe src="//www.facebook.com','')
-                docUrl= re.compile('iframe src="(.+?)"').findall(link2)
+                docUrl= re.compile('iframe src="(.+?preview)"').findall(link2)
+                print link2
                 if len(docUrl)==0:
                     link3=dekode(link2)
                     try:

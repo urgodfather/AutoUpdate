@@ -44,7 +44,7 @@ def CHANNELCLink(mname,murl):
         playlist.clear()
         site = re.findall('channelcut',murl)
         if len(site)>0:
-            match=re.compile('<a href="(.+?)" rel="nofollow">.+?</a><br/>').findall(link)
+            match=re.compile('<a href="(.+?)" rel="nofollow">.+?</a><br').findall(link)
         else:
             match=re.compile('<td><a href="(.+?)" target="').findall(link)
         for url in match:

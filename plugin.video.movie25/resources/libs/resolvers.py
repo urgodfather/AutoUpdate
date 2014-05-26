@@ -198,7 +198,14 @@ def load_json(data):
   
 
 def resolve_g2g(url):
-    html = net().http_GET(url).content
+    html3 = net().http_GET(url).content 
+    url2 = re.findall('(?sim)<iframe src="(http://g2g.fm/pasep.php.+?)"', html3)[0]
+    req = urllib2.Request(url2)
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('Referer', url)
+    response = urllib2.urlopen(req)
+    html=response.read()
+    response.close()
     phpUrl = re.findall('(?sim)<iframe src="(.+?php)"', html)[0]
     req = urllib2.Request(phpUrl)
     req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
@@ -354,16 +361,66 @@ def resolve_mailru(url):
 
 def resolve_yify(url):
     try:
+        referer = url
         dialog = xbmcgui.DialogProgress()
         dialog.create('Resolving', 'Resolving MashUp Yify Link...')       
         dialog.update(0)
         print 'MashUp Yify - Requesting GET URL: %s' % url
         html = net().http_GET(url).content
         url = re.compile('showPkPlayer[(]"(.+?)"[)]').findall(html)[0]
-        url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p.php?url=https%3A//picasaweb.google.com/' + url
-        html = net().http_GET(url).content
-        html = re.compile('{(.+?)}').findall(html)[-1]
-        stream_url = re.compile('"url":"(.+?)"').findall(html)[0]
+        key=url
+        url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p2.php?url=' + url
+        req = urllib2.Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36')
+        req.add_header('Referer', referer)
+        response = urllib2.urlopen(req)
+        link=response.read()
+        response.close()
+        print link
+        
+        if 'captcha' in link:
+            print link
+            captcha=re.search('{"captcha":(.+?),"k":"([^"]+)"}',link)
+            curl='http://www.google.com/recaptcha/api/challenge?k='+captcha.group(2)+'&ajax=1&cachestop=0.7698786298278719'
+            html = net().http_GET(curl).content
+            print html
+            image_id=re.findall("challenge : '([^']+)'",html)
+            img_id=image_id[0]
+            image_url='http://www.google.com/recaptcha/api/image?c='+img_id
+            img = xbmcgui.ControlImage(450,15,400,130, image_url)
+            wdlg = xbmcgui.WindowDialog()
+            wdlg.addControl(img)
+            wdlg.show()
+        
+            kb = xbmc.Keyboard('', 'Type the letters in the image', False)
+            kb.doModal()
+            capcode = kb.getText()
+   
+            if (kb.isConfirmed()):
+                userInput = kb.getText()
+                if userInput != '':
+                    solution = kb.getText()
+                elif userInput == '':
+                    xbmc.executebuiltin('big', 'No text entered', 'You must enter text in the image to access video', '')
+                    return False
+            else:
+                return False
+               
+            wdlg.close()
+            url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p2.php'
+            user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36'
+            values = {'url' : key,'chall' : img_id,'type' :  captcha.group(1),'res':solution,'':'','':''}
+            headers = { 'User-Agent' : user_agent,'Referer':'referer'}
+
+            data = urllib.urlencode(values)
+            req = urllib2.Request(url, data, headers)
+            response = urllib2.urlopen(req)
+            link = response.read()
+        if '.pdf' in link:
+            html = re.findall('{"url":"([^"]+.pdf)",',link)[0]
+        else:
+            html = re.compile('{"url":"([^"]+)"').findall(link)[1]
+        stream_url = html
         return stream_url
     except Exception, e:
         logerror('**** Yify Error occured: %s' % e)

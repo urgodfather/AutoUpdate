@@ -13,64 +13,65 @@ prettyName = 'WatchSeries'
 def MAINWATCHS():
         main.addDir('Search','s',581,art+'/search.png')
         main.addDir('A-Z','s',577,art+'/az.png')
-        main.addDir('Yesterdays Episodes','http://watchseries.lt/tvschedule/-2',573,art+'/yesepi.png')
-        main.addDir('Todays Episodes','http://watchseries.lt/tvschedule/-1',573,art+'/toepi2.png')
-        main.addDir('Popular Shows','http://watchseries.lt/',580,art+'/popshowsws.png')
-        main.addDir('This Weeks Popular Episodes','http://watchseries.lt/new',573,art+'/thisweek.png')
-        main.addDir('Newest Episodes Added','http://watchseries.lt/latest',573,art+'/newadd.png')
+        main.addDir('Yesterdays Episodes','http://watchseries.ag/tvschedule/-2',573,art+'/yesepi.png')
+        main.addDir('Todays Episodes','http://watchseries.ag/tvschedule/-1',573,art+'/toepi2.png')
+        main.addDir('Popular Shows','http://watchseries.ag/',580,art+'/popshowsws.png')
+        main.addDir('This Weeks Popular Episodes','http://watchseries.ag/new',573,art+'/thisweek.png')
+        main.addDir('Newest Episodes Added','http://watchseries.ag/latest',573,art+'/newadd.png')
         main.addDir('By Genre','genre',583,art+'/genre.png')
         main.GA("Plugin","Watchseries")
         main.VIEWSB()
 
 def POPULARWATCHS(murl):
         main.GA("Watchseries","PopularShows")
-        link=main.OPENURL(murl)
+        link=main.OPENURL2(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-        match=re.compile('<a href="([^<]+)" title="[^<]+">([^<]+)</a><br />').findall(link)
+        
+        match=re.compile('<a href="([^"]+)" title=".+?">([^<]+)</a><br />').findall(link)
         main.addLink('[COLOR red]Most Popular Series[/COLOR]','',art+'/link.png')
         for url, name in match[0:12]:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
         main.addLink('[COLOR red]Most Popular Cartoons[/COLOR]','',art+'/link.png')
         for url, name in match[12:24]:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
         main.addLink('[COLOR red]Most Popular Documentaries[/COLOR]','',art+'/link.png')
         for url, name in match[24:36]:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
         main.addLink('[COLOR red]Most Popular Shows[/COLOR]','',art+'/link.png')
         for url, name in match[36:48]:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
         main.addLink('[COLOR red]Most Popular Sports[/COLOR]','',art+'/link.png')
         for url, name in match[48:60]:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
 
             
 def GENREWATCHS():
-        main.addDir('Action','http://watchseries.lt/genres/action',576,art+'/act.png')
-        main.addDir('Adventure','http://watchseries.lt/genres/adventure',576,art+'/adv.png')
-        main.addDir('Animation','http://watchseries.lt/genres/animation',576,art+'/ani.png')
-        main.addDir('Comedy','http://watchseries.lt/genres/comedy',576,art+'/com.png')
-        main.addDir('Crime','http://watchseries.lt/genres/crime',576,art+'/cri.png')
-        main.addDir('Documentary','http://watchseries.lt/genres/documentary',576,art+'/doc.png')
-        main.addDir('Drama','http://watchseries.lt/genres/drama',576,art+'/dra.png')
-        main.addDir('Family','http://watchseries.lt/genres/family',576,art+'/fam.png')
-        main.addDir('Fantasy','http://watchseries.lt/genres/fantasy',576,art+'/fant.png')
-        main.addDir('History','http://watchseries.lt/genres/history',576,art+'/his.png')
-        main.addDir('Horror','http://watchseries.lt/genres/horror',576,art+'/hor.png')
-        main.addDir('Music','http://watchseries.lt/genres/music',576,art+'/mus.png')
-        main.addDir('Mystery','http://watchseries.lt/genres/mystery',576,art+'/mys.png')
-        main.addDir('Reality','http://watchseries.lt/genres/reality-tv',576,art+'/rea.png')
-        main.addDir('Sci-Fi','http://watchseries.lt/genres/sci-fi',576,art+'/sci.png')
-        main.addDir('Sport','http://watchseries.lt/genres/sport',576,art+'/spo.png')
-        main.addDir('Talk Show','http://watchseries.lt/genres/talk-show',576,art+'/tals.png')
-        main.addDir('Thriller','http://watchseries.lt/genres/thriller',576,art+'/thr.png')
-        main.addDir('War','http://watchseries.lt/genres/war',576,art+'/war.png')
+        main.addDir('Action','http://watchseries.ag/genres/action',576,art+'/act.png')
+        main.addDir('Adventure','http://watchseries.ag/genres/adventure',576,art+'/adv.png')
+        main.addDir('Animation','http://watchseries.ag/genres/animation',576,art+'/ani.png')
+        main.addDir('Comedy','http://watchseries.ag/genres/comedy',576,art+'/com.png')
+        main.addDir('Crime','http://watchseries.ag/genres/crime',576,art+'/cri.png')
+        main.addDir('Documentary','http://watchseries.ag/genres/documentary',576,art+'/doc.png')
+        main.addDir('Drama','http://watchseries.ag/genres/drama',576,art+'/dra.png')
+        main.addDir('Family','http://watchseries.ag/genres/family',576,art+'/fam.png')
+        main.addDir('Fantasy','http://watchseries.ag/genres/fantasy',576,art+'/fant.png')
+        main.addDir('History','http://watchseries.ag/genres/history',576,art+'/his.png')
+        main.addDir('Horror','http://watchseries.ag/genres/horror',576,art+'/hor.png')
+        main.addDir('Music','http://watchseries.ag/genres/music',576,art+'/mus.png')
+        main.addDir('Mystery','http://watchseries.ag/genres/mystery',576,art+'/mys.png')
+        main.addDir('Reality','http://watchseries.ag/genres/reality-tv',576,art+'/rea.png')
+        main.addDir('Sci-Fi','http://watchseries.ag/genres/sci-fi',576,art+'/sci.png')
+        main.addDir('Sport','http://watchseries.ag/genres/sport',576,art+'/spo.png')
+        main.addDir('Talk Show','http://watchseries.ag/genres/talk-show',576,art+'/tals.png')
+        main.addDir('Thriller','http://watchseries.ag/genres/thriller',576,art+'/thr.png')
+        main.addDir('War','http://watchseries.ag/genres/war',576,art+'/war.png')
         main.GA("Watchseries","Genre")
         main.VIEWSB()
 
 def AtoZWATCHS():
-    main.addDir('0-9','http://watchseries.lt/letters/09',576,art+'/09.png')
+    main.addDir('0-9','http://watchseries.ag/letters/09',576,art+'/09.png')
     for i in string.ascii_uppercase:
-            main.addDir(i,'http://watchseries.lt/letters/'+i.lower()+'/list-type/a_z',576,art+'/'+i.lower()+'.png')
+            main.addDir(i,'http://watchseries.ag/letters/'+i.lower()+'/list-type/a_z',576,art+'/'+i.lower()+'.png')
     main.GA("Watchseries","A-Z")
     main.VIEWSB()
 
@@ -78,7 +79,7 @@ def LISTWATCHS(murl):
         main.GA("Watchseries","List")
         link=main.OPENURL(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','')
-        match=re.compile('<a title=".+?" href="(.+?)">(.+?)</a>').findall(link)
+        match=re.compile('<a title=".+?" href="(.+?)">(.+?)</a></li>').findall(link)
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait until Show list is cached.')
         totalLinks = len(match)
@@ -96,7 +97,7 @@ def LISTWATCHS(murl):
                 name = re.sub('Seas(on)?\.? (\d+).*?Ep(isode)?\.? (\d+)','',name,re.I)
                 name = name.strip() + " " + "S" + s + "E" + e
             if 'watchseries.' not in name and 'watchtvseries.' not in name:
-                    main.addDirTE(name,'http://watchseries.lt'+url,575,'','','','','','')
+                    main.addDirTE(name,'http://watchseries.ag'+url,575,'','','','','','')
                     loadedLinks = loadedLinks + 1
                     percent = (loadedLinks * 100)/totalLinks
                     remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -112,7 +113,7 @@ def LISTSHOWWATCHS(murl):
         link=link.replace('\r','').replace('\n','').replace('\t','')
         match=re.compile('<a title="(.+?)" href="(.+?)">.+?<span class="epnum">(.+?)</span></a>').findall(link)
         for name, url, year in match:
-            main.addDirT(name,'http://watchseries.lt'+url,578,'','','','','','')
+            main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
 
 def LISTWATCHSEASON(mname, murl):
         link=main.OPENURL(murl)
@@ -149,7 +150,7 @@ def LISTWATCHEPISODE(mname, murl):
                     name = main.removeColoredText(mname).strip()
                     name = name + " " + "S" + s + "E" + e
                     episode = epi.group(3).strip()
-            main.addDirTE(name + ' [COLOR red]'+str(episode)+'[/COLOR]','http://watchseries.lt'+url,575,'','','','','','')
+            main.addDirTE(name + ' [COLOR red]'+str(episode)+'[/COLOR]','http://watchseries.ag'+url,575,'','','','','','')
             loadedLinks = loadedLinks + 1
             percent = (loadedLinks * 100)/totalLinks
             remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -179,12 +180,12 @@ def SearchhistoryWS():
 def superSearch(encode,type):
     try:
         returnList=[]
-        surl='http://watchseries.lt/search/'+encode
+        surl='http://watchseries.ag/search/'+encode
         link=main.OPENURL(surl,verbose=False)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         match=re.compile('<a title=".+?" href="([^<]+)"><b>(.+?)</b></a>                <br>                <b>Description:</b>(.+?)</td></tr>            <tr></tr>            <tr><td valign="top">                <a title=".+?<img src="(.+?)">               </a>',re.DOTALL).findall(link)
         for url,name,desc,thumb in match:
-            url = 'http://watchseries.lt'+url
+            url = 'http://watchseries.ag'+url
             returnList.append((name,prettyName,url,thumb,578,True))
         return returnList
     except: return []
@@ -192,12 +193,12 @@ def superSearch(encode,type):
 def SEARCHWS(murl = ''):
         encode = main.updateSearchFile(murl,'TV')
         if not encode: return False   
-        surl='http://watchseries.lt/search/'+encode
+        surl='http://watchseries.ag/search/'+encode
         link=main.OPENURL(surl)
         link=link.replace('\r','').replace('\n','').replace('\t','')
         match=re.compile('<a title=".+?" href="([^<]+)"><b>(.+?)</b></a>                <br>                <b>Description:</b>(.+?)</td></tr>            <tr></tr>            <tr><td valign="top">                <a title=".+?<img src="(.+?)">               </a>',re.DOTALL).findall(link)
         for url,name,desc,thumb in match:
-                main.addDirT(name,'http://watchseries.lt'+url,578,thumb,desc,'','','','')
+                main.addDirT(name,'http://watchseries.ag'+url,578,thumb,desc,'','','','')
         main.GA("Watchseries","Search")
 
 def LISTHOST(name,murl):
@@ -314,12 +315,12 @@ def LINKWATCHS(mname,murl):
         match=re.compile('(.+?)xocx(.+?)xocx').findall(murl)
         xbmc.executebuiltin("XBMC.Notification(Please Wait!,Checking Link,3000)")
         for hurl, durl in match:
-                furl=geturl('http://watchseries.lt'+hurl)
+                furl=geturl('http://watchseries.ag'+hurl)
         link=main.OPENURL(durl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         match2=re.compile('<h1 class=".+?"><a href=".+?">.+?</a> - <a href="(.+?)" title=".+?">.+?</a>').findall(link)
         for xurl in match2:
-                link2=main.OPENURL('http://watchseries.lt'+xurl)
+                link2=main.OPENURL('http://watchseries.ag'+xurl)
                 link2=link2.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         descr=re.compile('<b>Description :</b>(.+?)<').findall(link2)
         if len(descr)>0:

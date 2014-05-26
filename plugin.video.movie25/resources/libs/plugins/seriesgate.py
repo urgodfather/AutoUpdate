@@ -58,7 +58,7 @@ def LISTEpiSG(murl):
     dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
     for url,thumb,showname,seep,epiname in match:
 
-        main.addDirT(showname.strip()+' '+seep.strip()+" "+'[COLOR blue]'+epiname+'[/COLOR]','http://seriesgate.me'+url,604,thumb,'','','','','')
+        main.addPlayTE(showname.strip()+' '+seep.strip()+" "+'[COLOR blue]'+epiname+'[/COLOR]','http://seriesgate.me'+url+'searchresult/',609,thumb,'','','','','')
         loadedLinks = loadedLinks + 1
         percent = (loadedLinks * 100)/totalLinks
         remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
@@ -71,9 +71,23 @@ def LISTEpiSG(murl):
 def LISTSeasonSG(mname,murl,thumb):
     link=main.OPENURL(murl).replace('April,','')
     match=re.compile('(?i)<li><a href="([^"]+?)">([^<]+?)</a>').findall(link)
+    dialogWait = xbmcgui.DialogProgress()
+    ret = dialogWait.create('Please wait until Show list is cached.')
+    totalLinks = len(match)
+    loadedLinks = 0
+    remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+    dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
     for url, seaname in match:
         seaname = seaname.replace('&raquo','').strip()
-        main.addPlayTE(mname+' '+seaname,'http://seriesgate.tv'+url,609,str(thumb),'','','','','')
+        main.addPlayTE(mname+' '+seaname,'http://seriesgate.tv'+url+'more_sources/',609,str(thumb),'','','','','')
+        loadedLinks = loadedLinks + 1
+        percent = (loadedLinks * 100)/totalLinks
+        remaining_display = 'Episodes loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+        dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
+        if (dialogWait.iscanceled()):
+                return False   
+    dialogWait.close()
+    del dialogWait
     main.GA("SeriesGate","Sea-list")
 def LISTEpilistSG(mname,murl):
     link=main.OPENURL(murl)
@@ -185,12 +199,13 @@ def VIDEOLINKSSG(mname,murl,thumb):
     fanart =infoLabels['backdrop_url']
     imdb_id=infoLabels['imdb_id']
     infolabels = { 'supports_meta' : 'true', 'video_type':video_type, 'name':str(infoLabels['title']), 'imdb_id':str(infoLabels['imdb_id']), 'season':str(season), 'episode':str(episode), 'year':str(infoLabels['year']) }
-    link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-    match=re.compile('href="(.+?)"><img src=".+?" /><span>(.+?)</span>').findall(link)
+    link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
+    match=re.compile('href="([^"]+)"><img src=".+?" /><span class="link_name_tt">([^<]+)</span>').findall(link)
     hostsmax = len(match)
     h = 0
     import urlresolver
     for url, host in sorted(match):
+            host=host.replace('Visit ','')
             h += 1
             percent = (h * 100)/hostsmax
             msg.update(percent,'Collecting hosts - ' + str(percent) + '%')

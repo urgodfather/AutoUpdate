@@ -123,8 +123,8 @@ def showList(cacheOnly = False):
             episodenumber= 'S'+sea+'E'+epi
             airtime = showdata['show']['air_time_localized'].upper().replace("AM"," AM").replace("PM"," PM")+' on ' + showdata['show']['network']
             main.addDir(showdata['show']['title'].encode('utf-8')+' '+episodenumber+' [COLOR red]"'+showdata['episode']['title'].encode('utf-8')+
-                        '"[/COLOR] [COLOR blue]'+ airtime.encode('utf-8') +'[/COLOR]','TV',20,showdata['show']['images']['poster'].encode('utf-8'),
-                        showdata['episode']['overview'].encode('utf-8'),showdata['episode']['images']['screen'].encode('utf-8'))
+                        '"[/COLOR] [COLOR blue]'+ airtime.encode('utf-8') +'[/COLOR]','TV',20,showdata['show']['images']['poster'].encode('utf-8'))
+            #            showdata['episode']['overview'].encode('utf-8'),showdata['episode']['images']['screen'].encode('utf-8'))
             showsdisplayed += 1
     if not showsdisplayed: main.removeFile(cached_path)
     
@@ -154,7 +154,7 @@ def SEARCHED(surl):
     import json
     fields=json.loads(link)
     for data in fields:
-        main.addDir(data['title'].encode('utf-8'),str(data['tvdb_id']),432,data['images']['poster'],data['overview'].encode('utf-8'),data['images']['fanart'])
+        main.addDir(data['title'].encode('utf-8'),str(data['tvdb_id']),432,data['images']['poster'])
 
 
 def trackedShows():
@@ -166,7 +166,7 @@ def trackedShows():
     import json
     fields=json.loads(link)
     for data in fields:
-        main.addDir(data['title'].encode('utf-8'),str(data['tvdb_id']),433,data['images']['poster'],data['overview'].encode('utf-8'),data['images']['fanart'])
+        main.addDir(data['title'].encode('utf-8'),str(data['tvdb_id']),433,data['images']['poster'])
 
 def trackShow(title,track):
     dialog = xbmcgui.Dialog()

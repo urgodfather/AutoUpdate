@@ -175,14 +175,16 @@ def MAINSIDE(cacheOnly = False):
     todaytimestamp = calendar.timegm(time.strptime(time.strftime("%b") + " " + time.strftime("%d"), "%b %d"))
     showsdisplayed = 0
     for date,shows in match:
-        if 'data-track-label="Profile">' in shows:
+        print shows
+        if 'data-track-label="Profile"' in shows:
             s = re.sub('(?i)^.*?,(.*)$','\\1',date).strip()
             timestamp =  calendar.timegm(time.strptime(s, "%b %d"))
             days = (timestamp - todaytimestamp) / 86400
             relative = getRelativeDate(days)
             main.addLink('[COLOR yellow]'+date+'[/COLOR]  [COLOR orange]('+relative+')[/COLOR]','',art+'/link.png')
-            match2=re.compile("""data-track-label="Profile">([^<]+?)</a><div><a href="([^"]+?)" class=".+?data-track-label="Profile">([^<]+?)</a>(.*?</div>)</div></div>""",re.DOTALL).findall(shows)
-            for showname,seaepi, epiname, airtime in match2:
+            
+            match2=re.compile("""data-track-label="Profile" href=".+?">([^<]+?)</a><div><a class=".+?data-track-label="Profile" href="([^"]+?)">([^<]+?)</a></div>""",re.DOTALL).findall(shows)
+            for showname,seaepi, epiname in match2:
                 se=re.search('season-(\d+)/episode-(\d+)',seaepi)
                 if se:
                     if len(se.group(1))==1:
@@ -196,12 +198,8 @@ def MAINSIDE(cacheOnly = False):
                     final= 'S'+sea+'E'+epi
                 else:
                     final=''
-                match3 = re.compile("<div class='airing-info'><div>(.+?)</div><div>(.+?)</div>",re.DOTALL).findall(airtime)
-                if match3:
-                    airtime = match3[0][0] + " on " + match3[0][1]
-                else: airtime = ''
-                airtime=airtime.replace('<div>','').replace('</div>','').replace('><','').replace('<','').replace('>','')
-                main.addDir(showname+' '+final+' [COLOR red] "'+epiname+'"[/COLOR] [COLOR blue]'+airtime+'[/COLOR]','TV',20,art+'/sidereel.png')
+
+                main.addDir(showname+' '+final+' [COLOR red] "'+epiname+'"[/COLOR]','TV',20,art+'/sidereel.png')
                 showsdisplayed += 1
     if not showsdisplayed: main.removeFile(cached_path)
     

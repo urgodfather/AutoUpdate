@@ -92,33 +92,44 @@ def VIPLink(mname,murl,thumb):
         urllist=[]
         playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         playlist.clear()
-        if '</regex>'in murl: 
-                murl=main.doRegex(murl)
-        match=re.compile('<sublink>(.+?)</sublink>').findall(murl)
-        if match:
-                i=1
-                for url in match:
-                        name= 'Link '+str(i)
-                        namelist.append(name)        
-                        urllist.append(url)
-                        i=i+1
-                dialog = xbmcgui.Dialog()
-                answer =dialog.select("Pick A Link", namelist)
-                if answer != -1:
-                        murl=urllist[int(answer)]
-                        xbmc.executebuiltin("XBMC.Notification(Please Wait!,Opening Link,5000)")
-                else:
-                      return
-        
-        stream_url = murl
-        listitem = xbmcgui.ListItem(thumbnailImage=thumb)
-        listitem.setInfo('video', {'Title': mname, 'Genre': 'Live'} )
-        
-        playlist.add(stream_url,listitem)
-        xbmcPlayer = xbmc.Player()
-        xbmcPlayer.play(playlist)        #WatchHistory
-        if selfAddon.getSetting("whistory") == "true":
-            from resources.universal import watchhistory
-            wh = watchhistory.WatchHistory('plugin.video.movie25')
-            wh.add_item(mname+' '+'[COLOR green]Live[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
+        if '.f4m'in murl:
+                from resources.universal import F4mProxy
+                player=F4mProxy.f4mProxyHelper()
+                proxy=None
+                use_proxy_for_chunks=False
+                player.playF4mLink(murl, mname, proxy, use_proxy_for_chunks,'',thumb)
+                if selfAddon.getSetting("whistory") == "true":
+                    from resources.universal import watchhistory
+                    wh = watchhistory.WatchHistory('plugin.video.movie25')
+                    wh.add_item(mname+' '+'[COLOR green]Live[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
+        else:
+                if '</regex>'in murl: 
+                        murl=main.doRegex(murl)
+                match=re.compile('<sublink>(.+?)</sublink>').findall(murl)
+                if match:
+                        i=1
+                        for url in match:
+                                name= 'Link '+str(i)
+                                namelist.append(name)        
+                                urllist.append(url)
+                                i=i+1
+                        dialog = xbmcgui.Dialog()
+                        answer =dialog.select("Pick A Link", namelist)
+                        if answer != -1:
+                                murl=urllist[int(answer)]
+                                xbmc.executebuiltin("XBMC.Notification(Please Wait!,Opening Link,5000)")
+                        else:
+                              return
+                
+                stream_url = murl
+                listitem = xbmcgui.ListItem(thumbnailImage=thumb)
+                listitem.setInfo('video', {'Title': mname, 'Genre': 'Live'} )
+                
+                playlist.add(stream_url,listitem)
+                xbmcPlayer = xbmc.Player()
+                xbmcPlayer.play(playlist)        #WatchHistory
+                if selfAddon.getSetting("whistory") == "true":
+                    from resources.universal import watchhistory
+                    wh = watchhistory.WatchHistory('plugin.video.movie25')
+                    wh.add_item(mname+' '+'[COLOR green]Live[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=thumb, fanart='', is_folder=False)
         return ok
