@@ -48,8 +48,12 @@ def SEARCHistory():
 
 def sortSearchList(searchList,query):
     import locale
-    locale.setlocale(locale.LC_ALL, "")
-    searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'),cmp=locale.strcoll)
+    try:	
+    	locale.setlocale(locale.LC_ALL,'')
+	searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'),cmp=locale.strcoll)
+    except:
+    	searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'))
+
     temp = []
     itemstoremove = []
     i = 0
