@@ -357,7 +357,7 @@ def TV():
     main.addDir('Latest Episodes (SceneLog) True HD[COLOR red] DC[/COLOR]','TV',657,art+'/tvb.png')
     main.addDir('Latest Episodes (IceFilms) True HD[COLOR red] DC[/COLOR]','TV',291,art+'/tvb.png')
     main.addDir('Latest Episodes (TubePlus)[COLOR red] DC[/COLOR]','http://www.tubeplus.me/browse/tv-shows/Last/ALL/',1041,art+'/tvb.png')
-    main.addDir('Latest Episodes (Watchseries)','http://watchseries.lt/tvschedule/-1',573,art+'/tvb.png')
+    main.addDir('Latest Episodes (Watchseries)','http://watchseries.ag/tvschedule/-1',573,art+'/tvb.png')
     main.addDir('Latest Episodes (iWatchonline)','http://www.iwatchonline.to/tv-schedule',592,art+'/tvb.png')
     main.addDir('Latest Episodes (Movie1k)','movintv',30,art+'/tvb.png')
     main.addDir('Latest Episodes (Oneclickwatch)','http://oneclickwatch.org',32,art+'/tvb.png')
