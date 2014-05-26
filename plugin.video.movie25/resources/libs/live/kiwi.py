@@ -151,7 +151,7 @@ def Link(mname,murl,thumb):
                 rtmp=re.compile("'streamer':.+?'([^']+?)'").findall(link)
                 playpath=re.compile("'file':.+?'([^']+?)'").findall(link)
                 token='#atd%#$ZH'
-                stream_url =rtmp[0]+' playpath=stream3 pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
+                stream_url =rtmp[0]+' playpath='+playpath[0]+' pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
                 listitem = xbmcgui.ListItem(thumbnailImage=thumb)
                 infoL={'Title': mname, 'Genre': 'Live'} 
                 from resources.universal import playbackengine
