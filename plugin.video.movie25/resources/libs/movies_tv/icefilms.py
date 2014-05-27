@@ -62,7 +62,7 @@ def ICETODAY(murl):
     latest = re.compile('<h1>Latest Releases</h1>(.+?)<h1>',re.DOTALL).findall(link)
     if latest:
         main.addDir('Search for TV Shows','TV',286,art+'/search.png')
-        match=re.compile('<a href=(/ip[^>]+?)>([^<]+?)</a>(.*?)<br>',re.DOTALL).findall(latest[0])
+        match=re.compile('<a href=(/ip[^>]+?)>([^<]+?)</a>(.*?)<li>',re.DOTALL).findall(latest[0])
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait until Episode list is cached.')
         totalLinks = len(match)
