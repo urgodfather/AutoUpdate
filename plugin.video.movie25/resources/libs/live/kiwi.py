@@ -94,7 +94,7 @@ def MAIN():
             t2=CleanTime(t2)
             #url=url.lower().replace(' ','').replace('skysports','ss')
             name = name.decode("ascii", "ignore")
-            main.addPlayL('[COLOR orange]'+lang+'[/COLOR] '+name+' [COLOR yellow]'+t1+' - '+t2+'[/COLOR] [COLOR red]'+url+'[/COLOR]',url.lower().replace(' ','').replace('skysports','ss'),441,'','','','','','',secName='Kiwi',secIcon=art+'/kiwi.png')
+            main.addPlayL('[COLOR orange]'+lang+'[/COLOR] '+name+' [COLOR yellow]'+t1+' - '+t2+'[/COLOR] [COLOR red]'+url+'[/COLOR]','http://www.coolsport.tv/'+url.lower().replace(' ','')+'.html',441,'','','','','','',secName='Kiwi',secIcon=art+'/kiwi.png')
 
 def AllStreams():
     link=main.OPENURL('http://www.coolsport.tv/schedule-coolsport-tv.html')

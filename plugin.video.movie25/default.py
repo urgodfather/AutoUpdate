@@ -234,6 +234,8 @@ def CheckForAutoUpdate(force = False):
                     print "Mashup auto update - update install successful ("+str(gitver)+")"
                     xbmc.executebuiltin("XBMC.Notification(MashUp Update,Successful,5000,"+main.slogo+")")
                     xbmc.executebuiltin("XBMC.Container.Refresh")
+                    if selfAddon.getSetting('autochan')=='true':
+                        xbmc.executebuiltin('XBMC.RunScript('+xbmc.translatePath(main.mashpath + '/resources/libs/changelog.py')+',Env)')
                 else:
                     print "Mashup auto update - update install failed ("+str(gitver)+")"
                     xbmc.executebuiltin("XBMC.Notification(MashUp Update,Failed,3000,"+main.elogo+")")
@@ -499,6 +501,7 @@ def SPORTS():
     main.addDir('TSN','http:/tsn.com',95,art+'/tsn.png')
     main.addDir('SkySports.com','www1.skysports.com',172,art+'/skysports.png')
     main.addDir('Fox Soccer  [COLOR red](US ONLY)[/COLOR]','http:/tsn.com',124,art+'/foxsoc.png')
+    main.addDir('MLB','mlb',447,art+'/mlb.png')
     main.addDir('All MMA','mma',537,art+'/mma.png')
     main.addDir('Outdoor Channel','http://outdoorchannel.com/',50,art+'/OC.png')
     main.addDir('My Outdoor TV','http://outdoorchannel.com/',360,art+'/myoutdoortv.png')
@@ -3316,7 +3319,28 @@ elif mode==445:
 elif mode==446:
     from resources.libs.live import onefm
     print ""+url
-    onefm.MAIN() 
+    onefm.MAIN()
+
+
+elif mode==447:
+    from resources.libs.sports import mlb
+    print ""+url
+    mlb.MAIN()
+
+elif mode==448:
+    from resources.libs.sports import mlb
+    print ""+url
+    mlb.LIST(url)
+
+elif mode==449:
+    from resources.libs.sports import mlb
+    print ""+url
+    mlb.LINK(name,url,iconimage)
+
+elif mode==450:
+    from resources.libs.sports import mlb
+    print ""+url
+    mlb.LIST2(url)
 ######################################################################################################
 elif mode==500:
     TVAll()        
