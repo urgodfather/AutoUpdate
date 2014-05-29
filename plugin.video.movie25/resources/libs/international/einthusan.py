@@ -67,9 +67,10 @@ def LINKINT(mname,url):
         MainUrl = "http://www.einthusan.com/movies/"
         link=main.OPENURL(url)
         try:
-                match = re.compile("'hd-2': { 'file': '(.+?)'").findall(link)
+                match = re.compile("{ 'file': '([^']+)'").findall(link)
                 thumb = re.compile('<img src="(../images.+?)"').findall(link)
-                infoLabels =main.GETMETAT(mname,'','',thumb[0])
+                thumb=thumb[0].replace('../','http://www.einthusan.com/')
+                infoLabels =main.GETMETAT(mname,'','',thumb)
                 video_type='movie'
                 season=''
                 episode=''
@@ -86,7 +87,7 @@ def LINKINT(mname,url):
                 player = playbackengine.PlayWithoutQueueSupport(resolved_url=stream_url, addon_id=addon_id, video_type=video_type, title=infoLabels['title'],season=season, episode=episode, year=str(infoLabels['year']),img=img,infolabels=infoL, watchedCallbackwithParams=main.WatchedCallbackwithParams,imdb_id=imdb_id)
                 #WatchHistory
                 if selfAddon.getSetting("whistory") == "true":
-                    wh.add_item(mname+' '+'[COLOR green]Einthusan[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=MainUrl+thumb[0], fanart='', is_folder=False)
+                    wh.add_item(mname+' '+'[COLOR green]Einthusan[/COLOR]', sys.argv[0]+sys.argv[2], infolabels='', img=MainUrl+thumb, fanart='', is_folder=False)
                 player.KeepAlive()
                 return ok
         except Exception, e:

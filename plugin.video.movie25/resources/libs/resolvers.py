@@ -71,6 +71,10 @@ def resolve_url(url, filename = False):
                 stream_url=resolve_mailru(url)
             elif re.search('g2g.fm',url,re.I):
                 stream_url=resolve_g2g(url)
+            elif re.search('docs.google',url,re.I):
+                stream_url=resolve_googleDocs(url)
+            elif re.search('picasaweb.google',url,re.I):
+                stream_url=resolve_picasaWeb(url)
             elif re.search('youtube',url,re.I):
                 try:url=url.split('watch?v=')[1]
                 except:
@@ -227,6 +231,54 @@ def unescapes(text):
     #except TypeError: pass
     return text
 
+def resolve_picasaWeb(url):
+    cjList=[]
+    cj = cookielib.CookieJar()
+    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), urllib2.HTTPHandler())
+    req = urllib2.Request(url)
+    f = opener.open(req)
+    html = f.read()
+    for cookie in cj:
+            cjList.append(str(cookie).replace('<Cookie ','').replace(' for picasaweb.google.com/>','').replace('for .google.com/>',''))
+    Lid=re.search('https://picasaweb.google.com/(.+?)/.+?authkey=.+?#([^<]+)',url)
+    url='https://picasaweb.google.com/data/entry/base/user/'+Lid.group(1)+'/photoid/'+Lid.group(2)+'?alt=rss'
+    namelist=[]
+    urllist=[]
+    dialog = xbmcgui.DialogProgress()
+    dialog.create('Resolving', 'Resolving MashUp GoogleDoc Link...')       
+    dialog.update(0)
+    print 'MashUp GoogleDoc - Requesting GET URL: %s' % url
+    req = urllib2.Request(url)
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36')
+    req.add_header('cookie', 'xnfo=1; PREF=ID=85556f1a24007f7a:U=dc2692c0a6061b26:FF=0:LD=en:TM=1373784453:LM=1389395973:GM=1:S=qR9eOdnLEbmW_TLb; HSID=A20CRcfWXDjH2t8pM; SSID=AT-HtXZJKl-_80o2K; APISID=Oxz2q50wC6cLlo6-/AGZzvI9THf_52xvSO; SAPISID=kF1H8rjAwWjKPFU6/AjxdPvG1MVo2oU8aT; lh=DQAAAM4AAACjRFpk1gWTm8hUwNXV8b4iTC6-IIL6RsAD8urndnSZYTYKgkuDD4aOktLrRQXWX4--37oGvyHC4c07ooRuZ0AxVdGINz5UCX5n4-63PwQDpKnqvJnFiv4SaS3UQlLrlXsoeSPDs2-bWOpBNn9b7BCfQr9XJXC5OJrpiDFlKOJ3XIjJ8Kh3M0Z2K84u2k3pb7l2ODvIFGjk38GLmn-gPSHENZEmCgV-KsqpgDTQ0EnPU-h03OHch9xEmof7HD4TzzV71YS5X9hNGbYzp3ux5asE;  '+cjList[1]+'; noRedirect=1; SID=DQAAAMwAAABwVBj_2BKoFX1DvzaYSC2Vd7ieIUcNRpOHAmwDkKE4KEmzBiIUPoGedSnY91jnlOUk7wysRSWIaT_NiI6SfpFHRS9FA59wG7XETqInr0vUA2si8J1IefoooMj6i3JBxdsc6wZ-XUYu57czbICcBshac3_al7xJLQJnGd1kz-2Zxn3IVi3c5sDL21pCc_1SegSDBFughkCAY7p7T8prVX6XLqf_JGv34RIx6pPYZ_emGzjEOVbbjswVvX-9uKLvARvYgsjXseS5k3_TMHNLYQWp; '+cjList[0])
+    
+    response = urllib2.urlopen(req)
+    html=response.read()
+    response.close()
+    dialog.update(100)
+    link2=unescapes(html)
+    streams_map = str(link2)
+    stream= re.compile("url='(http://redirector.googlevideo.com[^']+)' height='([^']+)'").findall(streams_map)
+    for stream_url,stream_quality in reversed(stream):
+        stream_url = unescapes(stream_url)
+        urllist.append(stream_url)
+        stream_qlty = stream_quality.upper()
+        if (stream_qlty == '720'):
+            stream_qlty = 'HD-720p'
+        elif (stream_qlty == '480'):
+            stream_qlty = 'SD-480p'
+        elif (stream_qlty == '360'):
+            stream_qlty = 'SD-360p'
+        elif (stream_qlty == '240'):
+            stream_qlty = 'SD-240p'
+        namelist.append(stream_qlty)
+    dialog = xbmcgui.Dialog()
+    answer =dialog.select("Quality Select", namelist)
+    if answer==-1:
+        return
+    else:
+        return urllist[int(answer)]
+    
 def resolve_googleDocs(url):
     namelist=[]
     urllist=[]
@@ -238,7 +290,10 @@ def resolve_googleDocs(url):
     dialog.update(100)
     link2=unescapes(html)
     match= re.compile('url_encoded_fmt_stream_map":"(.+?),"').findall(link2)[0]
-    streams_map = str(match)
+    if match:
+        streams_map = str(match)
+    else:
+        streams_map = str(link2)
     stream= re.compile('url=(.+?)&type=.+?&quality=(.+?),').findall(streams_map)
     for stream_url,stream_quality in stream:
         stream_url = stream_url

@@ -396,6 +396,7 @@ def TVAll():
     main.addDir('Noobroom [COLOR red]DC[/COLOR]','TV',296,art+'/noobroom.png')
     main.addDir('MBox [COLOR red]DC[/COLOR]','TV',276,art+'/mbox.png')
     main.addDir('Yify','yify',421,art+'/yify.png')
+    main.addDir('Shush','TV',451,art+'/shush.png')
     main.addDir('SominalTvFilms','TV',619,art+'/sominal.png')
     main.addDir('Dramania','TV',268,art+'/dramania.png')
     main.addDir('SokroStream','french',324,art+'/sokrostream.png')
@@ -3341,6 +3342,21 @@ elif mode==450:
     from resources.libs.sports import mlb
     print ""+url
     mlb.LIST2(url)
+
+elif mode==451:
+    from resources.libs.plugins import shush
+    print ""+url
+    shush.MAIN(url)
+
+elif mode==452:
+    from resources.libs.plugins import shush
+    print ""+url
+    shush.LIST(name,url,iconimage)
+
+elif mode==453:
+    from resources.libs.plugins import shush
+    print ""+url
+    shush.LINK(name,url,iconimage)
 ######################################################################################################
 elif mode==500:
     TVAll()        

@@ -712,13 +712,16 @@ def MAIN():
         
 
 def _get_channel_time_player(channel_name):
-    link=main.OPENURL('http://www.teledunet.com/mobile/?con')
+    
+    headers=[('Referer', 'http://www.teledunet.com/')]
+    link=main.OPENURL('http://www.teledunet.com/mobile/?con',headers=headers)
     auth=re.findall("id0=([^']*)",link)[0]
     rtmp_url = 'rtmp://178.33.241.201:1935/teledunet'
     play_path= channel_name
     auth=auth.replace('.','').split('+')[0].replace('E','0')
-    swfUrl='http://www.teledunet.com/mobile/player.swf?id0='+auth+'&channel='+channel_name+' live=true timeout=15 conn=N:1 flashVer=WIN12,0,0,77'
+    swfUrl='http://www.teledunet.com/mobile/player.swf?id0='+auth+' live=true timeout=15 conn=N:1 flashVer=WIN12,0,0,77'
     return rtmp_url+' playpath='+play_path+' swfUrl='+swfUrl+' pageUrl=http://www.teledunet.com/player/?channel='+channel_name
+
 
 
         

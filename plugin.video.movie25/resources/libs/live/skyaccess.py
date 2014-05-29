@@ -87,11 +87,13 @@ def MAINSA():
     main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','https://dl.dropboxusercontent.com/u/35068738/picture%20for%20post/sky.png',244,art+'/skyaccess.png','','','','','')
 
 def LISTMENU(murl):
-    match=re.compile('<li><a href="(.+?)"><center>(.+?)<img src="(.+?)"/></a></li>').findall(murl)
-    for url,name,thumb in match:
-        thumb=thumb.replace('http://i.imgur.com/D2gzK0U.png','http://i.imgur.com/zo1FeZA.png').replace('http://cdn0.agoda.net/images/default/icon_questionmark.png','http://i.imgur.com/R7xiSJg.png').replace('http://i.imgur.com/8h0WVhG.png','http://i.imgur.com/KF3PQAV.png').replace('http://i.imgur.com/my0hcfg.png','http://i.imgur.com/uQunKHh.png').replace('http://i.imgur.com/ufhNZ8q.png','http://i.imgur.com/OOaeIzT.png')
+    i=0
+    match=re.compile('<a href="([^"]+)"><center>([^<]+)</a>').findall(murl)
+    for url,name in match:
+        thumb=['http://i.imgur.com/zo1FeZA.png','http://i.imgur.com/R7xiSJg.png','http://i.imgur.com/KF3PQAV.png','http://i.imgur.com/uQunKHh.png','http://i.imgur.com/OOaeIzT.png']
         name = re.sub('(?sim)<[^>]*?>','',name)
-        main.addDir(name,url,411,thumb)
+        main.addDir(name,url,411,thumb[i])
+        i=i+1
 
 def LISTMENU2(murl):
     response = net().http_GET(murl)

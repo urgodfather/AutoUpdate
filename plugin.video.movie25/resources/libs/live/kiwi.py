@@ -80,9 +80,9 @@ def CleanTime(time):
                 
     
 def MAIN():
-    main.addLink('[COLOR yellow]Time Zone:[/COLOR] [COLOR orange]'+tzname+'[/COLOR]','',art+'/twittermash.png')
-    main.addSpecial('[COLOR blue]Change Time Zone[/COLOR]','tz',440,art+'/twittermash.png')
-    main.addDir('[COLOR orange]****** All Streams ******[/COLOR]','tz',442,art+'/twittermash.png')
+    main.addLink('[COLOR yellow]Time Zone:[/COLOR] [COLOR orange]'+tzname+'[/COLOR]','',art+'/kiwi.png')
+    main.addSpecial('[COLOR blue]Change Time Zone[/COLOR]','tz',440,art+'/kiwi.png')
+    main.addDir('[COLOR orange]****** All Streams ******[/COLOR]','tz',442,art+'/kiwi.png')
     link=main.OPENURL('http://www.coolsport.tv/schedule-coolsport-tv.html')
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
     match=re.compile('<font color="red" size="6">(.+?)</font><p>(.*?)size="6').findall(link)
@@ -128,30 +128,34 @@ def SelectHost(url):
 def GetStream(url):
     link=main.OPENURL(url)
     surl2=re.findall('url=(http.+?)">',link)
-    surl=re.findall('<div id="I12_html">.+?src="([^"]+)"',main.OPENURL(surl2[0]))
-    js=re.findall("src='(.+?.js)'",main.OPENURL(surl[0]))
-    return js[0]
+    try:surl=re.findall('<div id="I12_html">.+?src="([^"]+)"',main.OPENURL(surl2[0]))
+    except:surl=re.findall('<div id="I12_html">.+?src="([^"]+)"',link)
+    try:
+        js=re.findall("src='(.+?.js)'",main.OPENURL(surl[0]))
+        site=re.findall('src="([^"]+)"',main.OPENURL(js[0]))
+        link=main.OPENURL(site[0])
+        link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace("\/",'/')
+        rtmp=re.compile("'streamer':.+?'([^']+?)'").findall(link)
+        playpath=re.compile("'file':.+?'([^']+?)'").findall(link)
+        token='#atd%#$ZH'
+        stream_url =rtmp[0]+' playpath='+playpath[0]+' pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
+        return stream_url
+    except:
+        embed=re.findall('<embed src="([^"]+)"',main.OPENURL(surl[0]))
+        stream=re.search('(.+?).?file=(.+?)&streamer=(.+?)&autostart=true',embed[0])
+        return stream.group(3)+" playpath="+stream.group(2)+" swfUrl="+stream.group(1)+" pageUrl="+surl[0]+" live=1 timeout=14 swfVfy=1 token=#atd%#$ZH"
     
     
 def Link(mname,murl,thumb):
         main.GA("Kiwi","Watched")
         stream_url=False
-        if 'http' in murl:
-            murl=GetStream(murl)
-        else:
-            murl=SelectHost(murl)
+        stream_url=GetStream(murl)
         xbmc.executebuiltin("XBMC.Notification(Please Wait!,Opening Stream,3000)") 
-        site=re.findall('src="([^"]+)"',main.OPENURL(murl))
-        link=main.OPENURL(site[0])
+        
         ok=True
-        if link:
+        if stream_url:
                 playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
                 playlist.clear()
-                link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace("\/",'/')
-                rtmp=re.compile("'streamer':.+?'([^']+?)'").findall(link)
-                playpath=re.compile("'file':.+?'([^']+?)'").findall(link)
-                token='#atd%#$ZH'
-                stream_url =rtmp[0]+' playpath='+playpath[0]+' pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
                 listitem = xbmcgui.ListItem(thumbnailImage=thumb)
                 infoL={'Title': mname, 'Genre': 'Live'} 
                 from resources.universal import playbackengine
