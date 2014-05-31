@@ -18,7 +18,7 @@ def CleanTime(time):
     time=time.lower()
     if 'pm' in time:
         time=time.replace('pm','')
-        digit=re.search('(\d+).(\d{2})',time)
+        digit=re.search('(\d+).(\d+)',time)
         if '-' in tztime:
             tztime=tztime.replace('-','')
             if int(digit.group(1))==12:
@@ -48,7 +48,7 @@ def CleanTime(time):
                 finaltime= str(settime)+':'+digit.group(2)+'PM'
     else:
         time=time.replace('am','')
-        digit=re.search('(\d+).(\d{2})',time)
+        digit=re.search('(\d+).(\d+)',time)
         if '-' in tztime:
             tztime=tztime.replace('-','')
             if int(digit.group(1))==12:
@@ -138,7 +138,7 @@ def GetStream(url):
         rtmp=re.compile("'streamer':.+?'([^']+?)'").findall(link)
         playpath=re.compile("'file':.+?'([^']+?)'").findall(link)
         token='#atd%#$ZH'
-        stream_url =rtmp[0]+' playpath='+playpath[0]+' pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
+        stream_url =rtmp[0]+' playpath='+playpath[0]+' swfUrl=http://static.surk.tv/player.swf pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
         return stream_url
     except:
         embed=re.findall('<embed src="([^"]+)"',main.OPENURL(surl[0]))

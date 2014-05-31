@@ -44,7 +44,14 @@ def VIPplaylists(murl):
                         os.remove(notified)
             else: print 'No Messages'
         else: print 'Github Link Down'
-        match=re.compile('<name>(.+?)</name><link>(.+?)</link><thumbnail>(.+?)</thumbnail><date>(.+?)</date>').findall(link)
+        match3=re.compile('<name>([^<]+)</name><link>([^<]+)</link><thumbnail>([^<]+)</thumbnail><mode>([^<]+)</mode>').findall(link)
+        for name,url,thumb,mode in match3:
+                if re.findall('http',thumb):
+                        thumbs=thumb
+                else:
+                        thumbs=art+'/'+thumb+'.png'
+                main.addDir(name,url,int(mode),thumbs)
+        match=re.compile('<name>([^<]+)</name><link>([^<]+)</link><thumbnail>([^<]+)</thumbnail><date>([^<]+)</date>').findall(link)
         for name,url,thumb,date in match:
             main.addDirc(name+' [COLOR red] Updated '+date+'[/COLOR]',url,182,thumb,'',fan,'','','')
         info=re.findall('<info><message>(.+?)</message><thumbnail>(.+?)</thumbnail></info>',link)
