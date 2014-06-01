@@ -699,7 +699,7 @@ def DLLIBRTMP(mname,key,trigger):
     if re.search('(?i)android',trigger):
         path=xbmc.translatePath('/data/data/org.xbmc.xbmc/lib/')
     if re.search('(?i)linux',trigger):
-        path=xbmc.translatePath('/usr/share/')
+        path=xbmc.translatePath('/usr/lib/')
     if re.search('(?i)mac',trigger):
         path=xbmc.translatePath('/Applications/XBMC.app/Contents/Frameworks/')
     if re.search('(?i)raspi',trigger):
