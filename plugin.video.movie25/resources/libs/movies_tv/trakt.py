@@ -111,10 +111,10 @@ def showList(cacheOnly = False):
     showsdisplayed = 0
     for data in fields:
         timestamp =  calendar.timegm(time.strptime(data['date'], "%Y-%m-%d"))
-        datestring = datetime.datetime.fromtimestamp(timestamp).strftime('%A, %b %d')
+        datestring = (datetime.datetime.fromtimestamp(timestamp)+ datetime.timedelta(1)).strftime('%A, %b %d')
         days = (timestamp - todaytimestamp) / 86400
         relative = getRelativeDate(days)
-        main.addLink('[COLOR yellow]'+datestring+'[/COLOR]  [COLOR orange]('+relative+')[/COLOR]','',art+'/link.png')
+        main.addLink('[COLOR yellow]'+str(datestring)+'[/COLOR]  [COLOR orange]('+relative+')[/COLOR]','',art+'/link.png')
         for showdata in data['episodes']:
             if showdata['episode']['season'] < 10: sea='0'+str(showdata['episode']['season'])
             else: sea=str(showdata['episode']['season'])

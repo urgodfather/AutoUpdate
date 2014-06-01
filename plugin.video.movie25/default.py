@@ -666,12 +666,60 @@ def MAINDEL(murl):
             main.ClearDir(xbmc.translatePath(cookie_file),True)
             xbmc.executebuiltin("XBMC.Notification(Clear XBMC Cache,Successful,5000,"")")
 
+
+def LIBRTMP(mname,murl,xname=''):
+    url='http://www.mediafire.com/api/folder/get_content.php?folder_key='+murl+'&chunk=1&content_type=folders&response_format=json&rand=1789'
+    link = main.OPENURL(url)
+    link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+    match=re.findall('{"folderkey":"([^"]+?)","name":"([^"]+?)","description":".+?,"created":"([^"]+?)","revision":".+?}',link)
+    for key,name,date in match:
+        xname=str(xname)+' '+name
+        main.addDirc(name,key,454,art+'/folder.png',xname,'','','','')
+    lurl='http://www.mediafire.com/api/folder/get_content.php?r=srhp&content_type=files&filter=all&order_by=name&order_direction=asc&chunk=1&version=2&folder_key='+murl+'&response_format=json'
+    link = main.OPENURL(lurl)
+    link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+    match=re.findall('{"quickkey":"([^"]+?)","hash":"([^"]+?)","filename":"([^"]+?)","description":".+?,"created":"([^"]+?)",.+?}}',link)
+    for key,hash,fname,date in match:
+        if 'librtmp.' in fname:
+            main.addPlayc(fname,key,455,art+'/maintenance.png',xname,'','','','')
+
+def DLLIBRTMP(mname,key,trigger):
+    import os
+    dialog = xbmcgui.Dialog()
+    if re.search('(?i)windows',trigger):
+            path=xbmc.translatePath('special://xbmc/system/players/dvdplayer/')
+    if re.search('(?i)ios',trigger):
+        ret = dialog.select('[COLOR=FF67cc33][B]Select Device[/COLOR][/B]',['iDevice','ATV2'])
+        if ret == -1:
+            return
+        elif ret == 0:
+            path=xbmc.translatePath('/Applications/XBMC.app/Frameworks/')
+        elif ret == 1:
+            path=xbmc.translatePath('/Applications/XBMC.frappliance/Frameworks/')
+    if re.search('(?i)android',trigger):
+        path=xbmc.translatePath('/data/data/org.xbmc.xbmc/lib/')
+    if re.search('(?i)linux',trigger):
+        path=xbmc.translatePath('/usr/share/')
+    if re.search('(?i)mac',trigger):
+        path=xbmc.translatePath('/Applications/XBMC.app/Contents/Frameworks/')
+    if re.search('(?i)raspi',trigger):
+        path=xbmc.translatePath('/opt/xbmc-bcm/xbmc-bin/lib/xbmc/system/')
+    url='http://www.mediafire.com/download/'+key+'/'+name
+    link = main.OPENURL(url)
+    link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')    
+    match=re.findall('kNO = "([^"]+?)";',link)[0]
+    lib=os.path.join(path,name)
+    print lib
+    downloadFileWithDialog(match,lib)
+    dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now should be Fixed[/COLOR]")
+
 def MAINTENANCE(name):
     if name == 'MAINTENANCE':
         main.addSpecial('Delete Packages Folder','packages',416,art+'/maintenance.png')
         main.addSpecial('Fix Database Malformed','Malformed',416,art+'/maintenance.png')
         main.addSpecial('Install latest UrlResolver','UrlResolver',416,art+'/maintenance.png')
         main.addSpecial('Install latest MetaHandler','MetaHandler',416,art+'/maintenance.png')
+        main.addDir('Update LibRTMP by RedPenguin','x4cvp5hl4m9xr',454,art+'/maintenance.png')
         main.addSpecial('Clear XBMC Cache','ClearCache',416,art+'/maintenance.png')
         main.addSpecial('Clear MashUp Cache & Cookies','MashCache',416,art+'/maintenance.png')
     else:
@@ -3356,6 +3404,12 @@ elif mode==453:
     from resources.libs.plugins import shush
     print ""+url
     shush.LINK(name,url,iconimage)
+
+elif mode==454:
+    LIBRTMP(name,url,plot)
+
+elif mode==455:
+    DLLIBRTMP(name,url,plot)
 ######################################################################################################
 elif mode==500:
     TVAll()        
