@@ -701,7 +701,7 @@ def DLLIBRTMP(mname,key,trigger):
     if re.search('(?i)linux',trigger):
         path=xbmc.translatePath(main.datapath)
     if re.search('(?i)mac',trigger):
-        path=xbmc.translatePath('/Applications/XBMC.app/Contents/Frameworks/')
+        path=xbmc.translatePath('special://xbmc')
     if re.search('(?i)raspi',trigger):
         path=xbmc.translatePath('/opt/xbmc-bcm/xbmc-bin/lib/xbmc/system/')
     url='http://www.mediafire.com/download/'+key+'/'+name
