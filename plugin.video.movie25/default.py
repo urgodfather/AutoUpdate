@@ -674,6 +674,8 @@ def LIBRTMP(mname,murl,xname=''):
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
     match=re.findall('{"folderkey":"([^"]+?)","name":"([^"]+?)","description":".+?,"created":"([^"]+?)","revision":".+?}',link)
     for key,name,date in match:
+        if 'Android' in name and 'APK' not in name:
+            name= name +' [COLOR red](Requires Root)[/COLOR] Use APK for ALT solution'
         main.addDirc(name,key,454,art+'/folder.png',xname,'','','','')
     lurl='http://www.mediafire.com/api/folder/get_content.php?r=srhp&content_type=files&filter=all&order_by=name&order_direction=asc&chunk=1&version=2&folder_key='+murl+'&response_format=json'
     link = main.OPENURL(lurl)
@@ -682,6 +684,8 @@ def LIBRTMP(mname,murl,xname=''):
     for key,hash,fname,date in match:
         if 'librtmp.' in fname:
             main.addPlayc(fname,key,455,art+'/maintenance.png',xname,'','','','')
+        if '.apk' in fname:
+            main.addPlayc(fname,key,455,art+'/maintenance.png','APKINSTALLER','','','','')
 
 def DLLIBRTMP(mname,key,trigger):
     import os
@@ -693,19 +697,33 @@ def DLLIBRTMP(mname,key,trigger):
         if ret == -1:
             return
         elif ret == 0:
-            path=xbmc.translatePath('/Applications/XBMC.app/Frameworks/')
+            path=xbmc.translatePath('special://xbmc')
+            path=path.replace('XBMCData/XBMCHome','Frameworks')
         elif ret == 1:
-            path=xbmc.translatePath('/Applications/XBMC.frappliance/Frameworks/')
+            path=xbmc.translatePath('special://xbmc')
+            path=path.replace('XBMCData/XBMCHome','Frameworks')
     if re.search('(?i)android',trigger):
         path=xbmc.translatePath('/data/data/org.xbmc.xbmc/lib/')
     if re.search('(?i)linux',trigger):
-        path=xbmc.translatePath(main.datapath)
+        if re.search('(?i)32bit',trigger):
+            retex = dialog.select('[COLOR=FF67cc33][B]Select Device[/COLOR][/B]',['Linux Build','ATV1'])
+            if ret == -1:
+                return
+            elif retex == 0:
+                path=xbmc.translatePath(main.datapath)
+            elif retex == 1:
+                path=xbmc.translatePath(main.datapath)
+        else:
+            path=xbmc.translatePath(main.datapath)
     if re.search('(?i)mac',trigger):
         path=xbmc.translatePath('special://xbmc')
         path=path.replace('Resources/XBMC','Frameworks')
-        print path
     if re.search('(?i)raspi',trigger):
         path=xbmc.translatePath('/opt/xbmc-bcm/xbmc-bin/lib/xbmc/system/')
+    
+    if re.search('APKINSTALLER',trigger):
+        path=xbmc.translatePath('special://home')
+        
     url='http://www.mediafire.com/download/'+key+'/'+name
     link = main.OPENURL(url)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')    
@@ -713,12 +731,21 @@ def DLLIBRTMP(mname,key,trigger):
     lib=os.path.join(path,name)
     downloadFileWithDialog(match,lib)
     if re.search('(?i)linux',trigger):
-        sudoPassword = 'openelec'
-        command = 'mv '+path+' /usr/lib/'
-        p = os.system('echo %s|sudo -S %s' % (sudoPassword, command))
-        os.remove(lib)
-    dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now should be Fixed[/COLOR]")
-
+        keyb = xbmc.Keyboard('', 'Enter Root Password')
+        keyb.doModal()
+        if (keyb.isConfirmed()):
+            sudoPassword = keyb.getText()
+            if retex == 1:
+                command = 'mv '+path+' /usr/lib/i386-linux-gnu/'
+            else:
+                command = 'mv '+path+' /usr/lib/'
+            p = os.system('echo %s|sudo -S %s' % (sudoPassword, command))
+            os.remove(lib)
+    if re.search('APKINSTALLER',trigger):
+        dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Download location[/COLOR]",path) 
+    else:
+        dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now should be Updated[/COLOR]")
+        
 def MAINTENANCE(name):
     if name == 'MAINTENANCE':
         main.addSpecial('Delete Packages Folder','packages',416,art+'/maintenance.png')
