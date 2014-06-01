@@ -668,12 +668,12 @@ def MAINDEL(murl):
 
 
 def LIBRTMP(mname,murl,xname=''):
+    xname=str(xname)+' '+mname
     url='http://www.mediafire.com/api/folder/get_content.php?folder_key='+murl+'&chunk=1&content_type=folders&response_format=json&rand=1789'
     link = main.OPENURL(url)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
     match=re.findall('{"folderkey":"([^"]+?)","name":"([^"]+?)","description":".+?,"created":"([^"]+?)","revision":".+?}',link)
     for key,name,date in match:
-        xname=str(xname)+' '+name
         main.addDirc(name,key,454,art+'/folder.png',xname,'','','','')
     lurl='http://www.mediafire.com/api/folder/get_content.php?r=srhp&content_type=files&filter=all&order_by=name&order_direction=asc&chunk=1&version=2&folder_key='+murl+'&response_format=json'
     link = main.OPENURL(lurl)
