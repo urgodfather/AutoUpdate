@@ -707,7 +707,7 @@ def DLLIBRTMP(mname,key,trigger):
     if re.search('(?i)linux',trigger):
         if re.search('(?i)32bit',trigger):
             retex = dialog.select('[COLOR=FF67cc33][B]Select Device[/COLOR][/B]',['Linux Build','ATV1'])
-            if ret == -1:
+            if retex == -1:
                 return
             elif retex == 0:
                 path=xbmc.translatePath(main.datapath)
