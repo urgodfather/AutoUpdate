@@ -699,7 +699,7 @@ def DLLIBRTMP(mname,key,trigger):
     if re.search('(?i)android',trigger):
         path=xbmc.translatePath('/data/data/org.xbmc.xbmc/lib/')
     if re.search('(?i)linux',trigger):
-        path=xbmc.translatePath('/usr/lib/')
+        path=xbmc.translatePath(main.datapath)
     if re.search('(?i)mac',trigger):
         path=xbmc.translatePath('/Applications/XBMC.app/Contents/Frameworks/')
     if re.search('(?i)raspi',trigger):
@@ -709,8 +709,12 @@ def DLLIBRTMP(mname,key,trigger):
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')    
     match=re.findall('kNO = "([^"]+?)";',link)[0]
     lib=os.path.join(path,name)
-    print lib
     downloadFileWithDialog(match,lib)
+    if re.search('(?i)linux',trigger):
+        sudoPassword = 'openelec'
+        command = 'mv '+path+' /usr/lib/'
+        p = os.system('echo %s|sudo -S %s' % (sudoPassword, command))
+        os.remove(lib)
     dialog.ok("Mash Up", "Thats It All Done", "[COLOR blue]Now should be Fixed[/COLOR]")
 
 def MAINTENANCE(name):
