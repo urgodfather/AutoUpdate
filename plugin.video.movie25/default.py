@@ -1352,7 +1352,7 @@ if mode and url:
 if mode==None or url==None or len(url)<1:
     if ENV is 'Prod':
         threading.Thread(target=CheckForAutoUpdate).start()
-        threading.Thread(target=GetRepo).start()
+        
         
     else:
         threading.Thread(target=CheckForAutoUpdateDev).start()
