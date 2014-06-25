@@ -39,10 +39,10 @@ def LISTSP2(murl):
         if page + n + 1 > max: break
         urls.append('http://www.myvideolinks.eu/category/movies/'+category+'/page/'+str(page+n+1))
     urllist = main.batchOPENURL(urls)
-    hasNextPage = re.compile('>&raquo;</a>').findall(urllist)
+    hasNextPage = re.compile('>Last').findall(urllist)
     if len(hasNextPage) < subpages:
         page = None
-    hasMax = re.compile('Page \d+ of (\d+)').findall(urllist)
+    hasMax = re.compile('page/(\d+)/">Last').findall(urllist)
     if hasMax:
         max = hasMax[0]
     if urllist:
@@ -74,8 +74,9 @@ def LISTSP2(murl):
                 dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
                 if (dialogWait.iscanceled()):
                     return False
+
             if not page is None:
-                main.addDir('Page ' + str(page/subpages+1) + ' [COLOR blue]Next Page >>>[/COLOR]',murl + "-" + str(page/subpages+1) + "," + max,34,art+'/next2.png')
+                main.addDir('Page ' + str(int(page/subpages+1)) + ' [COLOR blue]Next Page >>>[/COLOR]',murl + "-" + str(int(page/subpages+1)) + "," + str(max),34,art+'/next2.png')
             dialogWait.close()
             del dialogWait
     main.GA("HD-3D-HDTV","Newmyvideolinks")

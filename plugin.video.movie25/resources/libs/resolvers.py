@@ -232,6 +232,7 @@ def unescapes(text):
     return text
 
 def resolve_picasaWeb(url):
+    run = net().http_GET(url)
     cjList=[]
     cj = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), urllib2.HTTPHandler())
@@ -240,12 +241,12 @@ def resolve_picasaWeb(url):
     html = f.read()
     for cookie in cj:
             cjList.append(str(cookie).replace('<Cookie ','').replace(' for picasaweb.google.com/>','').replace('for .google.com/>',''))
-    Lid=re.search('https://picasaweb.google.com/(.+?)/.+?authkey=.+?#([^<]+)',url)
-    url='https://picasaweb.google.com/data/entry/base/user/'+Lid.group(1)+'/photoid/'+Lid.group(2)+'?alt=rss'
+    Lid=re.search('https://picasaweb.google.com/(.+?)/.+?authkey=(.+?)#([^<]+)',url)
+    url='https://picasaweb.google.com/data/entry/base/user/'+Lid.group(1)+'/photoid/'+Lid.group(3)+'?alt=rss&authkey='+Lid.group(2)
     namelist=[]
     urllist=[]
     dialog = xbmcgui.DialogProgress()
-    dialog.create('Resolving', 'Resolving MashUp GoogleDoc Link...')       
+    dialog.create('Resolving', 'Resolving MashUp Picassa Link...')       
     dialog.update(0)
     print 'MashUp GoogleDoc - Requesting GET URL: %s' % url
     req = urllib2.Request(url)
@@ -425,6 +426,7 @@ def resolve_yify(url):
         url = re.compile('showPkPlayer[(]"(.+?)"[)]').findall(html)[0]
         key=url
         url = 'http://yify.tv/reproductor2/pk/pk/plugins/player_p2.php?url=' + url
+        print url
         req = urllib2.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36')
         req.add_header('Referer', referer)
@@ -1464,18 +1466,17 @@ def resolve_hugefiles(url):
         for name, value in r:
             data[name] = value
             data.update({'method_free':'Free Download'})
-        if data['fname'] and re.search('\.(rar|zip)$', data['fname'], re.I):
-            dialog.update(100)
-            logerror('Mash Up: Resolve HugeFiles - No Video File Found')
-            xbmc.executebuiltin("XBMC.Notification(No Video File Found,HugeFiles,2000)")
-            return False
+
         if dialog.iscanceled(): return False
         dialog.update(33)
         #Check for SolveMedia Captcha image
+        """
         solvemedia = re.search('<iframe src="(http://api.solvemedia.com.+?)"', html)
         recaptcha = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
+        captchax = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
     
         if solvemedia:
+            print "1"
             html = net().http_GET(solvemedia.group(1)).content
             hugekey=re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
             open(puzzle_img, 'wb').write(net().http_GET("http://api.solvemedia.com%s" % re.search('img src="(.+?)"', html).group(1)).content)
@@ -1506,6 +1507,7 @@ def resolve_hugefiles(url):
                 data.update({'adcopy_challenge': hugekey,'adcopy_response': solution})
 
         elif recaptcha:
+            print "2"
             html = net().http_GET(recaptcha.group(1)).content
             part = re.search("challenge \: \\'(.+?)\\'", html)
             captchaimg = 'http://www.google.com/recaptcha/api/image?c='+part.group(1)
@@ -1532,19 +1534,22 @@ def resolve_hugefiles(url):
             dialog.update(66)
             data.update({'recaptcha_challenge_field':part.group(1),'recaptcha_response_field':solution})
 
-        else:
-            captcha = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
+        elif captchax:
+            print "3"
+            
             result = sorted(captcha, key=lambda ltr: int(ltr[0]))
             solution = ''.join(str(int(num[1])-48) for num in result)
             dialog.update(66)
             data.update({'code':solution})
         html = net().http_POST(url, data).content
+        print html
+        """
         if dialog.iscanceled(): return False
         if 'reached the download-limit' in html:
             logerror('Mash Up: Resolve HugeFiles - Daily Limit Reached, Cannot Get The File\'s Url')
             xbmc.executebuiltin("XBMC.Notification(Daily Limit Reached,HugeFiles,2000)")
             return False
-        r = re.findall("software_download_url : '(.+?)',", html, re.DOTALL + re.IGNORECASE)
+        r = re.findall('var fileUrl = "([^"]+)"', html, re.DOTALL + re.IGNORECASE)
         if r:
             dialog.update(100)
             return r[0]

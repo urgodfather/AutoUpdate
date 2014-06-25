@@ -130,22 +130,16 @@ def GetStream(url):
     surl2=re.findall('url=(http.+?)">',link)
     try:surl=re.findall('<div id="I12_html">.+?src="([^"]+)"',main.OPENURL(surl2[0]))
     except:surl=re.findall('<div id="I12_html">.+?src="([^"]+)"',link)
-    try:
-        js=re.findall("src='(.+?.js)'",main.OPENURL(surl[0]))
-        site=re.findall('src="([^"]+)"',main.OPENURL(js[0]))
-        link=main.OPENURL(site[0])
+    if url:
+        link=main.OPENURL(surl[0])
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace("\/",'/')
-        rtmp=re.compile("'streamer':.+?'([^']+?)'").findall(link)
-        playpath=re.compile("'file':.+?'([^']+?)'").findall(link)
+        playpath=re.compile("<script type='text/javascript'>id='([^']+?)';").findall(link)
+        rtmp='rtmp://37.220.32.55:443/liverepeater'
+        pageurl='http://filotv.pw/player2.php?id='+playpath[0]+'&width=640&height=460'
         token='#atd%#$ZH'
-        stream_url =rtmp[0]+' playpath='+playpath[0]+' swfUrl=http://static.surk.tv/player.swf pageUrl=' + site[0] +' live=1 timeout=14 swfVfy=1 token='+token
+        stream_url =rtmp+' playpath='+playpath[0]+' swfUrl=http://static.surk.tv/atdedead.swf pageUrl=' + pageurl +' live=1 timeout=14 swfVfy=1 token='+token
         return stream_url
-    except:
-        embed=re.findall('<embed src="([^"]+)"',main.OPENURL(surl[0]))
-        stream=re.search('(.+?).?file=(.+?)&streamer=(.+?)&autostart=true',embed[0])
-        return stream.group(3)+" playpath="+stream.group(2)+" swfUrl="+stream.group(1)+" pageUrl="+surl[0]+" live=1 timeout=14 swfVfy=1 token=#atd%#$ZH"
-    
-    
+  
 def Link(mname,murl,thumb):
         main.GA("Kiwi","Watched")
         stream_url=False
