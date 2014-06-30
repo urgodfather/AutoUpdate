@@ -100,7 +100,6 @@ def INDEX(url):
         if total: total = total[-1]
         else: total = "1"
         for current, url in r:
-            url = BASEURL + url
             name = 'Page '+current+' of '+total+' [COLOR green]Next Page >>>[/COLOR]'
             main.addDir('[COLOR green]Go to Page[/COLOR]', url+':'+total, 1002, art+'/gotopagetr.png')
             main.addDir(name, url.replace('%5C',''), 1001, art+'/nextpage.png')

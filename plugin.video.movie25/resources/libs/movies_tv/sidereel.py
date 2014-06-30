@@ -100,7 +100,24 @@ if user == '' or passw == '':
                 password = keyb.getText()
                 selfAddon.setSetting('srusername',username)
                 selfAddon.setSetting('srpassword',password)
-                
+
+
+def EntCreds(murl):
+    if 'USER' in murl:
+        keyb = xbmc.Keyboard('', 'Enter Username or Email')
+        keyb.doModal()
+        if (keyb.isConfirmed()):
+            username = keyb.getText()
+            selfAddon.setSetting('srusername',username)
+            xbmc.executebuiltin("XBMC.Container.Refresh")
+    if 'PASS' in murl:
+        keyb = xbmc.Keyboard('', 'Enter Password:')
+        keyb.doModal()
+        if (keyb.isConfirmed()):
+            password = keyb.getText()
+            selfAddon.setSetting('srpassword',password)
+            xbmc.executebuiltin("XBMC.Container.Refresh")
+            
 user = selfAddon.getSetting('srusername')
 passw = selfAddon.getSetting('srpassword')
 
@@ -143,6 +160,7 @@ def getRelativeDate(days):
     elif days > 1: days = 'In ' + str(days) + ' days'
     return str(days)
 
+
 def MAINSIDE(cacheOnly = False):
     import time
     import datetime
@@ -161,9 +179,13 @@ def MAINSIDE(cacheOnly = False):
         match = today + match
         if match:
             main.setFile(cached_path,str(match),True)
-        if '''<h3 class='sr-header sr-blue font-16'>Login to your account</h3>''' in link:
-            main.addLink('[COLOR red]Login Error Clear Cache & Cookies Below[/COLOR]','TV','')
+        else:
+            main.addLink('[COLOR red]Something is wrong, Check if you credentials are correct[/COLOR]','TV','')
+            main.addSpecial('[COLOR yellow]User: [/COLOR][COLOR white]'+user+'[/COLOR] --- Click to EDIT','USER',456,'')
+            main.addSpecial('[COLOR yellow]Pass: [/COLOR][COLOR white]'+passw+'[/COLOR] --- Click to EDIT','PASS',456,'')
+            main.addLink('[COLOR orange]If they are correct Clear Cache & Cookies Below[/COLOR]','TV','')
             main.addDir('[COLOR blue]Clear Cache & Cookies[/COLOR]','MashCache',416,art+'/maintenance.png')
+            main.addLink('[COLOR red]If that does not solve the issue post log on forums[/COLOR]','TV','')
         xbmcgui.Window(10000).clearProperty('Refresh_Sidreel')
     else: match = eval(cached)
     if cacheOnly: return False
@@ -264,6 +286,7 @@ def TRACKEDSHOWS():
                 'Referer':MAINURL,'X-Requested-With':'XMLHttpRequest'}
         #post_data={'authenticity_token':auth,'tv_show_id':showID}
         data=net().http_GET('http://www.sidereel.com/users/tracked_tv_shows',header).content
+        data=data.encode("utf8", "ignore")
         match=re.compile('"tv_show":{"id":(.+?),"name":"(.+?)",.+?,"status":(.+?),"summary":(.+?),"network":(.+?),.+?,"cached_genre_list":(.+?),.+?,"canonical_url":"(.+?)",.+?,"image_url_medium":"(.+?)",',re.DOTALL).findall(data)
         for id,name,status,plot,network,genre,url,thumb in match:
             main.addPlayc(name+' [COLOR blue]'+network.replace('"','').replace('null','')+'[/COLOR] [COLOR red]'+status.replace('"','').replace('null','')+'[/COLOR]' ,'<id>'+id+'<xo>'+url+'</xo>',400,thumb,plot.replace('"','').replace('null',''),'','',genre.replace('"','').replace('null',''),'')

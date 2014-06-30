@@ -3421,6 +3421,11 @@ elif mode==454:
 
 elif mode==455:
     DLLIBRTMP(name,url,plot)
+
+elif mode==456:
+    from resources.libs.movies_tv import sidereel
+    print ""+url
+    sidereel.EntCreds(url)
 ######################################################################################################
 elif mode==500:
     TVAll()        
