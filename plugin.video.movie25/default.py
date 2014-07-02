@@ -465,7 +465,7 @@ def INT():
 
 def INTCAT(murl):
     if 'italian'in murl:
-        main.addDir('Italian Content Only','https://raw2.github.com/mash2k3/One242415/master/Foriegn/italiancontent.xml',236,art+'/intl.png')
+        main.addDir('Cinema Italiano','https://raw2.github.com/mash2k3/One242415/master/CinemaItaliano/cinemaitaliano_directory.xml',236,art+'/intl.png')
         main.addDir('Italian Series','https://raw2.github.com/mash2k3/One242415/master/Foriegn/italianseries.xml',236,art+'/intl.png')
         main.addDir('Live Italian TV','https://raw2.github.com/mash2k3/One242415/master/Foriegn/italianLiveTV.xml',236,art+'/intl.png')
     if 'russian' in murl:

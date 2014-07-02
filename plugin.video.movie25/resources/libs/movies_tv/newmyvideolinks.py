@@ -39,12 +39,12 @@ def LISTSP2(murl):
         if page + n + 1 > max: break
         urls.append('http://www.myvideolinks.eu/category/movies/'+category+'/page/'+str(page+n+1))
     urllist = main.batchOPENURL(urls)
-    hasNextPage = re.compile('>Last').findall(urllist)
+    hasNextPage = re.compile('>Next Page').findall(urllist)
     if len(hasNextPage) < subpages:
         page = None
-    hasMax = re.compile('page/(\d+)/">Last').findall(urllist)
-    if hasMax:
-        max = hasMax[0]
+    #hasMax = re.compile('page/(\d+)/">Last').findall(urllist)
+    #if hasMax:
+    max = '100'
     if urllist:
         urllist=main.unescapes(urllist)
         #link=main.OPENURL(xurl)
