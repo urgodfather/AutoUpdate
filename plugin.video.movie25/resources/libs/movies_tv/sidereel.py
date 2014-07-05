@@ -198,14 +198,14 @@ def MAINSIDE(cacheOnly = False):
     showsdisplayed = 0
     for date,shows in match:
         print shows
-        if 'data-track-label="Profile"' in shows:
+        if 'data-track-label="TrackerPage"' in shows:
             s = re.sub('(?i)^.*?,(.*)$','\\1',date).strip()
             timestamp =  calendar.timegm(time.strptime(s, "%b %d"))
             days = (timestamp - todaytimestamp) / 86400
             relative = getRelativeDate(days)
             main.addLink('[COLOR yellow]'+date+'[/COLOR]  [COLOR orange]('+relative+')[/COLOR]','',art+'/link.png')
             
-            match2=re.compile("""data-track-label="Profile" href=".+?">([^<]+?)</a><div><a class=".+?data-track-label="Profile" href="([^"]+?)">([^<]+?)</a></div>""",re.DOTALL).findall(shows)
+            match2=re.compile("""data-track-label="TrackerPage" href=".+?">([^<]+?)</a><div><a class=".+?data-track-label="TrackerPage" href="([^"]+?)">([^<]+?)</a></div>""",re.DOTALL).findall(shows)
             for showname,seaepi, epiname in match2:
                 se=re.search('season-(\d+)/episode-(\d+)',seaepi)
                 if se:

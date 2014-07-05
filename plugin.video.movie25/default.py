@@ -444,7 +444,6 @@ def HD():
     main.addDir('Latest Movies (Oneclickwatch)','http://oneclickwatch.org/category/movies/',25,art+'/hd2.png')
     main.addDir('HackerMil HD Movies','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Movies/HD.xml',236,art+'/hd2.png')
     main.addDir('TNPB HD Movies','https://raw.github.com/mash2k3/MashUpTNPB/master/720p%20Movies.xml',236,art+'/hd2.png')
-    main.addDir('MorePower HD Movies','https://raw.github.com/mash2k3/MashUpMorePower/master/Full1080P.xml',236,art+'/hd2.png')
     main.addDir('Staael1982 HD Movies','https://raw.github.com/mash2k3/Staael1982/master/veehdCollection.xml',236,art+'/hd2.png')
     main.addDir('Demon88 HD Movies','https://raw.github.com/mash2k3/demon88/master/1080pMovies%20.xml',236,art+'/hd2.png')
     main.GA("None","HD")
@@ -554,8 +553,7 @@ def KIDZone(murl):
     main.addDir('WB Kids','wbk',77,art+'/wb.png')
     main.addDir('Youtube Kids','wbk',84,art+'/youkids.png')
     main.addDir('TNPB KidsZone','https://raw.github.com/mash2k3/MashUpTNPB/master/kidszone.xml',236,art+'/kidzone2.png')
-    main.addDir('MorePower Family and Kids shows and movies','https://raw.github.com/mash2k3/MashUpMorePower/master/KidsShowsMovies.xml',236,art+'/kidzone2.png')
-    main.addDir('Staael1982 Animated Movies','https://raw.github.com/mash2k3/Staael1982/master/animated_movies.xml',236,art+'/kidzone2.png')
+    main.addDir('Staael1982 Animated Movies','https://github.com/mash2k3/Staael1982/raw/master/kids%20%26%20animation.xml',236,art+'/kidzone2.png')
             
     main.GA("None","KidZone")
     main.VIEWSB()
