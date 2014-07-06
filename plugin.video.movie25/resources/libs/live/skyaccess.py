@@ -127,11 +127,15 @@ def get_link(murl):
     link = response.content
     link = cleanHex(link)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    swf=re.findall("src='([^<]+).swf'",link)[0]
-    file=re.findall("file=(.+?)&",link)[0]
-    file=file.replace('.flv','')
-    streamer=re.findall("streamer=(.+?)&",link)[0]
-    return streamer+' playpath='+file+' swfUrl='+swf+'.swf pageUrl='+murl+' live=true timeout=20'
+    m3u8=re.findall('<a href="([^"]+?.m3u8)">',link)
+    if m3u8:
+        return m3u8[0]
+    else:
+        swf=re.findall("src='([^<]+).swf'",link)[0]
+        file=re.findall("file=(.+?)&",link)[0]
+        file=file.replace('.flv','')
+        streamer=re.findall("streamer=(.+?)&",link)[0]
+        return streamer+' playpath='+file+' swfUrl='+swf+'.swf pageUrl='+murl+' live=true timeout=20'
     
 def PLAYLINK(mname,murl,thumb):
         ok=True
