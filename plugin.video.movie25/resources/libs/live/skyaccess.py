@@ -77,22 +77,25 @@ def MAINSA():
     link = response.content
     link = cleanHex(link)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    if '<title>Axxess Menu</title>' in link:
+    print link
+    if '<title>Axxess Streams </title>' in link:
         main.addLink('[COLOR red]Elite Member[/COLOR]','','')
     else:
         main.addLink('[COLOR red]Free Member[/COLOR]','','')
     main.addDir('Free Streams','http://sportsaccess.se/forum/misc.php?page=livestreams',412,art+'/skyaccess.png')
-    if '<title>Axxess Menu</title>' in link:
+    if '<title>Axxess Streams </title>' in link:
         main.addDir('Elite Streams',link,410,art+'/skyaccess.png')
     main.addPlayc('[COLOR blue]Click here for Subscription Info[/COLOR]','https://dl.dropboxusercontent.com/u/35068738/picture%20for%20post/sky.png',244,art+'/skyaccess.png','','','','','')
     main.GA("Live","SportsAccess")
 
 def LISTMENU(murl):
+    print "hhop"
     i=0
-    match=re.compile('<a href="([^"]+)"><center>([^<]+)</a>').findall(murl)
+    match=re.compile('<li><a href="([^"]+)"><center>(.+?)</a>').findall(murl)                 
     for url,name in match:
         thumb=['http://i.imgur.com/zo1FeZA.png','http://i.imgur.com/R7xiSJg.png','http://i.imgur.com/KF3PQAV.png','http://i.imgur.com/uQunKHh.png','http://i.imgur.com/OOaeIzT.png']
         name = re.sub('(?sim)<[^>]*?>','',name)
+        if 'http' not in url: url = 'http://hostaccess.org'+url
         main.addDir(name,url,411,thumb[i])
         i=i+1
 
@@ -108,18 +111,30 @@ def LISTMENU2(murl):
         main.addDir(name,'http://sportsaccess.se'+url,411,thumb)
 
 def LISTCONTENT(murl,thumb):
+    setCookie(murl)
     response = net().http_GET(murl)
     link = response.content
     link = cleanHex(link)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    match=re.compile('<a href="(.+?)">(.+?)</a>').findall(link)
-
-    for url,name in match:
-        if 'GO BACK' not in name and '1 Year Subscriptions' not in name and 'Live Broadcasts' not in name:
-            name = re.sub('(?sim)<[^>]*?>','',name)
-            if 'http' not in url:
-                url='http://sportsaccess.se'+url
-            main.addPlayL(name,url,413,thumb,'','','','','')
+    if 'http://hostaccess.org/7-SFE-SZE-HOSTACCESS/media/vod.php' == murl:
+        response = net().http_GET('http://sportsaccess.se/forum/misc.php?page=Replays')
+        link = response.content
+        link = cleanHex(link)
+        link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
+        
+        match=re.compile('<a href="([^"]+)"><img src="([^"]+)" width=".+?alt="([^"]+)"></a>').findall(link)
+        for url,thumb,name in match:
+            if 'http' not in thumb:
+                    thumb='http://sportsaccess.se/forum/'+thumb
+            main.addDir(name,url,411,thumb)
+    else:
+        match=re.compile('<a href="(.+?)">(.+?)</a>').findall(link)
+        for url,name in match:
+            if 'GO BACK' not in name and '1 Year Subscriptions' not in name and 'Live Broadcasts' not in name and '<--- Return To On Demand Guide' not in name:
+                name = re.sub('(?sim)<[^>]*?>','',name)
+                if 'http' not in url:
+                    url='http://sportsaccess.se'+url
+                main.addPlayL(name,url,413,thumb,'','','','','')
 
 
 def get_link(murl):
@@ -129,8 +144,16 @@ def get_link(murl):
     link = cleanHex(link)
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
     m3u8=re.findall('<a href="([^"]+?.m3u8)">',link)
+    iframe=re.findall('<iframe src="(http://admin.livestreamingcdn.com[^"]+?)"',link)
     if m3u8:
         return m3u8[0]
+    elif iframe:
+        response = net().http_GET(iframe[0])
+        link = response.content
+        link = cleanHex(link)
+        link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
+        vlink=re.findall('file: "([^"]+?.m3u8)"',link)
+        return vlink[0]
     else:
         swf=re.findall("src='([^<]+).swf'",link)[0]
         file=re.findall("file=(.+?)&",link)[0]
@@ -140,7 +163,7 @@ def get_link(murl):
     
 def PLAYLINK(mname,murl,thumb):
         ok=True
-        main.GA("SportsAccess","Watched")
+        main.GA("Live","SportsAccess")
         stream_url = get_link(murl)     
         playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         playlist.clear()
