@@ -7,7 +7,7 @@
 		<setting id="whistory" type="bool" label="[B]Watch History[/B]" default="true"/>
 		<setting id="gastatus" type="bool" label="[B]Google Analytics[/B]" default="true"/>
 		<setting id="skin" type="enum" label="[B]Skin[/B]" values="VECTOR TH|GREEN MONSTER" default="0"/>
-		<setting id="stracker" type="enum" label="[B]Choose Show Tracker Source[/B]" values="Sidereel|Trakt.tv" default="0"/>
+		<setting id="stracker" type="enum" label="[B]Choose Show Tracker Source[/B]" values="Sidereel|Trakt.tv|All" default="0"/>
 		<setting id="groupfavs" type="bool" label="[B]Group Favorites[/B]" default="false"/>
 		<setting label="[B]Re-install last auto update[/B]" type="action" action="RunPlugin(plugin://plugin.video.movie25/?mode=1998&url=0)"/>
 		<setting label="External Settings" type="lsep" />
@@ -15,7 +15,7 @@
 		<setting label="MetaHandler Settings" type="action" action="Addon.OpenSettings(script.module.metahandler)" enable ="eq(-9,true) || eq(-8,true)" />
 		<setting label="Changelogs" type="lsep" />
 		<setting id="autochan" type="bool" label="Auto Update Changelog Pop Up" default="true"/>
-		<setting label="Auto update changelog" type="action" action="XBMC.RunScript(special://home/addons/plugin.video.movie25/resources/libs/changelog.py,Env)"/>
+		<setting label="Auto update changelog" type="action" action="XBMC.RunScript(special://home/addons/plugin.video.movie25/resources/libs/changelog.py,Dev)"/>
    </category>
    
    <category label="Auto View">
@@ -129,18 +129,20 @@
 		<setting id="ssm_fma" type="bool" label="FMA" default="true" visible="!eq(-11,TV)"/>
 		<setting id="ssm_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-12,TV)"/>
 		<setting id="ssm_yify" type="bool" label="Yify" default="true" visible="!eq(-13,TV)"/>
+		<setting id="ssm_filestube" type="bool" label="FilesTube" default="true" visible="!eq(-14,TV)"/>
+		<setting id="ssm_vip" type="bool" label="VIP" default="true" visible="!eq(-15,TV)"/>
 
-		<setting id="sstv_mbox" type="bool" label="MBox" default="true" visible="!eq(-14,Movies)"/>
-		<setting id="sstv_watchseries" type="bool" label="WatchSeries" default="true" visible="!eq(-15,Movies)"/>
-		<setting id="sstv_iwatch" type="bool" label="iWatchOnline" default="true" visible="!eq(-16,Movies)"/>
-		<setting id="sstv_icefilms" type="bool" label="IceFilms" default="true" visible="!eq(-17,Movies)"/>
-		<setting id="sstv_tubeplus" type="bool" label="TubePlus" default="true" visible="!eq(-18,Movies)"/>
-		<setting id="sstv_tvrelease" type="bool" label="TVRelease" default="true" visible="!eq(-19,Movies)"/>
-		<setting id="sstv_mynewvideolinks" type="bool" label="MyNewVideoLinks" default="true" visible="!eq(-20,Movies)"/>
-		<setting id="sstv_rlsmix" type="bool" label="RlsMix" default="true" visible="!eq(-21,Movies)"/>
-		<setting id="sstv_scenelog" type="bool" label="SceneLog" default="true" visible="!eq(-22,Movies)"/>
-		<setting id="sstv_sceper" type="bool" label="Sceper" default="true" visible="!eq(-23,Movies)"/>
-		<setting id="sstv_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-24,Movies)"/>
+		<setting id="sstv_mbox" type="bool" label="MBox" default="true" visible="!eq(-16,Movies)"/>
+		<setting id="sstv_watchseries" type="bool" label="WatchSeries" default="true" visible="!eq(-17,Movies)"/>
+		<setting id="sstv_iwatch" type="bool" label="iWatchOnline" default="true" visible="!eq(-18,Movies)"/>
+		<setting id="sstv_icefilms" type="bool" label="IceFilms" default="true" visible="!eq(-19,Movies)"/>
+		<setting id="sstv_tubeplus" type="bool" label="TubePlus" default="true" visible="!eq(-20,Movies)"/>
+		<setting id="sstv_tvrelease" type="bool" label="TVRelease" default="true" visible="!eq(-21,Movies)"/>
+		<setting id="sstv_mynewvideolinks" type="bool" label="MyNewVideoLinks" default="true" visible="!eq(-22,Movies)"/>
+		<setting id="sstv_rlsmix" type="bool" label="RlsMix" default="true" visible="!eq(-23,Movies)"/>
+		<setting id="sstv_scenelog" type="bool" label="SceneLog" default="true" visible="!eq(-24,Movies)"/>
+		<setting id="sstv_sceper" type="bool" label="Sceper" default="true" visible="!eq(-25,Movies)"/>
+		<setting id="sstv_scenesource" type="bool" label="SceneSource" default="true" visible="!eq(-26,Movies)"/>
    </category>
    
    <category label="Log-ins">
@@ -167,7 +169,9 @@
 		<setting id="ddtv_pdtv" type="bool" label="PDTV" default="false" visible="!eq(-6,) + !eq(-7,)"/>
 		<setting id="ddtv_dsr" type="bool" label="DSR" default="false" visible="!eq(-7,) + !eq(-8,)"/>
 		<setting id="ddtv_dvdrip" type="bool" label="DVDRip" default="false" visible="!eq(-8,) + !eq(-9,)"/>
-
+		<setting label="GitHub Account" type="lsep" />
+		<setting id="ghusername" type="text" label="GitHub Username" default="" visible="true"/>
+		<setting id="ghpassword" type="text"label="GitHub Password" default="" visible="true" option="hidden" />
    </category>
    <category label="Custom Channels">
 		<setting id="customchannel" type="bool" label="Custom Channels" default="true"/>
@@ -195,7 +199,7 @@
 		<setting id="download-in-background" type="bool" label="[B]Download in Background[/B]" default="true" />
 		<setting id="notify-percent" enable="eq(-1,true)" label="[B]Notify Per[/B]" type="enum" values="2[B] %[/B]|5[B] %[/B]|10[B] %[/B]|20[B] %[/B]|25[B] %[/B]|50[B] %[/B]|100[B] %[/B]" default="2" />
 		<setting id="hide-download-instructions" type="bool" label="[B]Hide Download Instructions[/B]" default="false"/>
-		<setting id="jdcb" type="bool" label="[B]Jdownloader ON/Copy2Clipboard OFF[/B]" default="false"/>
+		<setting id="jdcb" type="bool" label="[B]Jdownloader ON/Copy2Clipboard OFF[/B]" default="false"/>		
    </category>
    
    <category label="Maintenance">
@@ -209,4 +213,16 @@
 		
 		
    </category>
+
+   <category label="Library Integration">
+	   <setting id="library-int" type="bool" label="Library Integration" default="false"/>
+        <setting id="movie-folder" type="folder" label="Movie Library" default="special://userdata/addon_data/plugin.video.movie25/Movies" enable="!eq(-1,false)"/>
+		<setting label="[B]Build Movie Database[/B]" type="action" action="RunPlugin(plugin://plugin.video.movie25/?mode=1503&url=0)" enable="!eq(-2,false)"/>
+		<setting label="[B]Update Movie Database[/B]" type="action" action="RunPlugin(plugin://plugin.video.movie25/?mode=1504&url=0)" enable="!eq(-3,false)"/>
+		<setting label="[B]Re-Build Movie Database[/B]" type="action" action="RunPlugin(plugin://plugin.video.movie25/?mode=1506&url=0)" enable="!eq(-4,false)"/>
+		<setting id="sort-library" type="enum" values="Default|Source|Host|Quality" label="Sort By" default="0" enable="!eq(-5,false)"/>
+        <setting id="auto-update-lib" type="bool" label="Auto Update Library" default="false" enable="!eq(-6,false)"/>
+        <setting id="update-interval" type="enum" values="2h|5h|10h|15h|24h" label="Auto Update Intervals" default="3" enable="!eq(-1,false)"/>
+        <setting id="library-update" type="bool" label="XBMC Library Update" default="true" enable="eq(-2,true)"/>
+    </category>
 </settings>

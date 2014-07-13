@@ -156,10 +156,14 @@ def get_link(murl):
         return vlink[0]
     else:
         swf=re.findall("src='([^<]+).swf'",link)[0]
-        file=re.findall("file=(.+?)&",link)[0]
+        file=re.findall("file=(.+?)&",link)[0] 
         file=file.replace('.flv','')
         streamer=re.findall("streamer=(.+?)&",link)[0]
-        return streamer+' playpath='+file+' swfUrl='+swf+'.swf pageUrl='+murl+' live=true timeout=20'
+        if '.mp4' in file and 'vod' in streamer:
+            file='mp4:'+file
+            return streamer+' playpath='+file+' swfUrl='+swf+'.swf pageUrl='+murl
+        else:
+            return streamer+' playpath='+file+' swfUrl='+swf+'.swf pageUrl='+murl+' live=true timeout=20'
     
 def PLAYLINK(mname,murl,thumb):
         ok=True

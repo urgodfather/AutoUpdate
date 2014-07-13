@@ -195,6 +195,21 @@ def LINKSP2(mname,url):
                 thumb=name.lower()
 #                 if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
                 main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
+    if not match0:
+        match1=re.compile('<li><a href="([^"]+?)"[^>]*?><img [^>]*?alt="([^"]+?)"[^>]*?></a></li>').findall(link)
+        match= match1 + re.compile('<li><a href="([^"]+?)"[^>]*?>([^>]+?)</a></li>').findall(link)
+        filename = False
+        for murl, name in match:
+            fn = re.search('/([^/]+?\.(mkv|avi|mp4))(\.html)?$',murl)
+            if fn:
+                filename = fn.group(1)
+                break
+        for murl, name in match:
+            name = name[0].upper() + name[1:]
+            if main.supportedHost(name):
+                thumb=name.lower()
+#                 if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
+                main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
 
 def Shorten(url):
     from base64 import b64decode

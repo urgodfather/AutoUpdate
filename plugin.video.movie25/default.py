@@ -101,8 +101,6 @@ def MAIN():
             main.addDirHome('HackerMils Stash','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Directory/HackerMil_Directory.xml',235,art+'/hackermil.png')
         elif index==27:
             main.addDirHome('The New Pirate Bay','https://raw.github.com/mash2k3/MashUpTNPB/master/TNPB_Directory.xml',235,art+'/tnpb.png')
-        elif index==28:
-            main.addDirHome('MorePower','https://raw.github.com/mash2k3/MashUpMorePower/master/MorePower_Directory.xml',235,art+'/morepower.png')
         elif index==29:
             main.addDirHome('Staael 1982','https://raw.github.com/mash2k3/Staael1982/master/Staael_Directory.xml',235,art+'/staael2014.png')
         elif index==34:
@@ -122,7 +120,10 @@ def MAIN():
         elif index==36:
             if selfAddon.getSetting("stracker") == '0':
                 main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+            if selfAddon.getSetting("stracker") == '1':
+                main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
             else:
+                main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
                 main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addPlayc('Need Help?','http://www.movie25.com/',100,art+'/help.png','','','','','')
     main.addPlayc('Upload Log','http://www.movie25.so/',156,art+'/loguploader.png','','','','','')
@@ -348,7 +349,10 @@ def TV():
     main.ClearDir(TempPath)
     if selfAddon.getSetting("stracker") == '0':
         main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
+    if selfAddon.getSetting("stracker") == '1':
+        main.addDir("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     else:
+        main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
         main.addDir("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     main.addDir('Latest Episodes (Newmyvideolinks) True HD[COLOR red] DC[/COLOR]','TV',34,art+'/tvb.png')
     main.addDir('Latest Episodes (Rlsmix)[COLOR red](Debrid Only)[/COLOR] True HD[COLOR red] DC[/COLOR]','TV',61,art+'/tvb.png')
@@ -440,7 +444,7 @@ def HD():
     main.addDir('Latest HD Movies (Sceper)[COLOR red](Debrid Only)[/COLOR] True HD','http://sceper.ws/category/movies/movies-bluray-rip',541,art+'/hd2.png')
     main.addDir('Latest HD Movies (SceneSource)[COLOR red](Debrid Only)[/COLOR] True HD','http://www.scenesource.me/films/bluray/',389,art+'/hd2.png')
     main.addDir('Latest True 1080p Movies (FilesTube)[COLOR red](Debrid Only)[/COLOR]','HD',405,art+'/hd2.png')
-    main.addDir('Latest True 1080p Movies (DL4Free)[COLOR red](Debrid Only)[/COLOR]','HD',407,art+'/hd2.png')
+    main.addDir('Latest True 1080p Movies (Rls1Click)[COLOR red](Debrid Only)[/COLOR]','HD',407,art+'/hd2.png')
     main.addDir('Latest Movies (Oneclickwatch)','http://oneclickwatch.org/category/movies/',25,art+'/hd2.png')
     main.addDir('HackerMil HD Movies','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Movies/HD.xml',236,art+'/hd2.png')
     main.addDir('TNPB HD Movies','https://raw.github.com/mash2k3/MashUpTNPB/master/720p%20Movies.xml',236,art+'/hd2.png')
@@ -489,6 +493,8 @@ def INTCAT(murl):
         main.addDir('Latest French Dubbed & Subtitled Movies (DPStreaming)','http://www.dps.com',311,art+'/intl.png')
         main.addDir('Latest French Dubbed & Subtitled Movies (SokroStream)','http://www.dps.com',324,art+'/intl.png')
         main.addDir('Latest French Dubbed & Subtitled Movies (Frenchstream)','http://www.dps.com',367,art+'/intl.png')
+        main.addDir('Latest French (FullStream)','http://www.dps.com',786,art+'/intl.png')
+        main.addDir('Latest French (FullStream 2)','http://www.dps.com',794,art+'/intl.png')
         main.addDir('Latest French Documentaire (Video Documentaire)','http://www.dps.com',331,art+'/intl.png')
     if 'kor' in murl:
         main.addDir('Latest Korean/Jappenese/Chinese Movies&Dramas (Dramania)','http://www.cinevip.org/',268,art+'/intl.png')
@@ -568,7 +574,7 @@ def LiveStreams():
     threading.Thread(target=showLiveAnnouncements).start()
     TVGuide = xbmc.translatePath('special://home/addons/script.tvguidedixie')
     if  os.path.exists(TVGuide):
-        main.addSpecial('TV Guide Dixie','guide',1500,art+'/tvguide.png')
+        main.addSpecial('OnTapp.tv','guide',1500,art+'/ontapp.png')
     main.addDir('Livestation News','http://mobile.livestation.com/',116,art+'/livestation.png')
     main.addDir('iLive Streams','ilive',119,art+'/ilive.png')
     main.addDir('Castalba Streams','castalgba',122,art+'/castalba.png')
@@ -586,6 +592,7 @@ def LiveStreams():
         else:
             thumbs=art+'/'+thumb+'.png'
         main.addDir(name,url,int(mode),thumbs)
+    main.addDir('USA Live','na',457,art+'/usalive.png')
     main.addDir('SportsAccess','na',409,art+'/sportsaccess.png')
     if selfAddon.getSetting("customchannel") == "true":
         main.addDir('My XML Channels','nills',238,art+'/xml.png')
@@ -604,7 +611,6 @@ def DOCS():
     main.addDir('Video Documentaire (French)','doc2',331,art+'/videodocumentaire.png')
     main.addDir('Documentary Log','doc3',86,art+'/doclog.png')
     main.addDir('HackerMil Documentaries','https://raw.github.com/HackerMil/HackerMilsMovieStash/master/Misc/7%20DOCUMENTARY.xml',236,art+'/docsec1.png')
-    main.addDir('MorePower Documentaries','https://raw.github.com/mash2k3/MashUpMorePower/master/Documentries.xml',236,art+'/docsec1.png')
     main.addDir('Documentaries (Movie25)','http://www.movie25.so/movies/documentary/',1,art+'/doc.png')
     main.GA("None","Documentary")
 
@@ -3218,14 +3224,14 @@ elif mode==406:
     filestube.LINKSP3(name,url)
     
 elif mode==407:
-    from resources.libs.movies_tv import dl4free
+    from resources.libs.movies_tv import rls1click
     print ""+url
-    dl4free.LISTSP3(url)
+    rls1click.LISTSP3(url)
 
 elif mode==408:
-    from resources.libs.movies_tv import dl4free
+    from resources.libs.movies_tv import rls1click
     print ""+url
-    dl4free.LINKSP3(name,url)
+    rls1click.LINKSP3(name,url)
 
 elif mode==409:
     from resources.libs.live import skyaccess
@@ -3424,6 +3430,16 @@ elif mode==456:
     from resources.libs.movies_tv import sidereel
     print ""+url
     sidereel.EntCreds(url)
+
+elif mode==457:
+    from resources.libs.live import ibrod
+    print ""+url
+    ibrod.USALIST(url)
+
+elif mode==458:
+    from resources.libs.live import ibrod
+    print ""+url
+    ibrod.USALINK(name,url,iconimage)
 ######################################################################################################
 elif mode==500:
     TVAll()        
@@ -3976,6 +3992,70 @@ elif mode == 784:
 elif mode == 785:
     print ""+url
     FIXDOWN(name,url,location,path)
+elif mode==786:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.MAINFULLS()
+elif mode==787:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.LISTFULLS(url)
+elif mode==788:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.LINKLIST(name,url)
+elif mode==789:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.LINKFULLS(name,url)
+elif mode==790:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.LISTEPISODE(name,url)
+elif mode==791:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.LINKLIST2(name,url)
+elif mode==792:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.SEARCHFULLS()
+elif mode==793:
+    from resources.libs.plugins import fullstream
+    print ""+url
+    fullstream.GENRESFULLS()
+elif mode==794:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.MAINFULLS()
+elif mode==795:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.LISTFULLS(url)
+elif mode==796:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.LINKLIST(name,url)
+elif mode==797:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.LINKFULLS(name,url)
+elif mode==798:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.LISTEPISODE(name,url)
+elif mode==799:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.SEARCHFULLS()
+elif mode==800:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.GENRESFULLS()
+elif mode==801:
+    from resources.libs.plugins import fullstream2
+    print ""+url
+    fullstream2.QLTFULLS()
         
 elif mode == 1000:
     from resources.libs.plugins import tvrelease

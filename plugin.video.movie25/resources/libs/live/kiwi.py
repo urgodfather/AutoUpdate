@@ -134,7 +134,7 @@ def GetStream(url):
         link=main.OPENURL(surl[0])
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace("\/",'/')
         playpath=re.compile("<script type='text/javascript'>id='([^']+?)';").findall(link)
-        rtmp='rtmp://37.220.32.55:443/liverepeater'
+        rtmp='rtmp://89.248.168.57:443/liverepeater'
         pageurl='http://filotv.pw/player2.php?id='+playpath[0]+'&width=640&height=460'
         token='#atd%#$ZH'
         stream_url =rtmp+' playpath='+playpath[0]+' swfUrl=http://static.surk.tv/atdedead.swf pageUrl=' + pageurl +' live=1 timeout=14 swfVfy=1 token='+token

@@ -258,9 +258,9 @@ def SEARCHED(surl):
     response = net().http_GET(surl)
     link = response.content
     link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','').replace('  ','')
-    match=re.compile("""<div class='show-image'><a href[^>]+?><img[^>]+?src="([^"]+?)".{,450}?<h2 class='sr-header'><a href[^>]+?>([^<]+?)<(.+?)</form""",re.DOTALL).findall(link)
-    for thumb,name,track in match:
-        name = cleanHex(name)
+    link= cleanHex(link)
+    match=re.compile("""<div class='show-image'><a href[^>]+?><img alt="(.+?) poster" src="([^"]+?)".{,450}?<a href[^>]+?>[^<]+?<(.+?)</form""",re.DOTALL).findall(link)
+    for name,thumb,track in match:
         if "<div class='authenticated hidden track-show'>" in track:
             name=name+'     [COLOR blue]Tracking Show[/COLOR]'
             main.addPlayc(name,track+' <xo>'+surl+'</xo>',400,thumb,'','','','','')

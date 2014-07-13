@@ -73,6 +73,8 @@ def resolve_url(url, filename = False):
                 stream_url=resolve_g2g(url)
             elif re.search('docs.google',url,re.I):
                 stream_url=resolve_googleDocs(url)
+            elif re.search('mrfile',url,re.I):
+                stream_url=resolve_mrfile(url)
             elif re.search('picasaweb.google',url,re.I):
                 stream_url=resolve_picasaWeb(url)
             elif re.search('youtube',url,re.I):
@@ -82,16 +84,23 @@ def resolve_url(url, filename = False):
                     except:url=url.split('com/embed/')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
             else:
-                import urlresolver
-                print "host "+url
-                source = urlresolver.HostedMediaFile(url)
-                if source:
-                    stream_url = source.resolve()
-                    if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
-                        showUrlResoverError(stream_url)
-                        stream_url = False
+                import main,urlparse
+                hostname = ".".join(urlparse.urlparse(url).hostname.split(".")[-2:])
+                rdhosts = main.getRDHosts()
+                if 'ul.to' == hostname: hostname = 'uploaded.net'
+                if hostname.lower() in rdhosts and xbmcaddon.Addon(id='script.module.urlresolver').getSetting("RealDebridResolver_enabled") == 'true':
+                    stream_url=resolve_realdebrid(url)
                 else:
-                    stream_url=url
+                    import urlresolver
+                    print "host "+url
+                    source = urlresolver.HostedMediaFile(url)
+                    if source:
+                        stream_url = source.resolve()
+                        if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
+                            showUrlResoverError(stream_url)
+                            stream_url = False
+                    else:
+                        stream_url=url
             try:
                 stream_url=stream_url.split('referer')[0]
                 stream_url=stream_url.replace('|','')
@@ -195,22 +204,100 @@ def load_json(data):
                         print "%s" % line
       return None
 
-
+def resolve_realdebrid(url):
+    try:
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MashUp Real-Debrid Link...')       
+        dialog.update(0)
+        import main
+        cookie_file = os.path.join(os.path.join(main.datapath,'Cookies'), 'realdebrid.cookies')
+        cookieExpired = False
+        if os.path.exists(cookie_file):
+            try:
+                cookie = open(cookie_file).read()
+                expire = re.search('expires="(.*?)"',cookie, re.I)
+                if expire:
+                    expire = str(expire.group(1))
+                    import time
+                    if time.time() > time.mktime(time.strptime(expire, '%Y-%m-%d %H:%M:%SZ')):
+                       cookieExpired = True
+            except: cookieExpired = True 
+        if not os.path.exists(cookie_file) or cookieExpired:
+            import hashlib
+            login_data = urllib.urlencode({'user' : xbmcaddon.Addon(id='script.module.urlresolver').getSetting('RealDebridResolver_username'),
+                                            'pass' : hashlib.md5(xbmcaddon.Addon(id='script.module.urlresolver').getSetting('RealDebridResolver_password')).hexdigest()})
+            surl = 'https://real-debrid.com/ajax/login.php?' + login_data
+            source = main.OPENURL(surl,verbose=False,cookie='realdebrid',log=False)
+            dialog.update(50)
+            if re.search('OK', source): print "Real Debrid Login Successful"
+            if dialog.iscanceled(): return None
+        url = 'https://real-debrid.com/ajax/unrestrict.php?link=%s' % url
+        source = main.OPENURL(url,cookie='realdebrid',verbose=False,log=False)
+        if dialog.iscanceled(): return None
+        dialog.update(100)
+        dialog.close()
+        del dialog
+        import json
+        jsonresult = json.loads(source)
+        if 'generated_links' in jsonresult :
+            generated_links = jsonresult['generated_links']
+            if len(generated_links) == 1:
+                return generated_links[0][2].encode('utf-8')
+            line = []
+            for link in generated_links :
+                extension = link[0].split('.')[-1]
+                line.append(extension.encode('utf-8'))
+            result = dialog.select('Choose the link', line)
+            if result != -1 :
+                link = generated_links[result][2]
+                return link.encode('utf-8')
+            else :
+                return False
+        elif 'main_link' in jsonresult :
+            return jsonresult['main_link'].encode('utf-8')
+        else :
+            if 'message' in jsonresult :
+                logerror('**** Real Debrid Error occured: %s' % jsonresult['message'].encode('utf-8'))
+                showpopup(title='[B][COLOR white]Mashup REAL-DEBRID[/COLOR][/B]', msg='[COLOR red]%s[/COLOR]' % jsonresult['message'].encode('utf-8'), delay=5000, image=elogo)
+                main.removeFile(cookie_file)
+                return False
+            else: return False
+    except Exception, e:
+        logerror('**** Real-Debrid Error occured: %s' % e)
+        xbmc.executebuiltin('[B][COLOR white]Real-Debrid[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
         
-
+def resolve_mrfile(url):
+    try:
+        import jsunpack
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MashUp MR.File Link...')       
+        dialog.update(0)
+        print 'MashUp MR.File - Requesting GET URL: %s' % url
+        html = net().http_GET(url).content
+        embed=re.findall('<IFRAME SRC="(http://mrfile[^"]+)"',html)
+        html = net().http_GET(embed[0]).content
+        r = re.findall(r'(eval\(function\(p,a,c,k,e,d\)\{while.+?)</script>',html,re.M|re.DOTALL)
+        try:unpack=jsunpack.unpack(r[1])
+        except:unpack=jsunpack.unpack(r[0])
+        stream_url=re.findall('<param name="src"value="(.+?)"/>',unpack)[0]
+        return stream_url
+        if dialog.iscanceled(): return None
+    except Exception, e:
+        logerror('**** MR.File Error occured: %s' % e)
+        xbmc.executebuiltin('[B][COLOR white]MR.File[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
 
   
 
 def resolve_g2g(url):
     html3 = net().http_GET(url).content 
-    url2 = re.findall('(?sim)<iframe src="(http://g2g.fm/pasep.php.+?)"', html3)[0]
+    url2 = re.findall('(?sim)<iframe src="(http://g2g.fm/pasmov3p.php.+?)"', html3)[0]
     req = urllib2.Request(url2)
     req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
     req.add_header('Referer', url)
     response = urllib2.urlopen(req)
     html=response.read()
     response.close()
-    phpUrl = re.findall('(?sim)<iframe src="(.+?php)"', html)[0]
+    phpUrl = re.findall('(?sim)<iframe id="ggplayer" src="(.+?php)"', html)[0]
     req = urllib2.Request(phpUrl)
     req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
     req.add_header('Referer', url)   
@@ -1419,35 +1506,6 @@ def resolve_lemupload(url):
     finally:
         dialog.close()
         
-def resolve_mightyupload(url):
-    from resources.libs import jsunpack
-    try:
-        dialog = xbmcgui.DialogProgress()
-        dialog.create('Resolving', 'Resolving MightyUpload Link...')       
-        dialog.update(0)
-        html = net().http_GET(url).content
-        if dialog.iscanceled(): return False
-        dialog.update(50)
-        logerror('Mash Up: Resolve MightyUpload - Requesting GET URL: '+url)
-        r = re.findall(r'name="(.+?)" value="?(.+?)"', html, re.I|re.M)
-        if r:
-            post_data = {}
-            for name, value in r:
-                post_data[name] = value
-            post_data['referer'] = url
-            html = net().http_POST(url, post_data).content
-            if dialog.iscanceled(): return False
-            dialog.update(100)
-            r = re.findall(r'<a href=\"(.+?)(?=\">Download the file</a>)', html)
-            return r[0]
-        else:
-            logerror('***** MightyUpload - File not found')
-            xbmc.executebuiltin("XBMC.Notification(File Not Found,MightyUpload,2000,"+elogo+")")
-            return False
-    except Exception, e:
-        logerror('Mash Up: Resolve MightyUpload Error - '+str(e))
-        raise ResolverError(str(e),"MightyUpload") 
-
 def resolve_hugefiles(url):
     from resources.libs import jsunpack
     try:
@@ -1467,17 +1525,18 @@ def resolve_hugefiles(url):
         for name, value in r:
             data[name] = value
             data.update({'method_free':'Free Download'})
-
+        if data['fname'] and re.search('\.(rar|zip)$', data['fname'], re.I):
+            dialog.update(100)
+            logerror('Mash Up: Resolve HugeFiles - No Video File Found')
+            xbmc.executebuiltin("XBMC.Notification(No Video File Found,HugeFiles,2000)")
+            return False
         if dialog.iscanceled(): return False
         dialog.update(33)
         #Check for SolveMedia Captcha image
-        """
         solvemedia = re.search('<iframe src="(http://api.solvemedia.com.+?)"', html)
         recaptcha = re.search('<script type="text/javascript" src="(http://www.google.com.+?)">', html)
-        captchax = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
     
         if solvemedia:
-            print "1"
             html = net().http_GET(solvemedia.group(1)).content
             hugekey=re.search('id="adcopy_challenge" value="(.+?)">', html).group(1)
             open(puzzle_img, 'wb').write(net().http_GET("http://api.solvemedia.com%s" % re.search('img src="(.+?)"', html).group(1)).content)
@@ -1508,7 +1567,6 @@ def resolve_hugefiles(url):
                 data.update({'adcopy_challenge': hugekey,'adcopy_response': solution})
 
         elif recaptcha:
-            print "2"
             html = net().http_GET(recaptcha.group(1)).content
             part = re.search("challenge \: \\'(.+?)\\'", html)
             captchaimg = 'http://www.google.com/recaptcha/api/image?c='+part.group(1)
@@ -1535,16 +1593,13 @@ def resolve_hugefiles(url):
             dialog.update(66)
             data.update({'recaptcha_challenge_field':part.group(1),'recaptcha_response_field':solution})
 
-        elif captchax:
-            print "3"
-            
+        else:
+            captcha = re.compile("left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
             result = sorted(captcha, key=lambda ltr: int(ltr[0]))
             solution = ''.join(str(int(num[1])-48) for num in result)
             dialog.update(66)
             data.update({'code':solution})
         html = net().http_POST(url, data).content
-        print html
-        """
         if dialog.iscanceled(): return False
         if 'reached the download-limit' in html:
             logerror('Mash Up: Resolve HugeFiles - Daily Limit Reached, Cannot Get The File\'s Url')
@@ -1570,5 +1625,5 @@ def resolve_hugefiles(url):
                 raise Exception('Unable to resolve HugeFiles Link')
     except Exception, e:
         logerror('Mash Up: Resolve HugeFiles Error - '+str(e))
-        raise ResolverError(str(e),"HugeFiles")  
+        raise ResolverError(str(e),"HugeFiles")   
 

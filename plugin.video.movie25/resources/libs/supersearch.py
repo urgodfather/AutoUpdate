@@ -48,12 +48,13 @@ def SEARCHistory():
 
 def sortSearchList(searchList,query):
     import locale
-    try:	
-    	locale.setlocale(locale.LC_ALL,'')
-	searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'),cmp=locale.strcoll)
+    loc = locale.getlocale()
+    try:
+        locale.setlocale(locale.LC_ALL, "")
     except:
-    	searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'))
-
+        locale.setlocale(locale.LC_ALL, "C")
+    searchList.sort(key=lambda tup: tup[0].decode('utf-8').encode('utf-8'),cmp=locale.strcoll)
+    locale.setlocale(locale.LC_ALL, loc)
     temp = []
     itemstoremove = []
     i = 0
@@ -69,8 +70,16 @@ def sortSearchList(searchList,query):
         i += 1
     return temp + searchList
 
-def SEARCH(mname,type):
-    main.GA("None","SuperSearch")
+def SEARCH(mname,type,libID=''):
+    if libID=='':
+        main.GA("None","SuperSearch")
+    else:
+        libName=mname
+        if re.search('(?i).\s\([12][90]\d{2}\)',mname):
+            mname = re.sub('(?i)^(.+?)\s\([12][90]\d{2}\).*','\\1',mname)
+        elif re.search('(?i).\s[12][90]\d{2}',mname):
+            mname = re.sub('(?i)^(.+?)\s[12][90]\d{2}.*','\\1',mname)
+        mname = re.sub('(?i)\s\s+',' ',mname).strip()
     try: import Queue as queue
     except ImportError: import queue
     results = []
@@ -106,6 +115,10 @@ def SEARCH(mname,type):
                 sources.append('Watching Now')
                 q = queue.Queue()
                 threading.Thread(target=watchingnow,args=(encode,type,q)).start()
+            if selfAddon.getSetting('ssm_filestube') != 'false':
+                sources.append('FilesTube')
+                q = queue.Queue()
+                threading.Thread(target=filestube,args=(encode,type,q)).start()
                 results.append(q)
             if selfAddon.getSetting('ssm_mbox') != 'false':
                 sources.append('MBox')
@@ -152,6 +165,11 @@ def SEARCH(mname,type):
                 sources.append('SceneSource')
                 q = queue.Queue()
                 threading.Thread(target=scenesource,args=(encode,type,q)).start()
+                results.append(q)
+            if selfAddon.getSetting('ssm_vip') != 'false':
+                sources.append('VIP')
+                q = queue.Queue()
+                threading.Thread(target=vip,args=(encode,type,q)).start()
                 results.append(q)
         else:
             encodetv = urllib.quote(re.sub('(?i)^(.*?((\ss(\d+)e(\d+))|(Season(.+?)Episode \d+)|(\d+)x(\d+))).*','\\1',urllib.unquote(encode)))
@@ -214,77 +232,90 @@ def SEARCH(mname,type):
                 results.append(q)
             encodewithoutepi = urllib.unquote(encodewithoutepi)
         encode = urllib.unquote(encode)
-        dialogWait = xbmcgui.DialogProgress()
-        ret = dialogWait.create('Please wait. Super Search is searching...')
-        loadedLinks = 0
-        remaining_display = 'Sources searched :: [B]'+str(loadedLinks)+' / '+str(len(results))+'[/B].'
-        dialogWait.update(0,'[B]'+type+' Super Search - ' + encodeunquoted + '[/B]',remaining_display)
-        totalLinks = len(results)
-        whileloopps = 0
-        while totalLinks > loadedLinks:
+        if libID=='':
+            dialogWait = xbmcgui.DialogProgress()
+            ret = dialogWait.create('Please wait. Super Search is searching...')
+            loadedLinks = 0
+            remaining_display = 'Sources searched :: [B]'+str(loadedLinks)+' / '+str(len(results))+'[/B].'
+            dialogWait.update(0,'[B]'+type+' Super Search - ' + encodeunquoted + '[/B]',remaining_display)
+            totalLinks = len(results)
+            whileloopps = 0
+            xbmc.executebuiltin("XBMC.Dialog.Close(busydialog,true)")
+            while totalLinks > loadedLinks:
+                for n in range(len(results)):
+                    try:
+                        searchList.extend(results[n].get_nowait())
+                        loadedLinks += 1
+                        percent = (loadedLinks * 100)/len(results)
+                        remaining_display = 'Sources searched :: [B]'+str(loadedLinks)+' / '+str(len(results))+'[/B].'
+                        dialogWait.update(percent,'[B]'+type+' Super Search - ' + encodeunquoted + '[/B]',remaining_display,sources[n] + ' finished searching')
+                        if dialogWait.iscanceled(): break;
+                    except: pass
+                if dialogWait.iscanceled(): break;
+                time.sleep(.1)
+            ret = dialogWait.create('Please wait until Video list is cached.')
+            totalLinks = len(searchList)
+            loadedLinks = 0
+            remaining_display = 'Videos loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+            dialogWait.update(0, '[B]Will load instantly from now on[/B]',remaining_display,' ')
+            searchList = sortSearchList(searchList,mname)
+
+        if not libID=='':
             for n in range(len(results)):
-                try:
-                    searchList.extend(results[n].get_nowait())
-                    loadedLinks += 1
-                    percent = (loadedLinks * 100)/len(results)
-                    remaining_display = 'Sources searched :: [B]'+str(loadedLinks)+' / '+str(len(results))+'[/B].'
-                    dialogWait.update(percent,'[B]'+type+' Super Search - ' + encodeunquoted + '[/B]',remaining_display,sources[n] + ' finished searching')
-                    if dialogWait.iscanceled(): break;
-                except: pass
-            if dialogWait.iscanceled(): break;
-            time.sleep(.1)
-        ret = dialogWait.create('Please wait until Video list is cached.')
-        totalLinks = len(searchList)
-        loadedLinks = 0
-        remaining_display = 'Videos loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
-        dialogWait.update(0, '[B]Will load instantly from now on[/B]',remaining_display,' ')
-        searchList = sortSearchList(searchList,mname)
-        if type == 'TV':
-            wordsalt = set(encodewithoutepi.lower().split())
-            encode = urllib.unquote(encodetv)
-        wordsorg = set(encode.lower().split())
-        for name,section,url,thumb,mode,dir in searchList:
-            name = name.replace('&rsquo;',"'").replace('&quot;','"').strip()
-            cname = re.sub('(?i)[^a-zA-Z0-9]',' ',name)
-            name = name+' [COLOR=FF67cc33]'+section+'[/COLOR]'
-            if type == 'TV' and (section == 'MBox' or section == 'WatchSeries' or section == 'iWatchOnline' or section == 'IceFilms' or section == 'TubePlus'):
-                words = wordsalt
-            else: words = wordsorg
-            if words.issubset(cname.lower().split()):
-                if dir:
-                    if type=='Movies':
-                        main.addDirM(name,url,int(mode),thumb,'','','','','')
-                    else:
-                        if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
-                            main.addDirTE(name,url,int(mode),thumb,'','','','','')
+                searchList.extend(results[n].get())
+            searchList = sortSearchList(searchList,mname)
+            import library
+            t=threading.Thread(target=library.buildHostDB,args=(searchList,libID,libName))
+            t.start()
+            t.join()
+            
+        else:
+            if type == 'TV':
+                wordsalt = set(encodewithoutepi.lower().split())
+                encode = urllib.unquote(encodetv)
+            wordsorg = set(encode.lower().split())
+            for name,section,url,thumb,mode,dir in searchList:
+                name = name.replace('&rsquo;',"'").replace('&quot;','"').strip()
+                cname = re.sub('(?i)[^a-zA-Z0-9]',' ',name)
+                name = name+' [COLOR=FF67cc33]'+section+'[/COLOR]'
+                if type == 'TV' and (section == 'MBox' or section == 'WatchSeries' or section == 'iWatchOnline' or section == 'IceFilms' or section == 'TubePlus'):
+                    words = wordsalt
+                else: words = wordsorg
+                if words.issubset(cname.lower().split()):
+                    if dir:
+                        if type=='Movies':
+                            main.addDirM(name,url,int(mode),thumb,'','','','','')
                         else:
-                            main.addDirT(name,url,int(mode),thumb,'','','','','')
-                else:
-                    if type=='Movies':
-                        main.addPlayM(name,url,int(mode),thumb,'','','','','')
+                            if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
+                                main.addDirTE(name,url,int(mode),thumb,'','','','','')
+                            else:
+                                main.addDirT(name,url,int(mode),thumb,'','','','','')
                     else:
-                        if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
-                            main.addPlayTE(name,url,int(mode),thumb,'','','','','')
+                        if type=='Movies':
+                            main.addPlayM(name,url,int(mode),thumb,'','','','','')
                         else:
-                            main.addPlayT(name,url,int(mode),thumb,'','','','','')
-                loadedLinks = loadedLinks + 1
-                percent = (loadedLinks * 100)/totalLinks
-                remaining_display = 'Videos loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
-                dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-                if dialogWait.iscanceled(): return False    
-        dialogWait.close()
-        del dialogWait
-        if type=='Movies':
-            xbmcgui.Window(10000).setProperty('MASH_SSR_TYPE', '2')
-        else: xbmcgui.Window(10000).setProperty('MASH_SSR_TYPE', '1')
-        try:
-            filelist = [ f for f in os.listdir(cachedir) if f.endswith(".fi") ]
-            for f in filelist: os.remove(os.path.join(cachedir,f))
-        except:pass
-        if not loadedLinks:
-            xbmc.executebuiltin("XBMC.Notification(Super Search - "+encode.replace("%20"," ")+",No Results Found,3000)")
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), False, False) 
-            return False
+                            if re.search('(?i)\ss(\d+)e(\d+)',name) or re.search('(?i)Season(.+?)Episode',name) or re.search('(?i)(\d+)x(\d+)',name):
+                                main.addPlayTE(name,url,int(mode),thumb,'','','','','')
+                            else:
+                                main.addPlayT(name,url,int(mode),thumb,'','','','','')
+                    loadedLinks = loadedLinks + 1
+                    percent = (loadedLinks * 100)/totalLinks
+                    remaining_display = 'Videos loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
+                    dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
+                    if dialogWait.iscanceled(): return False    
+            dialogWait.close()
+            del dialogWait
+            if type=='Movies':
+                xbmcgui.Window(10000).setProperty('MASH_SSR_TYPE', '2')
+            else: xbmcgui.Window(10000).setProperty('MASH_SSR_TYPE', '1')
+            try:
+                filelist = [ f for f in os.listdir(cachedir) if f.endswith(".fi") ]
+                for f in filelist: os.remove(os.path.join(cachedir,f))
+            except:pass
+            if not loadedLinks:
+                xbmc.executebuiltin("XBMC.Notification(Super Search - "+encode.replace("%20"," ")+",No Results Found,3000)")
+                xbmcplugin.endOfDirectory(int(sys.argv[1]), False, False) 
+                return False
 
 def movie25(encode,type,q):
     from resources.libs import movie25
@@ -381,3 +412,42 @@ def yify(encode,type,q):
     returnList = yify.superSearch(encode,type)
     if q: q.put(returnList)
     return returnList
+
+def filestube(encode,type,q):
+    from resources.libs.movies_tv import filestube
+    returnList = filestube.superSearch(encode,type)
+    if q: q.put(returnList)
+    return returnList
+
+def vip(encode,type,q):
+    from resources.libs.movies_tv import filestube
+    returnList = vipSuperSearch(encode,type)
+    if q: q.put(returnList)
+    return returnList
+
+def vipSuperSearch(encode,type):
+    try:
+        returnList=[]
+        encode = encode.replace('%20',' ')
+        urls = []
+        urls.append('https://raw.githubusercontent.com/mash2k3/demon88/master/1080pMovies%20.xml')
+        urls.append('https://raw.githubusercontent.com/mash2k3/Staael1982/master/veehdCollection.xml')
+        urls.append('https://raw.githubusercontent.com/mash2k3/Staael1982/master/2013%20HD.xml')
+        urls.append('https://raw.githubusercontent.com/mash2k3/Staael1982/master/2014%20HD.xml')
+        urls.append('https://raw.githubusercontent.com/mash2k3/MashUpTNPB/master/720p%20Movies.xml')
+        urls.append('https://raw.githubusercontent.com/HackerMil/HackerMilsMovieStash/master/Movies/HD.xml')
+        xml = main.batchOPENURL(urls)
+        match=re.compile('(?sim)(<poster>.*?(?=<poster>|\Z))').findall(xml)
+        for posterXML in match:
+            poster = re.compile('(?sim)<poster>(.*?)</poster>').findall(posterXML)[0]
+            posterXML=posterXML.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+            match2 = re.compile('<title>([^<]+)</title.+?link>(.+?)</link.+?thumbnail>([^<]+)</thumbnail>').findall(posterXML)
+            for title,url,thumb in match2:
+                if re.search('(?i)'+encode,title):
+                    if 'sublink' in url:
+                        returnList.append((title.strip(),poster,url,thumb,249,True))
+                    else:
+                        returnList.append((title.strip(),poster,url,thumb,237,False))
+                    
+        return returnList
+    except: return []
