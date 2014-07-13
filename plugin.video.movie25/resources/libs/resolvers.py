@@ -84,23 +84,16 @@ def resolve_url(url, filename = False):
                     except:url=url.split('com/embed/')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
             else:
-                import main,urlparse
-                hostname = ".".join(urlparse.urlparse(url).hostname.split(".")[-2:])
-                rdhosts = main.getRDHosts()
-                if 'ul.to' == hostname: hostname = 'uploaded.net'
-                if hostname.lower() in rdhosts and xbmcaddon.Addon(id='script.module.urlresolver').getSetting("RealDebridResolver_enabled") == 'true':
-                    stream_url=resolve_realdebrid(url)
+                import urlresolver
+                print "host "+url
+                source = urlresolver.HostedMediaFile(url)
+                if source:
+                    stream_url = source.resolve()
+                    if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
+                        showUrlResoverError(stream_url)
+                        stream_url = False
                 else:
-                    import urlresolver
-                    print "host "+url
-                    source = urlresolver.HostedMediaFile(url)
-                    if source:
-                        stream_url = source.resolve()
-                        if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
-                            showUrlResoverError(stream_url)
-                            stream_url = False
-                    else:
-                        stream_url=url
+                    stream_url=url
             try:
                 stream_url=stream_url.split('referer')[0]
                 stream_url=stream_url.replace('|','')
