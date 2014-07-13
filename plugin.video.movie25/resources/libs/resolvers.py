@@ -84,14 +84,21 @@ def resolve_url(url, filename = False):
                     except:url=url.split('com/embed/')[1]
                 stream_url='plugin://plugin.video.youtube/?action=play_video&videoid=' +url
             else:
-                import urlresolver
-                print "host "+url
-                source = urlresolver.HostedMediaFile(url)
-                if source:
-                    stream_url = source.resolve()
-                    if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
-                        showUrlResoverError(stream_url)
-                        stream_url = False
+                import main,urlparse
+                hostname = ".".join(urlparse.urlparse(url).hostname.split(".")[-2:])
+                rdhosts = main.getRDHosts()
+                if 'ul.to' == hostname: hostname = 'uploaded.net'
+                if hostname.lower() in rdhosts and xbmcaddon.Addon(id='script.module.urlresolver').getSetting("RealDebridResolver_enabled") == 'true':
+                    stream_url=resolve_realdebrid(url)
+                else:
+                    import urlresolver
+                    print "host "+url
+                    source = urlresolver.HostedMediaFile(url)
+                    if source:
+                        stream_url = source.resolve()
+                        if isinstance(stream_url,urlresolver.UrlResolver.unresolvable):
+                            showUrlResoverError(stream_url)
+                            stream_url = False
                     else:
                         stream_url=url
             try:
@@ -258,35 +265,6 @@ def resolve_realdebrid(url):
     except Exception, e:
         logerror('**** Real-Debrid Error occured: %s' % e)
         xbmc.executebuiltin('[B][COLOR white]Real-Debrid[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
-
-def resolve_mightyupload(url):
-    from resources.libs import jsunpack
-    try:
-        dialog = xbmcgui.DialogProgress()
-        dialog.create('Resolving', 'Resolving MightyUpload Link...')       
-        dialog.update(0)
-        html = net().http_GET(url).content
-        if dialog.iscanceled(): return False
-        dialog.update(50)
-        logerror('Mash Up: Resolve MightyUpload - Requesting GET URL: '+url)
-        r = re.findall(r'name="(.+?)" value="?(.+?)"', html, re.I|re.M)
-        if r:
-            post_data = {}
-            for name, value in r:
-                post_data[name] = value
-            post_data['referer'] = url
-            html = net().http_POST(url, post_data).content
-            if dialog.iscanceled(): return False
-            dialog.update(100)
-            r = re.findall(r'<a href=\"(.+?)(?=\">Download the file</a>)', html)
-            return r[0]
-        else:
-            logerror('***** MightyUpload - File not found')
-            xbmc.executebuiltin("XBMC.Notification(File Not Found,MightyUpload,2000,"+elogo+")")
-            return False
-    except Exception, e:
-        logerror('Mash Up: Resolve MightyUpload Error - '+str(e))
-        raise ResolverError(str(e),"MightyUpload") 
         
 def resolve_mrfile(url):
     try:
@@ -458,7 +436,34 @@ def resolve_firedrive(url):
         logerror('**** Firedrive Error occured: %s' % e)
         xbmc.executebuiltin('[B][COLOR white]Firedrive[/COLOR][/B]','[COLOR red]%s[/COLOR]' % e, 5000, elogo)
 
-       
+def resolve_mightyupload(url):
+    from resources.libs import jsunpack
+    try:
+        dialog = xbmcgui.DialogProgress()
+        dialog.create('Resolving', 'Resolving MightyUpload Link...')       
+        dialog.update(0)
+        html = net().http_GET(url).content
+        if dialog.iscanceled(): return False
+        dialog.update(50)
+        logerror('Mash Up: Resolve MightyUpload - Requesting GET URL: '+url)
+        r = re.findall(r'name="(.+?)" value="?(.+?)"', html, re.I|re.M)
+        if r:
+            post_data = {}
+            for name, value in r:
+                post_data[name] = value
+            post_data['referer'] = url
+            html = net().http_POST(url, post_data).content
+            if dialog.iscanceled(): return False
+            dialog.update(100)
+            r = re.findall(r'<a href=\"(.+?)(?=\">Download the file</a>)', html)
+            return r[0]
+        else:
+            logerror('***** MightyUpload - File not found')
+            xbmc.executebuiltin("XBMC.Notification(File Not Found,MightyUpload,2000,"+elogo+")")
+            return False
+    except Exception, e:
+        logerror('Mash Up: Resolve MightyUpload Error - '+str(e))
+        raise ResolverError(str(e),"MightyUpload")       
         
 def resolve_bayfiles(url):
     try:
