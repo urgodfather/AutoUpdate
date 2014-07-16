@@ -272,7 +272,8 @@ def resolve_mrfile(url):
         r = re.findall(r'(eval\(function\(p,a,c,k,e,d\)\{while.+?)</script>',html,re.M|re.DOTALL)
         try:unpack=jsunpack.unpack(r[1])
         except:unpack=jsunpack.unpack(r[0])
-        stream_url=re.findall('<param name="src"value="(.+?)"/>',unpack)[0]
+        try:stream_url=re.findall('<param name="src"value="(.+?)"/>',unpack)[0]
+        except:stream_url=re.findall("file: '([^']+)'",html)[0]
         return stream_url
         if dialog.iscanceled(): return None
     except Exception, e:
