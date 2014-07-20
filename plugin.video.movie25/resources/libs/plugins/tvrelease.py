@@ -138,7 +138,6 @@ def superSearch(encode,type):
         pattern = '<tr><td[^>]*?><a [^>]*?>([^<]*?)</a></td><td[^>]*?><a href=\'([^\']*?)\'[^>]*?>([^<]*?)<'
         r = re.findall(pattern, link, re.I|re.M|re.DOTALL)
         for tag, url, name in r:
-            url = BASEURL + url
             if re.search('(?i)WEB-DL',name): tag = tag.strip() + " WEB-DL"
             if re.findall('\d+p\s', name):
                 r = re.findall('(.+?)\s(\d+p)\s', name)

@@ -45,7 +45,7 @@ def USALINK(mname,murl,thumb):
         playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         playlist.clear()
         xbmc.executebuiltin("XBMC.Notification(Please Wait!,Playing Link,1000)")
-        stream_url ='http://mobi.ibrod.tv:1935/app/'+murl+'.stream/playlist.m3u8'
+        stream_url ='http://mobi.ibrod.tv:1935/ibrod/'+murl+'.stream/playlist.m3u8'
         listitem = xbmcgui.ListItem(thumbnailImage=thumb)
         infoL={'Title': mname, 'Genre': 'Live'} 
         from resources.universal import playbackengine

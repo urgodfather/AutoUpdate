@@ -27,7 +27,7 @@ def POPULARWATCHS(murl):
         link=main.OPENURL2(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         
-        match=re.compile('<a href="([^"]+)" title=".+?">([^<]+)</a><br />').findall(link)
+        match=re.compile('href="([^"]+)" title=".+?">([^<]+)</a><br />').findall(link)
         main.addLink('[COLOR red]Most Popular Series[/COLOR]','',art+'/link.png')
         for url, name in match[0:12]:
             main.addDirT(name,'http://watchseries.ag'+url,578,'','','','','','')
@@ -79,7 +79,7 @@ def LISTWATCHS(murl):
         main.GA("Watchseries","List")
         link=main.OPENURL(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','')
-        match=re.compile('<a title=".+?" href="(.+?)">(.+?)</a></li>').findall(link)
+        match=re.compile('title=".+?" href="(.+?)">.+?</span>(.+?)</a>').findall(link)
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait until Show list is cached.')
         totalLinks = len(match)

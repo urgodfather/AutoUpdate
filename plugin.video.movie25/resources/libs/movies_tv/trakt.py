@@ -81,7 +81,7 @@ def showList(cacheOnly = False):
         xbmcplugin.endOfDirectory(int(sys.argv[1]), False, False, False)
         return False
     import time,datetime,calendar
-    todaytimestamp = calendar.timegm(time.strptime(time.strftime("%Y") + "-" + time.strftime("%m") + "-" + time.strftime("%d"), "%Y-%m-%d"))
+    todaytimestamp = time.mktime(time.strptime(time.strftime("%Y") + "-" + time.strftime("%m") + "-" + time.strftime("%d"), "%Y-%m-%d"))
     cached_path = os.path.join(os.path.join(main.datapath,'Cache'), 'Trakt')
     cached = main.getFile(cached_path)
     if (not cached or (cached and time.mktime(datetime.date.today().timetuple()) > os.stat(cached_path).st_mtime)
@@ -95,7 +95,7 @@ def showList(cacheOnly = False):
         daysinfuture = 2
         daysinpast = 1
         for item in fields:
-            timestamp =  calendar.timegm(time.strptime(item['date'], "%Y-%m-%d"))
+            timestamp =  time.mktime(time.strptime(item['date'], "%Y-%m-%d"))
             if timestamp <= todaytimestamp + daysinfuture * 86400 and timestamp >= todaytimestamp - daysinpast * 86400:
                 tofront.append(item)
         for item in tofront:fields.remove(item)
@@ -110,8 +110,8 @@ def showList(cacheOnly = False):
     main.addDir('All Tracked Shows','TV',431,art+'/sidereel.png')
     showsdisplayed = 0
     for data in fields:
-        timestamp =  calendar.timegm(time.strptime(data['date'], "%Y-%m-%d"))
-        datestring = (datetime.datetime.fromtimestamp(timestamp)+ datetime.timedelta(1)).strftime('%A, %b %d')
+        timestamp =  time.mktime(time.strptime(data['date'], "%Y-%m-%d"))
+        datestring = (datetime.datetime.fromtimestamp(timestamp)).strftime('%A, %b %d')
         days = (timestamp - todaytimestamp) / 86400
         relative = getRelativeDate(days)
         main.addLink('[COLOR yellow]'+str(datestring)+'[/COLOR]  [COLOR orange]('+relative+')[/COLOR]','',art+'/link.png')

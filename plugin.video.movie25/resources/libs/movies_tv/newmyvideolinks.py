@@ -14,17 +14,19 @@ def LISTSP2(murl):
     if murl.startswith('3D'):
         main.addDir('Search Newmyvideolinks','movieNEW',102,art+'/search.png')
         subpages = 2
+        max = 9
         category = "3-d-movies"
     elif murl.startswith('TV'):
         main.addDir('Search Newmyvideolinks','tvNEW',102,art+'/search.png')
         subpages = 3
+        max = 50
         category = "tv-shows"
     else:
          main.addDir('Search Newmyvideolinks','movieNEW',102,art+'/search.png')
          subpages = 5
+         max = 250
          category = "bluray"
     parts = murl.split('-', 1 );
-    max = subpages
     try:
         pages = parts[1].split(',', 1 );
         page = int(pages[0])
@@ -39,12 +41,13 @@ def LISTSP2(murl):
         if page + n + 1 > max: break
         urls.append('http://www.myvideolinks.eu/category/movies/'+category+'/page/'+str(page+n+1))
     urllist = main.batchOPENURL(urls)
-    hasNextPage = re.compile('>Next Page').findall(urllist)
-    if len(hasNextPage) < subpages:
+    hasNextPage = re.compile('>&rsaquo;</a>').findall(urllist)
+    if category != "3-d-movies" and len(hasNextPage) < subpages or category == "3-d-movies" and subpages * page > max:
         page = None
-    #hasMax = re.compile('page/(\d+)/">Last').findall(urllist)
-    #if hasMax:
-    max = '100'
+    else:
+        hasMax = re.compile("page/(\d+?)/'>&raquo;</a>").findall(urllist)
+        if hasMax:
+            max = hasMax[0]
     if urllist:
         urllist=main.unescapes(urllist)
         #link=main.OPENURL(xurl)
@@ -72,11 +75,9 @@ def LISTSP2(murl):
                 percent = (loadedLinks * 100)/totalLinks
                 remaining_display = 'Movies/Episodes Cached :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
                 dialogWait.update(percent,'[B]Will load instantly from now on[/B]',remaining_display)
-                if (dialogWait.iscanceled()):
-                    return False
-
-            if not page is None:
-                main.addDir('Page ' + str(int(page/subpages+1)) + ' [COLOR blue]Next Page >>>[/COLOR]',murl + "-" + str(int(page/subpages+1)) + "," + str(max),34,art+'/next2.png')
+                if dialogWait.iscanceled(): break
+            if not page is None and loadedLinks >= totalLinks:
+                main.addDir('Page ' + str(page/subpages+1) + ' [COLOR blue]Next Page >>>[/COLOR]',murl + "-" + str(page/subpages+1) + "," + str(max),34,art+'/next2.png')
             dialogWait.close()
             del dialogWait
     main.GA("HD-3D-HDTV","Newmyvideolinks")
@@ -117,6 +118,7 @@ def SearchhistoryNEW(murl):
 def superSearch(encode,type):
     try:
         returnList=[]
+        encode = urllib.unquote(encode).replace(' ','+')
         surl='http://www.myvideolinks.eu/index.php?s='+encode
         link=main.OPENURL(surl,verbose=False,mobile=True)
         link=main.unescapes(link)
@@ -152,7 +154,7 @@ def SEARCHNEW(mname,murl):
                 main.addDirTE(name,url,35,thumb,'','','','','')
     else:
         if murl == 'tNEW':
-            encode = mname.replace(' ','%20')
+            encode = mname.replace(' ','+')
             surl='http://www.myvideolinks.eu/index.php?s='+encode
             link=main.OPENURL(surl)
             link=main.unescapes(link)
@@ -163,7 +165,7 @@ def SEARCHNEW(mname,murl):
                        main.addDirTE(name,url,35,thumb,'','','','','')
 
         elif murl == 'mNEW':
-            encode = mname.replace(' ','%20')
+            encode = mname.replace(' ','+')
             surl='http://www.myvideolinks.eu/index.php?s='+encode
             link=main.OPENURL(surl)
             link=main.unescapes(link)
@@ -195,38 +197,8 @@ def LINKSP2(mname,url):
                 thumb=name.lower()
 #                 if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
                 main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
-    if not match0:
-        match1=re.compile('<li><a href="([^"]+?)"[^>]*?><img [^>]*?alt="([^"]+?)"[^>]*?></a></li>').findall(link)
-        match= match1 + re.compile('<li><a href="([^"]+?)"[^>]*?>([^>]+?)</a></li>').findall(link)
-        filename = False
-        for murl, name in match:
-            fn = re.search('/([^/]+?\.(mkv|avi|mp4))(\.html)?$',murl)
-            if fn:
-                filename = fn.group(1)
-                break
-        for murl, name in match:
-            name = name[0].upper() + name[1:]
-            if main.supportedHost(name):
-                thumb=name.lower()
-#                 if re.search('billionuploads',murl) and filename: murl += '#@#' + filename
-                main.addDown2(mname+' [COLOR blue]'+name+'[/COLOR]',murl,209,art+'/hosts/'+thumb+".png",art+'/hosts/'+thumb+".png")
-
-def Shorten(url):
-    from base64 import b64decode
-    html = main.OPENURL2(url)
-    ysmm = re.findall(r"var ysmm =.*\;?", html)
-    if len(ysmm) > 0:
-        ysmm = re.sub(r'var ysmm \= \'|\'\;', '', ysmm[0])
-        left = ''
-        right = ''
-        for c in [ysmm[i:i+2] for i in range(0, len(ysmm), 2)]:
-            left += c[0]
-            right = c[1] + right
-    return b64decode(left.encode() + right.encode())[2:].decode()
 
 def LINKSP2B(mname,murl):
-    if 'adf.ly' in murl:
-        murl=Shorten(murl)
     main.GA("Newmyvideolinks","Watched") 
     ok=True
     r = re.findall('(.+?)\ss(\d+)e(\d+)\s',mname,re.I)

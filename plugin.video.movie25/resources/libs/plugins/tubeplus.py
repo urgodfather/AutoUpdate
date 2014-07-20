@@ -8,7 +8,7 @@ art = main.art
 error_logo = art+'/bigx.png'
 
 if selfAddon.getSetting("tube-proxy") == "true":
-    BASE_URL = 'http://tubeplus.unblocked.co/'
+    BASE_URL = 'http://tubeplus.unblocked.bz/'
 else:
     BASE_URL = 'http://tubeplus.me/'
 prettyName = 'TubePlus'
