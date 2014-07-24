@@ -63,7 +63,10 @@ def LISTSP2(murl):
             dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
             for url,thumb,title in match:
                 if murl=='TV':
-#                     if re.compile('720p').findall(title):
+                     if re.compile('720p').findall(title):
+                        title = re.sub('(?i)(.*?)(hdtv|pdtv|proper|repack|webrip|720p).*','\\1',title).strip()
+                        title = re.sub('(?i)(.*E\d+[^\s]) (.*)','\\1 [COLOR blue]\\2[/COLOR]',title).strip()
+                        title += ' [COLOR red]720p[/COLOR]'
                         main.addDirTE(title,url,35,thumb,'','','','','')
                 else:
                     main.addDirM(title,url,35,thumb,'','','','','')
