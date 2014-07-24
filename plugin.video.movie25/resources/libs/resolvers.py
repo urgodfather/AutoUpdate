@@ -446,7 +446,7 @@ def resolve_mightyupload(url):
             try:vid=re.findall("file: '([^']+?)',",html2)[0]
             except:
                 r = re.findall(r'(eval\(function\(p,a,c,k,e,d\)\{while.+?)</script>',html2,re.M|re.DOTALL)
-                unpack=jsunpack.unpack(r[0])
+                unpack=jsunpack.unpack(r[1])
                 vid=re.findall('<param name="src"value="(.+?)"/>',unpack)[0]
             return vid
         r = re.findall(r'name="(.+?)" value="?(.+?)"', html, re.I|re.M)
