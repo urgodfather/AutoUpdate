@@ -63,10 +63,7 @@ def LISTSP2(murl):
             dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
             for url,thumb,title in match:
                 if murl=='TV':
-                    if re.compile('720p').findall(title):
-                        title = re.sub('(?i)(.*?)(hdtv|pdtv|proper|repack|webrip|720p).*','\\1',title).strip()
-                        title = re.sub('(?i)(.*E\d+[^\s]) (.*)','\\1 [COLOR blue]\\2[/COLOR]',title).strip()
-                        title += ' [COLOR red]720p[/COLOR]'
+#                     if re.compile('720p').findall(title):
                         main.addDirTE(title,url,35,thumb,'','','','','')
                 else:
                     main.addDirM(title,url,35,thumb,'','','','','')
@@ -182,6 +179,8 @@ def LINKSP2(mname,url):
     if selfAddon.getSetting("hide-download-instructions") != "true":
         main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
     match0=re.compile('<h4>(.+?)</h4>(.+?)</ul>').findall(link)
+    if not match0:
+        match0=re.compile('title="[^"]+?">([^"]+?)</a>.+?</p><ul>(.+?)</ul>').findall(link)
     for mname, links in reversed(match0):
         match1=re.compile('<li><a href="([^"]+?)"[^>]*?><img [^>]*?alt="([^"]+?)"[^>]*?></a></li>').findall(links)
         match= match1 + re.compile('<li><a href="([^"]+?)"[^>]*?>([^>]+?)</a></li>').findall(links)
