@@ -8,7 +8,7 @@ art = main.art
 error_logo = art+'/bigx.png'
 
 if selfAddon.getSetting("tube-proxy") == "true":
-    BASE_URL = 'http://tubeplus.unblocked.bz/'
+    BASE_URL = 'http://tubeplus.unblocked2.co/'
 else:
     BASE_URL = 'http://tubeplus.me/'
 prettyName = 'TubePlus'
@@ -147,7 +147,7 @@ def LATEST_TV(url):
 def SEASONS(mname,url,thumb):
     if thumb == None:
         thumb=''
-    if 'http://www.tubeplus.me/' not in url:
+    if 'http://' not in url:
         url=BASE_URL+url
     html = main.OPENURL2(url)
     r = re.findall(r'id="l(sea.+?)" class="season"',html,flags=re.DOTALL|re.M)
@@ -299,11 +299,29 @@ def GOTOP(url):
 
 def superSearch(encode,type):
     try:
+        returnList=[]
+        epi = re.search('(?i)s(\d+?)e(\d+?)$',encode)
+        if epi:
+            epistring = encode.rpartition('%20')[2].upper()
+            e = int(epi.group(2))
+            s = int(epi.group(1))
+            site = 'site:http://tubeplus.me'
+            results = main.SearchGoogle(urllib.unquote(encode), site)
+            for res in results:
+                t = res.title.encode('utf8').strip('...')
+                u = res.url.encode('utf8')
+                if type == 'TV':
+                    t = re.sub('(.*\)).*','\\1',t)
+                    t = t.strip(" -").replace("-","").split(" Watch Online")[0].title()
+                    t = re.sub('\s\s+',' ',t).strip()
+                    t = re.sub('(?i)(s\d+e\d+\s?)(.*?)$','\\1[COLOR blue]\\2[/COLOR]',t)
+                    returnList.append((t,prettyName,u.replace('http://www.tubeplus.me/',''),'',1026,True))
+                    return returnList
         if type=='Movies':
             surl = BASE_URL+'search/movies/'+encode+'/0/'
         else:
             surl = BASE_URL+'search/tv-shows/'+encode+'/0/'
-        returnList=[]
+        
         link=main.OPENURL(surl,verbose=False)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         r = re.compile(r'<div id="list_body">(.+?)<div id="list_footer"></div>', re.DOTALL|re.I|re.M).findall(link)

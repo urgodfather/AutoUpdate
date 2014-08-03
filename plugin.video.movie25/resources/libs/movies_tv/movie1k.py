@@ -16,14 +16,14 @@ def LISTTV2(murl):
         #xbmc.executebuiltin("XBMC.Notification(Please Wait!,Collecting Source Data,7000)")
         if murl=='movintv':
             main.addDir('Search Movie1k','www.movie1k.org',132,art+'/search.png')
-            #urllist=main.OPENURL('http://www.movie1k.ws/category/tv-show/')+main.OPENURL('http://www.movie1k.ws/category/tv-show/page/2/')+main.OPENURL('http://www.movie1k.ws/category/tv-show/page/3/')+main.OPENURL('http://www.movie1k.ws/category/tv-show/page/4/')+main.OPENURL('http://www.movie1k.ws/category/tv-show/page/5/')
-            urllist=main.batchOPENURL(('http://www.movie1k.ws/category/tv-show/','http://www.movie1k.ws/category/tv-show/page/2/','http://www.movie1k.ws/category/tv-show/page/3/','http://www.movie1k.ws/category/tv-show/page/4/','http://www.movie1k.ws/category/tv-show/page/5/'))
+            #urllist=main.OPENURL('http://www.movie1k.ag/category/tv-show/')+main.OPENURL('http://www.movie1k.ag/category/tv-show/page/2/')+main.OPENURL('http://www.movie1k.ag/category/tv-show/page/3/')+main.OPENURL('http://www.movie1k.ag/category/tv-show/page/4/')+main.OPENURL('http://www.movie1k.ag/category/tv-show/page/5/')
+            urllist=main.batchOPENURL(('http://www.movie1k.ag/category/tv-show/','http://www.movie1k.ag/category/tv-show/page/2/','http://www.movie1k.ag/category/tv-show/page/3/','http://www.movie1k.ag/category/tv-show/page/4/','http://www.movie1k.ag/category/tv-show/page/5/'))
         elif murl=='movin':
-            #urllist=main.OPENURL('http://www.movie1k.ws/category/hindi-movies/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/2/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/3/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/4/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/5/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/6/')+main.OPENURL('http://www.movie1k.ws/category/hindi-movies/page/7/')
-            urllist=main.batchOPENURL(('http://www.movie1k.ws/category/hindi-movies/','http://www.movie1k.ws/category/hindi-movies/page/2/','http://www.movie1k.ws/category/hindi-movies/page/3/','http://www.movie1k.ws/category/hindi-movies/page/4/','http://www.movie1k.ws/category/hindi-movies/page/5/','http://www.movie1k.ws/category/hindi-movies/page/6/','http://www.movie1k.ws/category/hindi-movies/page/7/'))
+            #urllist=main.OPENURL('http://www.movie1k.ag/category/hindi-movies/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/2/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/3/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/4/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/5/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/6/')+main.OPENURL('http://www.movie1k.ag/category/hindi-movies/page/7/')
+            urllist=main.batchOPENURL(('http://www.movie1k.ag/category/hindi-movies/','http://www.movie1k.ag/category/hindi-movies/page/2/','http://www.movie1k.ag/category/hindi-movies/page/3/','http://www.movie1k.ag/category/hindi-movies/page/4/','http://www.movie1k.ag/category/hindi-movies/page/5/','http://www.movie1k.ag/category/hindi-movies/page/6/','http://www.movie1k.ag/category/hindi-movies/page/7/'))
         elif murl=='movindub':
-            #urllist=main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/2/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/3/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/4/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/5/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/6/')+main.OPENURL('http://www.movie1k.ws/category/hindi-dubbed-movies/page/7/')
-            urllist=main.batchOPENURL(('http://www.movie1k.ws/category/hindi-dubbed-movies/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/2/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/3/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/4/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/5/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/6/','http://www.movie1k.ws/category/hindi-dubbed-movies/page/7/'))
+            #urllist=main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/2/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/3/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/4/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/5/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/6/')+main.OPENURL('http://www.movie1k.ag/category/hindi-dubbed-movies/page/7/')
+            urllist=main.batchOPENURL(('http://www.movie1k.ag/category/hindi-dubbed-movies/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/2/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/3/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/4/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/5/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/6/','http://www.movie1k.ag/category/hindi-dubbed-movies/page/7/'))
             murl=murl
         
         if urllist:
@@ -86,7 +86,7 @@ def SEARCHMovie1k(murl):
                 if (keyb.isConfirmed()):
                         search = keyb.getText()
                         encode=urllib.quote(search)
-                        surl='http://www.movie1k.ws/?s='+encode
+                        surl='http://www.movie1k.ag/?s='+encode
                         if not os.path.exists(SeaFile) and encode != '':
                             open(SeaFile,'w').write('search="%s",'%encode)
                         else:
@@ -105,7 +105,7 @@ def SEARCHMovie1k(murl):
                                     pass
         else:
                 encode = murl
-                surl='http://www.movie1k.ws/?s='+encode
+                surl='http://www.movie1k.ag/?s='+encode
         link=main.OPENURL(surl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
         match=re.compile('<a class="entry-thumbnails-link" href="(.+?)"><img width=".+?" height=".+?" src="(.+?)" class=".+?" alt="Watch (.+?) Online:.+?',re.DOTALL).findall(link)

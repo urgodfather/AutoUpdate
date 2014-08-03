@@ -67,8 +67,9 @@ def LIST(mname,murl,thumb):
         
 def getLINK(code):
     from resources.universal import GKDecrypter
+    import base64
     x = GKDecrypter.decrypter(198,128)# create the object
-    return x.decrypt(code,'JJBK76NaJuNsxdQmhtXz','ECB').split('\0')[0];
+    return x.decrypt(code,base64.urlsafe_b64decode('djRBdVhhalplRm83akFNZ1VOWkI='),'ECB').split('\0')[0];
     
 def LINK(mname,murl,thumb):
         main.GA(mname,"Watched")

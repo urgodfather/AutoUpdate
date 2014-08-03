@@ -120,7 +120,7 @@ def MAIN():
         elif index==36:
             if selfAddon.getSetting("stracker") == '0':
                 main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
-            if selfAddon.getSetting("stracker") == '1':
+            elif selfAddon.getSetting("stracker") == '1':
                 main.addDirHome("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
             else:
                 main.addDirHome("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
@@ -349,7 +349,7 @@ def TV():
     main.ClearDir(TempPath)
     if selfAddon.getSetting("stracker") == '0':
         main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')
-    if selfAddon.getSetting("stracker") == '1':
+    elif selfAddon.getSetting("stracker") == '1':
         main.addDir("Trakt Show Tracker",'Mash Up',429,art+'/trakt.png')
     else:
         main.addDir("SideReel Show Tracker",'Mash Up',397,art+'/sidereel.png')

@@ -1,7 +1,8 @@
 #-*- coding: utf-8 -*-
 import urllib,urllib2,re,cookielib,string, urlparse,sys,os
-import xbmc, xbmcgui, xbmcaddon, xbmcplugin,urlresolver
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 from resources.libs import main
+
 
 #Mash Up - by Mash2k3 2012.
 
@@ -72,14 +73,14 @@ def QLTFULLS():
 def LISTFULLS(murl):
         link=main.OPENURL2(murl)
         link=link.replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
-        match=re.compile('class="short-title">.+?<a href="(.+?)">(.+?)</a>.+?</span><a href=".+?"><img src="(.+?)" alt=".+?" width=".+?" height=".+?"/></a>',re.DOTALL).findall(link)
+        match=re.compile('class="movie movie-block"><img src="([^<]+)" alt=".+?" title="([^<]+)"/>.+?<h2 onclick="window.location.href=\'([^<]+)\'">',re.DOTALL).findall(link)
         dialogWait = xbmcgui.DialogProgress()
         ret = dialogWait.create('Please wait until Movie list is cached.')
         totalLinks = len(match)
         loadedLinks = 0
         remaining_display = 'Movies loaded :: [B]'+str(loadedLinks)+' / '+str(totalLinks)+'[/B].'
         dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
-        for url,name,thumb in match:
+        for thumb,name,url in match:
                 name=name.replace("<span style='color: #ff0000'>",'').replace('</span>','')
                 if '/series-tv/' in murl or 'saison' in url:
                     main.addDirT(name,url,798,thumb,'','','','','')
@@ -94,9 +95,8 @@ def LISTFULLS(murl):
         dialogWait.close()
         del dialogWait
         paginate = re.compile('''<div class="navigation".+? <span.+? <a href="(.+?)">''').findall(link)
-        #xbmc.log(msg='-------------------'+str(match)+str(len(paginate)), level=xbmc.LOGDEBUG)
         if len(paginate)>0:
-                main.addDir('Next',paginate[0],795,art+'/next2.png')
+                main.addDir('[COLOR blue]Next Page >>>[/COLOR]',paginate[0],795,art+'/next2.png')
                 
         main.GA("Fullstream2","List")
 
@@ -106,8 +106,7 @@ def LISTEPISODE(mname,url):
     link=main.unescapes(link)
     if selfAddon.getSetting("hide-download-instructions") != "true":
         main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
-    match=re.compile('<a href="([^<]+)" class="zoombox w630% h450%" title="([^<]+)">',re.DOTALL).findall(link)
-    xbmc.log(msg='-------------------'+str(match)+str(len(match)), level=xbmc.LOGDEBUG)
+    match=re.compile('<dd><a href="([^<]+)" class="zoombox.+?" title="([^<]+)">',re.DOTALL).findall(link)
     for url,name in match:
         hostn=re.compile("http://(.+?)/.+?").findall(url)
         for hname in hostn:
@@ -120,19 +119,18 @@ def LISTEPISODE(mname,url):
 
 def LINKLIST(mname,url):
     link=main.OPENURL(url)
-    link=link.replace('\r','').replace('\n','').replace('\t','')
+    link=link.replace('\r','').replace('\n','').replace('\t','').replace('<iframe src="//www.facebook.com/plugins/likebox.php','').replace('<iframe src="http://creative.rev2pub.com','')
     link=main.unescapes(link)
     if selfAddon.getSetting("hide-download-instructions") != "true":
         main.addLink("[COLOR red]For Download Options, Bring up Context Menu Over Selected Link.[/COLOR]",'','')
-    match=re.compile('<iframe.+?src="(.+?)".+?',re.DOTALL | re.IGNORECASE).findall(link)
-    #xbmc.executebuiltin("XBMC.Notification(Please Wait!,Resolving"+str(match)+" Link)")
-    #xbmc.log(msg='-------------------'+str(match)+str(len(match)), level=xbmc.LOGDEBUG)
+    match=re.compile('<center><iframe.+?src="(.+?)".+?',re.DOTALL | re.IGNORECASE).findall(link)
+    #main.ErrorReport(match)
     for url in match:
         hostn=re.compile("http://(.+?)/.+?").findall(url)
         for hname in hostn:
             host=hname.replace('www.','').replace('embed.','').replace('.es','').replace('.in','').replace('.sx','').replace('.net','').replace('.com','').replace('.to','').replace('.org','').replace('.ch','').replace('.eu','').replace('.ES','')
             host=host.split('.')[0]
-        #if main.supportedHost(host):
+        if main.supportedHost(host):
             mname=main.removeColoredText(mname)
             main.addDown2(mname+' [COLOR blue]'+host.upper()+' [/COLOR]',url,797,art+'/hosts/'+host.lower()+".png",art+'/hosts/'+host.lower()+".png") 
 

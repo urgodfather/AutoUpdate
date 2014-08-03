@@ -63,10 +63,14 @@ def LISTSP2(murl):
             dialogWait.update(0,'[B]Will load instantly from now on[/B]',remaining_display)
             for url,thumb,title in match:
                 if murl=='TV':
+<<<<<<< HEAD
                      if re.compile('720p').findall(title):
                         title = re.sub('(?i)(.*?)(hdtv|pdtv|proper|repack|webrip|720p).*','\\1',title).strip()
                         title = re.sub('(?i)(.*E\d+[^\s]) (.*)','\\1 [COLOR blue]\\2[/COLOR]',title).strip()
                         title += ' [COLOR red]720p[/COLOR]'
+=======
+#                     if re.compile('720p').findall(title):
+>>>>>>> #fixed previous errors on tv tracker options
                         main.addDirTE(title,url,35,thumb,'','','','','')
                 else:
                     main.addDirM(title,url,35,thumb,'','','','','')

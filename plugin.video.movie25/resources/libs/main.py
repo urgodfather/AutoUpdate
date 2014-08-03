@@ -18,7 +18,7 @@ if selfAddon.getSetting('visitor_ga')=='':
     from random import randint
     selfAddon.setSetting('visitor_ga',str(randint(0, 0x7fffffff)))
 
-VERSION = "1.4.0"
+VERSION = str(selfAddon.getAddonInfo('version'))
 #PATH = "MashUp-DEV"  
 PATH = "MashUp-"            
 UATRACK="UA-38312513-1" 
@@ -28,12 +28,14 @@ try:
     log = os.path.join(log_path, 'xbmc.log')
     logfile = open(log, 'r').read()
     match=re.compile('Starting XBMC \((.+?) Git:.+?Platform: (.+?)\. Built').search(logfile)
-    if match:
-        build = match.group(1)
-        PLATFORM = match.group(2)
-        print 'XBMC '+build+' Platform '+PLATFORM
-    else:
-        PLATFORM=''
+    if not match:
+        match=re.compile('Starting XBMC \((.+?) Git:.+?Platform: (.+?bit)').search(logfile)
+        if match:
+            build = match.group(1)
+            PLATFORM = match.group(2)
+            print 'XBMC '+build+' Platform '+PLATFORM
+        else:
+            PLATFORM=''
 except:
     PLATFORM=''
 
@@ -890,7 +892,7 @@ def jDownloader(murl):
         cmd = 'plugin://plugin.program.jdownloader/?action=addlink&url='+murl
         xbmc.executebuiltin('XBMC.RunPlugin(%s)' % cmd)
     else:
-        if 'Windows' in PLATFORM:
+        if 'Win' in PLATFORM:
             command = 'echo ' + url.strip() + '| clip'
             os.system(command)
         else:

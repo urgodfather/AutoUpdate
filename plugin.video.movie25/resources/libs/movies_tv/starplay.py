@@ -39,10 +39,7 @@ def setCookie(nrDomain):
         net().set_cookies(cookie_file)     
                
 def GetNewUrl():
-    link=main.OPENURL('http://www.noobroom.com')
-    match=re.compile('value="(.+?)">').findall(link)
-    return match[0]
-
+    return 'http://superchillin.com'
 
 
 def NBMAIN():
