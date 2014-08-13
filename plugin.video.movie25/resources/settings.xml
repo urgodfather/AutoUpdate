@@ -15,6 +15,7 @@
 		<setting label="MetaHandler Settings" type="action" action="Addon.OpenSettings(script.module.metahandler)" enable ="eq(-9,true) || eq(-8,true)" />
 		<setting label="Changelogs" type="lsep" />
 		<setting id="autochan" type="bool" label="Auto Update Changelog Pop Up" default="true"/>
+		<setting id="autosource" type="bool" label="Change Auto Update Source" default="false"/>
 		<setting label="Auto update changelog" type="action" action="XBMC.RunScript(special://home/addons/plugin.video.movie25/resources/libs/changelog.py,Dev)"/>
    </category>
    

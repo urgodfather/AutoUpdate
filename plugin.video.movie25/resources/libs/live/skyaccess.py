@@ -58,8 +58,9 @@ def setCookie(srDomain):
         post_data['amember_pass'] = passw
         for name, value in r:
             post_data[name] = value
-        net().http_GET('http://hostaccess.org/amember/login')
-        net().http_POST('http://hostaccess.org/amember/login',post_data)
+        print post_data
+        net().http_GET('https://hostaccess.org/amember/protect/new-rewrite?f=2&url=/member1/&host=hostaccess.org&ssl=off')
+        net().http_POST('https://hostaccess.org/amember/protect/new-rewrite?f=2&url=/member1/&host=hostaccess.org&ssl=off',post_data)
         net().save_cookies(cookie_file)
     else:
         net().set_cookies(cookie_file)
