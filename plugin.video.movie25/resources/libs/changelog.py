@@ -38,13 +38,21 @@ def showChangeLog(env):
     
     
     if selfAddon.getSetting("autosource") == "false":
-        for changes,date in re.findall('(?sim)class="message" data-pjax="true" title="([^"]+?)".+?datetime="([^"]+?)"',html):
-            shift = int(re.sub('.*([+-])(\d+):(\d+)$',tosec,date))
+        for changes,author,date in re.findall('(?sim)class="message" data-pjax="true" title="(.+?)">.+?>([^<]+?)</.{1,4}>\s*?authored <time datetime="([^"]+?)"',html):
+            try:
+                shift = int(re.sub('.*([+-])(\d+):(\d+)$',tosec,date))
+            except:
+                shift = 0
             try:
                 date = re.sub('([+-])(\d+):(\d+)$','',date)
                 ts = int(calendar.timegm(time.strptime(date, "%Y-%m-%dT%H:%M:%S")) + shift);
                 date = pretty_date(ts)
-            except: pass
+            except:
+                try:
+                    date = re.sub('([+-])(\d+):(\d+)$','',date)
+                    ts = int(calendar.timegm(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")) + shift);
+                    date = pretty_date(ts)
+                except: pass
             if env == 'Dev':
                 changes = [line.strip() for line in changes.split('\n') if line.strip()] # and line.startswith('#')
             else: 
@@ -56,16 +64,24 @@ def showChangeLog(env):
     else:
 	commits=re.findall('(?sim)"date": "([^"]+)", "message": "([^"]+)"',html)
         for date,changes in commits:
-            shift = int(re.sub('.*([+-])(\d+):(\d+)$',tosec,date))
+            try:
+                shift = int(re.sub('.*([+-])(\d+):(\d+)$',tosec,date))
+            except:
+                shift = 0
             try:
                 date = re.sub('([+-])(\d+):(\d+)$','',date)
                 ts = int(calendar.timegm(time.strptime(date, "%Y-%m-%dT%H:%M:%S")) + shift);
                 date = pretty_date(ts)
-            except: pass
+            except:
+                try:
+                    date = re.sub('([+-])(\d+):(\d+)$','',date)
+                    ts = int(calendar.timegm(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")) + shift);
+                    date = pretty_date(ts)
+                except: pass
             if env == 'Dev':
                 changes = [line.strip() for line in changes.split('\n') if line.strip()] # and line.startswith('#')
             else: 
-                changes = [line.strip() for line in changes.split('\\n') if line.strip() and line.startswith('#')]
+                changes = [line.strip() for line in changes.split('\n') if line.strip() and line.startswith('#')]
             if changes and date:
                 for change in changes:
                     text += html_escape(change.strip('#')) + "\n"
